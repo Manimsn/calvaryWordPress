@@ -1,79 +1,157 @@
 <style>
-  .backdrop {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-color: rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    z-index: 99998 !important;
-  }
+    .backdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: rgba(0, 0, 0, 0.4);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        z-index: 99998 !important;
+    }
 
-  .modal {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100vw;
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 99999 !important;
-  }
+    .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 99999 !important;
+    }
 
-  .modal-content {
-    background: white;
-    padding: 2rem;
-    border-radius: 12px;
-    max-width: 400px;
-    width: 90%;
-    position: relative;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-  }
+    .modal-content {
+        background: white;
+        padding: 2rem;
+        border-radius: 12px;
+        max-width: 400px;
+        width: 90%;
+        position: relative;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
 
-  .close-button {
-    position: absolute;
-    top: 12px;
-    right: 16px;
-    font-size: 20px;
-    cursor: pointer;
-  }
+    .close-button {
+        position: absolute;
+        top: 12px;
+        right: 16px;
+        font-size: 20px;
+        cursor: pointer;
+    }
 
-  .hidden {
-    display: none !important;
-  }
+    .hidden {
+        display: none !important;
+    }
+
+    /* Add to your existing <style> tag */
+    #continueButton:disabled {
+        background-color: #999 !important;
+        cursor: not-allowed !important;
+    }
+
+    #continueButton {
+        background-color: #333;
+        color: white;
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.3s ease, cursor 0.3s ease;
+    }
 </style>
 
 <!-- Button -->
-<button id="openLoginModal" style="z-index: 1; position: relative; padding: 10px 20px; border-radius: 8px; background-color: #333; color: white; border: none;">
-  Login
+<button id="openLoginModal"
+    style="z-index: 1; position: relative; padding: 10px 20px; border-radius: 8px; background-color: #333; color: white; border: none;">
+    Login
 </button>
 
 <!-- Modal + Backdrop -->
 <div id="customBackdrop" class="backdrop hidden"></div>
 <div id="customLoginModal" class="modal hidden">
-  <div class="modal-content">
-    <span class="close-button">×</span>
-    <h2>Modal Test</h2>
-    <p>This is centered and background should blur.</p>
-  </div>
+    <div class="modal-content">
+        <span class="close-button">&times;</span>
+
+        <!-- Logo (Replace logo.png with your own) -->
+        <div style="text-align: center;">
+            <img src="https://via.placeholder.com/80" alt="Logo" style="width: 80px; margin-bottom: 1rem;" />
+        </div>
+
+        <h2 style="text-align: center;">Welcome!</h2>
+        <p style="text-align: center;">Type in your phone number or email to continue</p>
+
+        <!-- Input -->
+        <input id="loginInput" type="text" placeholder="Enter email or phone number"
+            style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc; margin-top: 10px;" />
+
+        <!-- Error Message -->
+        <div id="inputError" style="color: red; font-size: 12px; margin-top: 5px;"></div>
+
+        <!-- Continue Button -->
+        <button id="continueButton" disabled
+            style="margin-top: 10px; padding: 10px; width: 100%; border-radius: 8px; background-color: #333; color: white; border: none;">
+            Continue
+        </button>
+
+
+    </div>
 </div>
 
 <script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const loginBtn = document.getElementById("openLoginModal");
-    const modal = document.getElementById("customLoginModal");
-    const backdrop = document.getElementById("customBackdrop");
-    const closeBtn = modal.querySelector(".close-button");
+    document.addEventListener("DOMContentLoaded", () => {
+        const loginBtn = document.getElementById("openLoginModal");
+        const modal = document.getElementById("customLoginModal");
+        const backdrop = document.getElementById("customBackdrop");
+        const closeBtn = modal.querySelector(".close-button");
 
-    loginBtn.addEventListener("click", () => {
-      modal.classList.remove("hidden");
-      backdrop.classList.remove("hidden");
-    });
+        const input = document.getElementById("loginInput");
+        const error = document.getElementById("inputError");
+        const continueBtn = document.getElementById("continueButton");
 
-    closeBtn.addEventListener("click", () => {
-      modal.classList.add("hidden");
-      backdrop.classList.add("hidden");
+        // Show modal
+        loginBtn.addEventListener("click", () => {
+            modal.classList.remove("hidden");
+            backdrop.classList.remove("hidden");
+        });
+
+        // Hide modal
+        closeBtn.addEventListener("click", () => {
+            modal.classList.add("hidden");
+            backdrop.classList.add("hidden");
+            input.value = "";
+            error.innerText = "";
+            input.style.borderColor = "#ccc";
+            continueBtn.disabled = true;
+            continueBtn.style.cursor = "not-allowed";
+        });
+
+        // Validation on input
+        input.addEventListener("input", () => {
+            const value = input.value.trim();
+
+            if (validateEmail(value) || validatePhone(value)) {
+                input.style.borderColor = "#ccc";
+                error.innerText = "";
+                continueBtn.disabled = false;
+            } else {
+                input.style.borderColor = "red";
+                error.innerText = "Enter a valid email or US/India phone number.";
+                continueBtn.disabled = true;
+            }
+
+        });
+
+        function validateEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+
+        function validatePhone(phone) {
+            const cleaned = phone.replace(/\D/g, "");
+            // US: 10 digits, India: 10 digits starting with 6-9
+            const usRegex = /^\d{10}$/;
+            const inRegex = /^[6-9]\d{9}$/;
+            return usRegex.test(cleaned) || inRegex.test(cleaned);
+        }
     });
-  });
 </script>
