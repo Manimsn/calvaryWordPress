@@ -1,0 +1,79 @@
+<style>
+  .backdrop {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    z-index: 99998 !important;
+  }
+
+  .modal {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 99999 !important;
+  }
+
+  .modal-content {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    max-width: 400px;
+    width: 90%;
+    position: relative;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  }
+
+  .close-button {
+    position: absolute;
+    top: 12px;
+    right: 16px;
+    font-size: 20px;
+    cursor: pointer;
+  }
+
+  .hidden {
+    display: none !important;
+  }
+</style>
+
+<!-- Button -->
+<button id="openLoginModal" style="z-index: 1; position: relative; padding: 10px 20px; border-radius: 8px; background-color: #333; color: white; border: none;">
+  Login
+</button>
+
+<!-- Modal + Backdrop -->
+<div id="customBackdrop" class="backdrop hidden"></div>
+<div id="customLoginModal" class="modal hidden">
+  <div class="modal-content">
+    <span class="close-button">×</span>
+    <h2>Modal Test</h2>
+    <p>This is centered and background should blur.</p>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const loginBtn = document.getElementById("openLoginModal");
+    const modal = document.getElementById("customLoginModal");
+    const backdrop = document.getElementById("customBackdrop");
+    const closeBtn = modal.querySelector(".close-button");
+
+    loginBtn.addEventListener("click", () => {
+      modal.classList.remove("hidden");
+      backdrop.classList.remove("hidden");
+    });
+
+    closeBtn.addEventListener("click", () => {
+      modal.classList.add("hidden");
+      backdrop.classList.add("hidden");
+    });
+  });
+</script>
