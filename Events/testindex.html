@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Event Cards</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f0f0f0;
+            margin: 0;
+            padding: 30px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .grid {
+            display: grid;
+            gap: 20px;
+            width: 100%;
+            max-width: 100%;
+            grid-template-columns: 1fr;
+        }
+
+        @media (min-width: 640px) {
+            .body {
+                padding: 30px;
+            }
+
+            .grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .body {
+                padding: 96px;
+            }
+
+            .grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        .card {
+            background-color: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 180px;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .title {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .location {
+            font-size: 14px;
+            color: #555;
+            margin-top: 4px;
+        }
+
+        .bottom-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: auto;
+            gap: 40px;
+        }
+
+
+
+        .timing {
+            font-size: 14px;
+            color: #333;
+        }
+
+        .circle,
+        .arrow-circle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .circle {
+            background-color: #add8e6;
+            flex-direction: column;
+            line-height: 1.1;
+        }
+
+        .arrow-circle {
+            background-color: white;
+            border: 1px solid #ccc;
+            cursor: pointer;
+            font-size: 24px;
+        }
+
+        .arrow-circle:hover {
+            background-color: #f0f0f0;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="grid" id="eventGrid"></div>
+
+    <script>
+        const sampleEvent = {
+            "Event_ID": 336883,
+            "Event_Title": "Calvary Kids Salvation & Baptism Class",
+            "Event_End_Date": "2025-07-11T20:00:00",
+            "Event_Start_Date": "2025-07-11T18:00:00"
+        };
+
+        const events = Array.from({ length: 15 }, (_, i) => ({
+            ...sampleEvent,
+            Event_ID: sampleEvent.Event_ID + i
+        }));
+
+        const grid = document.getElementById("eventGrid");
+
+        function formatTime(dateStr) {
+            const date = new Date(dateStr);
+            let hours = date.getHours();
+            const minutes = date.getMinutes().toString().padStart(2, "0");
+            const ampm = hours >= 12 ? "PM" : "AM";
+            hours = hours % 12 || 12;
+            return `${hours}:${minutes} ${ampm}`;
+        }
+
+        function formatFullDate(dateStr) {
+            const date = new Date(dateStr);
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            return date.toLocaleDateString(undefined, options);
+        }
+
+        function formatMonthDay(dateStr) {
+            const date = new Date(dateStr);
+            return {
+                month: date.toLocaleString('default', { month: 'short' }),
+                day: date.getDate()
+            };
+        }
+
+        function createCard(event) {
+            const { Event_Title, Event_Start_Date, Event_End_Date } = event;
+            const startTime = formatTime(Event_Start_Date);
+            const endTime = formatTime(Event_End_Date);
+            const fullDate = formatFullDate(Event_End_Date);
+
+            const { month, day } = formatMonthDay(Event_Start_Date);
+
+            const card = document.createElement("div");
+            card.className = "card";
+
+            card.innerHTML = `
+        <div class="top-bar">
+          <div class="title">${Event_Title}</div>
+          <div class="circle">
+            <div>${month}</div>
+            <div>${day}</div>
+          </div>
+        </div>
+        <div class="location">1100 N Andrews Ave, Fort Lauderdale</div>
+        <div class="bottom-row">
+          <div class="timing">${startTime} - ${endTime} ${fullDate}</div>
+          <div class="arrow-circle" onclick="navigateToDetails(${event.Event_ID})">→</div>
+        </div>
+      `;
+
+            return card;
+        }
+
+        function navigateToDetails(id) {
+            window.location.href = `/event-details.html?id=${id}`;
+        }
+
+        events.forEach(event => {
+            grid.appendChild(createCard(event));
+        });
+    </script>
+
+</body>
+
+</html>
