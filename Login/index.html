@@ -24,10 +24,10 @@
     }
 
     .modal-content {
-        background: white;
+        background: #00B5EF;
         padding: 2rem;
         border-radius: 12px;
-        max-width: 400px;
+        max-width: 600px;
         width: 90%;
         position: relative;
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
@@ -49,7 +49,9 @@
     #continueButton:disabled {
         background-color: #999 !important;
         cursor: not-allowed !important;
+        border: none !important;
     }
+
 
     #continueButton {
         background-color: #333;
@@ -57,6 +59,16 @@
         border: none;
         cursor: pointer;
         transition: background-color 0.3s ease, cursor 0.3s ease;
+    }
+
+    #loginInput {
+        border-radius: 12px !important;
+        -webkit-border-radius: 12px !important;
+        -moz-border-radius: 12px !important;
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        box-sizing: border-box;
     }
 </style>
 
@@ -74,24 +86,32 @@
 
         <!-- Logo (Replace logo.png with your own) -->
         <div style="text-align: center;">
-            <img src="https://via.placeholder.com/80" alt="Logo" style="width: 80px; margin-bottom: 1rem;" />
+            <img src="https://calvary2024stg.wpenginepowered.com/wp-content/uploads/2024/08/CalvaryLogo_Suncross_Grey@2x.png"
+                alt="Logo" style="width: 80px; margin-bottom: 1rem;" />
         </div>
 
-        <h2 style="text-align: center;">Welcome!</h2>
-        <p style="text-align: center;">Type in your phone number or email to continue</p>
+        <h2 style="text-align: center; color: white; font-family: 'Poppins'; font-size: 40px; padding-bottom: 30px;">
+            Welcome!
+        </h2>
+        <p style="text-align: left; color: white; font-family: 'Poppins'; font-size: 18px;">
+            Type in your phone number or email to continue
+        </p>
+
 
         <!-- Input -->
         <input id="loginInput" type="text" placeholder="Enter email or phone number"
-            style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc; margin-top: 10px;" />
+            style="width: 100%; padding: 10px; border-radius: 50px; border: 1px solid #ccc; margin-top: 10px; margin-bottom: 10px;" />
 
         <!-- Error Message -->
         <div id="inputError" style="color: red; font-size: 12px; margin-top: 5px;"></div>
 
         <!-- Continue Button -->
         <button id="continueButton" disabled
-            style="margin-top: 10px; padding: 10px; width: 100%; border-radius: 8px; background-color: #333; color: white; border: none;">
+            style="margin-top: 10px; padding: 10px 30px; border-radius: 50px; background-color: transparent; color: white; border: 1px solid white; display: block; margin-left: auto; margin-right: auto;">
             Continue
         </button>
+
+
 
 
     </div>
@@ -129,29 +149,37 @@
         input.addEventListener("input", () => {
             const value = input.value.trim();
 
-            if (validateEmail(value) || validatePhone(value)) {
+            const isValid = validateEmail(value) || validatePhone(value);
+
+            if (isValid) {
                 input.style.borderColor = "#ccc";
                 error.innerText = "";
                 continueBtn.disabled = false;
             } else {
                 input.style.borderColor = "red";
-                error.innerText = "Enter a valid email or US/India phone number.";
+                error.innerText = "Enter a valid email or 10-digit US/India phone number.";
                 continueBtn.disabled = true;
             }
-
         });
 
+
         function validateEmail(email) {
-            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
             return re.test(email);
         }
 
+
         function validatePhone(phone) {
-            const cleaned = phone.replace(/\D/g, "");
-            // US: 10 digits, India: 10 digits starting with 6-9
-            const usRegex = /^\d{10}$/;
-            const inRegex = /^[6-9]\d{9}$/;
-            return usRegex.test(cleaned) || inRegex.test(cleaned);
+            // Reject if it contains anything other than digits, space, +, or dash
+            const allowedChars = /^[\d\s\+\-]+$/;
+            if (!allowedChars.test(phone)) return false;
+
+            const cleaned = phone.replace(/\D/g, ""); // Remove everything except digits
+            const isIndian = /^[6-9]\d{9}$/.test(cleaned);
+            const isUS = /^\d{10}$/.test(cleaned);
+            return isIndian || isUS;
         }
+
+
     });
 </script>
