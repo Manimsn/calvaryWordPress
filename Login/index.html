@@ -70,6 +70,18 @@
         -moz-appearance: none;
         box-sizing: border-box;
     }
+
+    .otpBox {
+        width: 40px;
+        height: 50px;
+        text-align: center;
+        font-size: 24px;
+        border-radius: 10px;
+        border: 1px solid white !important;
+        background-color: transparent !important;
+        color: white;
+        outline: none;
+    }
 </style>
 
 <!-- Button -->
@@ -110,6 +122,37 @@
             style="margin-top: 10px; padding: 10px 30px; border-radius: 50px; background-color: transparent; color: white; border: 1px solid white; display: block; margin-left: auto; margin-right: auto;">
             Continue
         </button>
+
+        <div id="otpSection" style="display: none; flex-direction: column; gap: 20px;">
+            <div style="display: flex; align-items: center; gap: 32px;">
+                <span id="otpBackArrow" style="cursor: pointer; font-size: 24px;">&#8592;</span>
+                <p id="otpText" style="margin: 0; color: white;">Enter the code sent to <span id="userValueDisplay"
+                        style="font-weight: bold;"></span></p>
+            </div>
+
+            <!-- OTP Boxes aligned with text -->
+            <div id="otpWrapper" style="display: flex; flex-direction: column; align-items: center; gap: 20px; margin-left: 32px;">
+                <div id="otpBoxes" style="display: flex; gap: 20px;">
+                    <input maxlength="1" type="text" class="otpBox" />
+                    <input maxlength="1" type="text" class="otpBox" />
+                    <input maxlength="1" type="text" class="otpBox" />
+                    <input maxlength="1" type="text" class="otpBox" />
+                    <input maxlength="1" type="text" class="otpBox" />
+                    <input maxlength="1" type="text" class="otpBox" />
+                </div>
+            </div>
+
+            <div style="text-align: center;">
+                <a id="resetCodeLink" href="#" style="color: #00f; text-decoration: underline; font-size: 14px;">Resend
+                    Code</a>
+            </div>
+
+            <button id="signInButton"
+                style="margin: 0 auto; padding: 10px 30px; border-radius: 50px; background: white; color: #007bff; border: none; font-weight: bold; cursor: pointer;">
+                SIGN IN
+            </button>
+        </div>
+
 
 
 
@@ -180,6 +223,48 @@
             return isIndian || isUS;
         }
 
+
+        continueBtn.addEventListener("click", async () => {
+            const value = input.value.trim();
+            continueBtn.disabled = true;
+            continueBtn.innerText = "Sending...";
+
+            try {
+                const response = await fetch("https://mobileserver.calvaryftl.org/api/LoginCode", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ Phone_Email: value })
+                });
+
+                const text = await response.text();
+
+                if (!response.ok) {
+                    input.style.borderColor = "red";
+                    error.innerText = text;
+                    continueBtn.disabled = false;
+                    continueBtn.innerText = "Continue";
+                } else {
+                    // ✅ Show OTP Section
+                    // ✅ Show OTP Section
+                    document.getElementById("otpSection").style.display = "flex";
+                    document.getElementById("userValueDisplay").innerText = value;
+
+                    // Hide previous content
+                    document.querySelector("img").style.display = "none"; // Logo
+                    document.querySelector("h2").style.display = "none";
+                    document.querySelector("p").style.display = "none";
+                    input.style.display = "none";
+                    continueBtn.style.display = "none";
+                    error.innerText = "";
+
+                }
+            } catch (err) {
+                input.style.borderColor = "red";
+                error.innerText = "Something went wrong. Please try again.";
+                continueBtn.disabled = false;
+                continueBtn.innerText = "Continue";
+            }
+        });
 
     });
 </script>
