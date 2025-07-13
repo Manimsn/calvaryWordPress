@@ -255,6 +255,8 @@
 
                     // Set up OTP input auto-focus
                     const otpInputs = document.querySelectorAll(".otpBox");
+                    otpInputs[0].focus(); // 👈 Autofocus first OTP input
+
                     otpInputs.forEach((input, index) => {
                         input.addEventListener("input", (e) => {
                             const value = e.target.value;
