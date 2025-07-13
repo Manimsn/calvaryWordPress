@@ -79,7 +79,7 @@
         border-radius: 10px;
         border: 1px solid white !important;
         background-color: transparent !important;
-        color: white;
+        color: white !important;
         outline: none;
     }
 </style>
@@ -109,7 +109,6 @@
             Type in your phone number or email to continue
         </p>
 
-
         <!-- Input -->
         <input id="loginInput" type="text" placeholder="Enter email or phone number"
             style="width: 100%; padding: 10px; border-radius: 50px; border: 1px solid #ccc; margin-top: 10px; margin-bottom: 10px;" />
@@ -126,12 +125,14 @@
         <div id="otpSection" style="display: none; flex-direction: column; gap: 20px;">
             <div style="display: flex; align-items: center; gap: 32px;">
                 <span id="otpBackArrow" style="cursor: pointer; font-size: 24px;">&#8592;</span>
-                <p id="otpText" style="margin: 0; color: white;">Enter the code sent to <span id="userValueDisplay"
-                        style="font-weight: bold;"></span></p>
+                <p id="otpText" style="margin: 0; color: white; font-size: 20px;">Enter the code sent to <span
+                        id="userValueDisplay" style="font-weight: bold; color: black;"></span></p>
             </div>
 
             <!-- OTP Boxes aligned with text -->
-            <div id="otpWrapper" style="display: flex; flex-direction: column; align-items: center; gap: 20px; margin-left: 32px;">
+            <div id="otpWrapper"
+            style="display: flex; flex-direction: column; align-items: center; gap: 6px; margin-left: 32px;">
+            <div style="display: flex; flex-direction: column; align-items: flex-end;">
                 <div id="otpBoxes" style="display: flex; gap: 20px;">
                     <input maxlength="1" type="text" class="otpBox" />
                     <input maxlength="1" type="text" class="otpBox" />
@@ -140,11 +141,10 @@
                     <input maxlength="1" type="text" class="otpBox" />
                     <input maxlength="1" type="text" class="otpBox" />
                 </div>
+                <a id="resetCodeLink" href="#" style="margin-top: 4px; color: white; font-size: 14px;">
+                    Resend Code
+                </a>
             </div>
-
-            <div style="text-align: center;">
-                <a id="resetCodeLink" href="#" style="color: #00f; text-decoration: underline; font-size: 14px;">Resend
-                    Code</a>
             </div>
 
             <button id="signInButton"
@@ -152,10 +152,6 @@
                 SIGN IN
             </button>
         </div>
-
-
-
-
 
     </div>
 </div>
@@ -257,6 +253,26 @@
                     continueBtn.style.display = "none";
                     error.innerText = "";
 
+                    // Set up OTP input auto-focus
+                    const otpInputs = document.querySelectorAll(".otpBox");
+                    otpInputs.forEach((input, index) => {
+                        input.addEventListener("input", (e) => {
+                            const value = e.target.value;
+                            if (!/^\d$/.test(value)) {
+                                e.target.value = "";
+                                return;
+                            }
+                            if (value && index < otpInputs.length - 1) {
+                                otpInputs[index + 1].focus();
+                            }
+                        });
+
+                        input.addEventListener("keydown", (e) => {
+                            if (e.key === "Backspace" && !e.target.value && index > 0) {
+                                otpInputs[index - 1].focus();
+                            }
+                        });
+                    });
                 }
             } catch (err) {
                 input.style.borderColor = "red";
