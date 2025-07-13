@@ -147,10 +147,11 @@
                 </div>
             </div>
 
-            <button id="signInButton"
-                style="margin: 0 auto; padding: 10px 30px; border-radius: 50px; background: transparent; color: white; border: 1px solid white; font-weight: bold; cursor: pointer;">
+            <button id="signInButton" disabled
+                style="margin: 0 auto; padding: 10px 30px; border-radius: 50px; background: transparent; color: white; border: 1px solid white; font-weight: bold;">
                 SIGN IN
             </button>
+
         </div>
 
     </div>
@@ -219,6 +220,63 @@
             return isIndian || isUS;
         }
 
+        function checkOtpAndToggleButton() {
+            const otpInputs = document.querySelectorAll(".otpBox");
+            const signInButton = document.getElementById("signInButton");
+
+            const enteredDigits = Array.from(otpInputs).map(input => input.value.trim()).join("");
+            console.log("Digits Entered:", enteredDigits);
+
+            if (enteredDigits.length === 6 && /^\d{6}$/.test(enteredDigits)) {
+                signInButton.disabled = false;
+                signInButton.style.cursor = "pointer";
+                signInButton.style.opacity = "1";
+                signInButton.style.backgroundColor = "white";
+                signInButton.style.color = "#00B5EF";
+            } else {
+                signInButton.disabled = true;
+                signInButton.style.cursor = "not-allowed";
+                signInButton.style.opacity = "0.6";
+                signInButton.style.backgroundColor = "transparent";
+                signInButton.style.color = "white";
+            }
+        }
+
+        function setupOtpListeners() {
+            const otpInputs = document.querySelectorAll(".otpBox");
+
+            otpInputs.forEach((input, index) => {
+                // Handle digit input
+                input.addEventListener("input", (e) => {
+                    let val = e.target.value.replace(/\D/g, ""); // Only digits
+                    if (val.length > 1) val = val.charAt(0); // Only take the first digit
+                    e.target.value = val;
+
+                    // Move to next input if value entered
+                    if (val && index < otpInputs.length - 1) {
+                        otpInputs[index + 1].focus();
+                    }
+
+                    checkOtpAndToggleButton(); // Check if all 6 digits entered
+                });
+
+                // Extra check when user types and then moves focus
+                input.addEventListener("keyup", () => {
+                    checkOtpAndToggleButton();
+                });
+
+                // Handle backspace to go to previous box
+                input.addEventListener("keydown", (e) => {
+                    if (e.key === "Backspace" && !e.target.value && index > 0) {
+                        otpInputs[index - 1].focus();
+                    }
+                });
+            });
+
+            // Check once in case browser auto-fills
+            checkOtpAndToggleButton();
+        }
+
 
         continueBtn.addEventListener("click", async () => {
             const value = input.value.trim();
@@ -241,7 +299,6 @@
                     continueBtn.innerText = "Continue";
                 } else {
                     // ✅ Show OTP Section
-                    // ✅ Show OTP Section
                     document.getElementById("otpSection").style.display = "flex";
                     document.getElementById("userValueDisplay").innerText = value;
 
@@ -254,27 +311,13 @@
                     error.innerText = "";
 
                     // Set up OTP input auto-focus
-                    const otpInputs = document.querySelectorAll(".otpBox");
-                    otpInputs[0].focus(); // 👈 Autofocus first OTP input
+                    document.querySelector(".otpBox").focus();
+                    if (!window.otpListenersAttached) {
+                        setupOtpListeners();
+                        window.otpListenersAttached = true;
+                    }
 
-                    otpInputs.forEach((input, index) => {
-                        input.addEventListener("input", (e) => {
-                            const value = e.target.value;
-                            if (!/^\d$/.test(value)) {
-                                e.target.value = "";
-                                return;
-                            }
-                            if (value && index < otpInputs.length - 1) {
-                                otpInputs[index + 1].focus();
-                            }
-                        });
 
-                        input.addEventListener("keydown", (e) => {
-                            if (e.key === "Backspace" && !e.target.value && index > 0) {
-                                otpInputs[index - 1].focus();
-                            }
-                        });
-                    });
                 }
             } catch (err) {
                 input.style.borderColor = "red";
@@ -285,4 +328,5 @@
         });
 
     });
+    window.otpListenersAttached = false;
 </script>
