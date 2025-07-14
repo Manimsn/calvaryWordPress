@@ -284,7 +284,7 @@
             continueBtn.innerText = "Sending...";
 
             try {
-                const response = await fetch("https://mobileserver.calvaryftl.org/api/LoginCode", {
+                const response = await fetch("https://mobileserverdev.calvaryftl.org/api/LoginCode", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ Phone_Email: value })
@@ -326,6 +326,63 @@
                 continueBtn.innerText = "Continue";
             }
         });
+
+
+        // === SIGN IN BUTTON CLICK ===
+        document.getElementById("signInButton").addEventListener("click", async () => {
+            const signInBtn = document.getElementById("signInButton");
+            const otpInputs = document.querySelectorAll(".otpBox");
+            const Phone_Email = document.getElementById("userValueDisplay").innerText.trim();
+            const Code = Array.from(otpInputs).map(input => input.value.trim()).join("");
+
+            // Clean up previous styles
+            otpInputs.forEach(input => input.style.borderColor = "white");
+
+            // Remove old error message if any
+            const oldErr = document.getElementById("otpErrorMessage");
+            if (oldErr) oldErr.remove();
+
+            signInBtn.disabled = true;
+            signInBtn.innerText = "Verifying...";
+
+            try {
+                const response = await fetch("https://mobileserverdev.calvaryftl.org/v1.0/api/LoginCode/Confirm", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        Phone_Email,
+                        Code,
+                        DeviceID: "dummy-device-id",
+                        API_Key: "dummy-api-key"
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log("API Response:", data);
+                    alert("SecondaryContact: " + data.SecondaryContact);
+                    // In next step we'll conditionally show phone number input if null
+                } else {
+                    // API returned 401 or error
+                    otpInputs.forEach(input => input.style.borderColor = "red");
+
+                    const err = document.createElement("div");
+                    err.id = "otpErrorMessage";
+                    err.style.color = "red";
+                    err.style.fontSize = "14px";
+                    err.style.marginTop = "10px";
+                    err.innerText = "Invalid or expired code. Please try again.";
+                    document.getElementById("otpWrapper").appendChild(err);
+                }
+            } catch (err) {
+                alert("Something went wrong. Please try again.");
+                console.error(err);
+            }
+
+            signInBtn.disabled = false;
+            signInBtn.innerText = "SIGN IN";
+        });
+
 
     });
     window.otpListenersAttached = false;
