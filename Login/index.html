@@ -82,6 +82,27 @@
         color: white !important;
         outline: none;
     }
+
+    .button-loading {
+        animation: pulseBg 1s infinite;
+        cursor: not-allowed !important;
+        opacity: 0.6;
+    }
+
+
+    @keyframes pulseBg {
+        0% {
+            opacity: 1;
+        }
+
+        50% {
+            opacity: 0.5;
+        }
+
+        100% {
+            opacity: 1;
+        }
+    }
 </style>
 
 <!-- Button -->
@@ -343,6 +364,7 @@
             if (oldErr) oldErr.remove();
 
             signInBtn.disabled = true;
+            signInBtn.classList.add("button-loading");
             signInBtn.innerText = "Verifying...";
 
             try {
@@ -360,6 +382,9 @@
                 if (response.ok) {
                     const data = await response.json();
                     console.log("API Response:", data);
+                    // ✅ Save JwtToken to Local Storage
+                    localStorage.setItem("mpp-widgets_AuthToken", data.JwtToken);
+                    
                     alert("SecondaryContact: " + data.SecondaryContact);
                     // In next step we'll conditionally show phone number input if null
                 } else {
@@ -380,6 +405,7 @@
             }
 
             signInBtn.disabled = false;
+            signInBtn.classList.remove("button-loading");
             signInBtn.innerText = "SIGN IN";
         });
 
