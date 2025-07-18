@@ -1,44 +1,131 @@
 <style>
-    .modal {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 99999 !important;
-    }
-
     .hidden {
         display: none !important;
     }
 
-    /* Add to your existing <style> tag */
-    #continueButton:disabled {
-        background-color: #999 !important;
-        cursor: not-allowed !important;
-        border: none !important;
+    .modal-content {
+        font-family: 'Poppins', sans-serif !important;
+        color: white;
     }
 
-
-    #continueButton {
-        background-color: #333;
+    .loginForm h2 {
+        font-size: 40px;
+        font-weight: 600;
+        text-align: center;
+        margin-bottom: 32px;
         color: white;
-        border: none;
+    }
+
+    .loginForm p {
+        font-size: 18px;
+        text-align: left;
+        margin-bottom: 8px;
+    }
+
+    .inputWrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+    }
+
+    .inputWrapper label {
+        font-weight: 400;
+        font-style: normal;
+        font-size: 18px;
+        line-height: 28px;
+        letter-spacing: normal;
+    }
+
+    .inputField {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        width: 100%;
+    }
+
+    .lastinputField {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        width: 100%;
+    }
+
+    #inputError {
+        color: #B91C1C;
+        font-size: 14px;
+        line-height: 24px;
+        margin-top: 8px;
+        text-align: left;
+    }
+
+    /* Add to your existing <style> tag */
+    #signUpButton:disabled,
+    .cta-button:disabled,
+    #continueButton:disabled {
+        border: 1px solid #4B5563 !important;
+        color: #4B5563 !important;
+        cursor: not-allowed !important;
+    }
+
+    #signUpButton:hover,
+    .cta-button:hover,
+    #continueButton:hover {
+        color: black;
+        border: 1px solid black;
+    }
+
+    .cta-button,
+    #signUpButton,
+    #continueButton {
+        color: white;
         cursor: pointer;
         transition: background-color 0.3s ease, cursor 0.3s ease;
+        background-color: transparent;
+        padding: 8px 24px;
+        border: 1px solid white;
+        border-radius: 20px;
+        display: inline-block;
+        width: auto;
+        height: auto;
+        white-space: nowrap;
+        font-weight: 600;
+        font-style: normal;
+        font-size: 16px;
+        line-height: 24px;
+        margin-top: 32px;
     }
 
+
+    #emailInput,
     #loginInput {
+        width: 100%;
+    }
+
+    #nameInput {
+        width: 50%;
+    }
+
+    #firstNameInput,
+    #lastNameInput,
+    #emailInput,
+    #loginInput {
+        padding: 12px 16px;
         border-radius: 12px !important;
+        border: 2px solid #D1D5DB;
+        color: #007FA7;
         -webkit-border-radius: 12px !important;
         -moz-border-radius: 12px !important;
         appearance: none;
         -webkit-appearance: none;
         -moz-appearance: none;
         box-sizing: border-box;
+    }
+
+    #firstNameInput,
+    #lastNameInput {
+        padding: 12px 24px;
+        padding-right: 16%;
     }
 
     .otpBox {
@@ -73,40 +160,44 @@
             opacity: 1;
         }
     }
+
+    /* ---SIGN UP- */
+
+    .form-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        width: 100%;
+    }
+
+    .form-row .inputField {
+        flex: 1;
+    }
 </style>
 
-
-<!-- Modal + Backdrop -->
 <!-- Modal + Backdrop -->
 
 <div class="modal-content">
 
     <div class="loginForm" id="loginForm">
         <!-- Logo (Replace logo.png with your own) -->
-        <div style="text-align: center;">
-            <img src="https://calvary2024stg.wpenginepowered.com/wp-content/uploads/2024/08/CalvaryLogo_Suncross_Grey@2x.png"
-                alt="Logo" style="width: 80px; margin-bottom: 1rem;" />
+        <div style="text-align: center; margin-bottom: 1rem;">
+            <img src="https://calvary2024stg.wpenginepowered.com/wp-content/uploads/2024/08/CalvaryLogo_Suncross_White.png"
+                alt="Logo" />
         </div>
+        <h2>Welcome!</h2>
 
-        <h2 style="text-align: center; color: white; font-family: 'Poppins'; font-size: 40px; padding-bottom: 30px;">
-            Welcome!
-        </h2>
-        <p style="text-align: left; color: white; font-family: 'Poppins'; font-size: 18px;">
-            Type in your phone number or email to continue
-        </p>
-
-        <!-- Input -->
-        <input id="loginInput" type="text" placeholder="Enter email or phone number" oninput="validateInput()"
-            style="width: 100%; padding: 10px; border-radius: 50px; border: 1px solid #ccc; margin-top: 10px; margin-bottom: 10px;" />
-
-        <!-- Error Message -->
-        <div id="inputError" style="color: red; font-size: 12px; margin-top: 5px;"></div>
-
-        <!-- Continue Button -->
-        <button id="continueButton" onclick="handleLogin()" disabled
-            style="margin-top: 10px; padding: 10px 30px; border-radius: 50px; background-color: transparent; color: white; border: 1px solid white; display: block; margin-left: auto; margin-right: auto;">
-            Continue
-        </button>
+        <div class="inputWrapper">
+            <div class="inputField">
+                <label for="login" style="margin-bottom: 8px;">Type in your phone number or email to continue.</label>
+                <!-- Input -->
+                <input id="loginInput" type="text" placeholder="Phone or email address" oninput="validateInput()" />
+                <!-- Error Message -->
+                <div id="inputError"></div>
+            </div>
+            <!-- Continue Button -->
+            <button id="continueButton" onclick="handleLogin()" disabled>CONTINUE</button>
+        </div>
     </div>
 
     <div id="otpSection" style="display: none; flex-direction: column; gap: 20px;">
@@ -139,4 +230,32 @@
             SIGN IN
         </button>
     </div>
+
+    <div id="signupSection" class="loginForm" style="display: block; flex-direction: column; gap: 20px;">
+        <h2>You're almost there – just a few more details to sign up!</h2>
+
+        <form>
+            <div class="form-row">
+                <div class="inputField">
+                    <label for="firstName">First Name*</label>
+                    <input id="firstNameInput" type="text" placeholder="John" oninput="validateInput()" />
+                    <div id="inputError"></div>
+                </div>
+                <div class="lastinputField">
+                    <label for="lastName">Last Name*</label>
+                    <input id="lastNameInput" type="text" placeholder="Doe" oninput="validateInput()" />
+                    <div id="inputError"></div>
+                </div>
+            </div>
+
+            <div class="inputField" style="margin-top: 16px;">
+                <label for="email">Email Address*</label>
+                <input id="emailInput" type="text" placeholder="Phone or email address" oninput="validateInput()" />
+                <div id="inputError"></div>
+            </div>
+
+            <button id="signUpButton" class="cta-button" disabled>CONTINUE</button>
+        </form>
+    </div>
+
 </div>
