@@ -1,16 +1,4 @@
 <style>
-    .backdrop {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        background-color: rgba(0, 0, 0, 0.4);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        z-index: 99998 !important;
-    }
-
     .modal {
         position: fixed;
         top: 0;
@@ -21,24 +9,6 @@
         justify-content: center;
         align-items: center;
         z-index: 99999 !important;
-    }
-
-    .modal-content {
-        background: #00B5EF;
-        padding: 2rem;
-        border-radius: 12px;
-        max-width: 600px;
-        width: 90%;
-        position: relative;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-    }
-
-    .close-button {
-        position: absolute;
-        top: 12px;
-        right: 16px;
-        font-size: 20px;
-        cursor: pointer;
     }
 
     .hidden {
@@ -105,18 +75,13 @@
     }
 </style>
 
-<!-- Button -->
-<button id="openLoginModal"
-    style="z-index: 1; position: relative; padding: 10px 20px; border-radius: 8px; background-color: #333; color: white; border: none;">
-    Login
-</button>
 
 <!-- Modal + Backdrop -->
-<div id="customBackdrop" class="backdrop hidden"></div>
-<div id="customLoginModal" class="modal hidden">
-    <div class="modal-content">
-        <span class="close-button">&times;</span>
+<!-- Modal + Backdrop -->
 
+<div class="modal-content">
+
+    <div class="loginForm" id="loginForm">
         <!-- Logo (Replace logo.png with your own) -->
         <div style="text-align: center;">
             <img src="https://calvary2024stg.wpenginepowered.com/wp-content/uploads/2024/08/CalvaryLogo_Suncross_Grey@2x.png"
@@ -131,49 +96,47 @@
         </p>
 
         <!-- Input -->
-        <input id="loginInput" type="text" placeholder="Enter email or phone number"
+        <input id="loginInput" type="text" placeholder="Enter email or phone number" oninput="validateInput()"
             style="width: 100%; padding: 10px; border-radius: 50px; border: 1px solid #ccc; margin-top: 10px; margin-bottom: 10px;" />
 
         <!-- Error Message -->
         <div id="inputError" style="color: red; font-size: 12px; margin-top: 5px;"></div>
 
         <!-- Continue Button -->
-        <button id="continueButton" disabled
+        <button id="continueButton" onclick="handleLogin()" disabled
             style="margin-top: 10px; padding: 10px 30px; border-radius: 50px; background-color: transparent; color: white; border: 1px solid white; display: block; margin-left: auto; margin-right: auto;">
             Continue
         </button>
+    </div>
 
-        <div id="otpSection" style="display: none; flex-direction: column; gap: 20px;">
-            <div style="display: flex; align-items: center; gap: 32px;">
-                <span id="otpBackArrow" style="cursor: pointer; font-size: 24px;">&#8592;</span>
-                <p id="otpText" style="margin: 0; color: white; font-size: 20px;">Enter the code sent to <span
-                        id="userValueDisplay" style="font-weight: bold; color: black;"></span></p>
-            </div>
-
-            <!-- OTP Boxes aligned with text -->
-            <div id="otpWrapper"
-                style="display: flex; flex-direction: column; align-items: center; gap: 6px; margin-left: 32px;">
-                <div style="display: flex; flex-direction: column; align-items: flex-end;">
-                    <div id="otpBoxes" style="display: flex; gap: 20px;">
-                        <input maxlength="1" type="text" class="otpBox" />
-                        <input maxlength="1" type="text" class="otpBox" />
-                        <input maxlength="1" type="text" class="otpBox" />
-                        <input maxlength="1" type="text" class="otpBox" />
-                        <input maxlength="1" type="text" class="otpBox" />
-                        <input maxlength="1" type="text" class="otpBox" />
-                    </div>
-                    <a id="resetCodeLink" href="#" style="margin-top: 4px; color: white; font-size: 14px;">
-                        Resend Code
-                    </a>
-                </div>
-            </div>
-
-            <button id="signInButton" disabled
-                style="margin: 0 auto; padding: 10px 30px; border-radius: 50px; background: transparent; color: white; border: 1px solid white; font-weight: bold;">
-                SIGN IN
-            </button>
-
+    <div id="otpSection" style="display: none; flex-direction: column; gap: 20px;">
+        <div style="display: flex; align-items: center; gap: 32px;">
+            <span id="otpBackArrow" onclick="showLoginForm()" style="cursor: pointer; font-size: 24px;">←</span>
+            <p id="otpText" style="margin: 0; color: white; font-size: 20px;">Enter the code sent to <span
+                    id="userValueDisplay" style="font-weight: bold; color: black;"></span></p>
         </div>
 
+        <!-- OTP Boxes aligned with text -->
+        <div id="otpWrapper"
+            style="display: flex; flex-direction: column; align-items: center; gap: 6px; margin-left: 32px;">
+            <div style="display: flex; flex-direction: column; align-items: flex-end;">
+                <div id="otpBoxes" style="display: flex; gap: 20px;">
+                    <input maxlength="1" type="text" class="otpBox" />
+                    <input maxlength="1" type="text" class="otpBox" />
+                    <input maxlength="1" type="text" class="otpBox" />
+                    <input maxlength="1" type="text" class="otpBox" />
+                    <input maxlength="1" type="text" class="otpBox" />
+                    <input maxlength="1" type="text" class="otpBox" />
+                </div>
+                <a id="resetCodeLink" href="#" style="margin-top: 4px; color: white; font-size: 14px;">
+                    Resend Code
+                </a>
+            </div>
+        </div>
+
+        <button id="signInButton" onclick="verifyOtp()" disabled style=" margin: 0 auto; padding: 10px 30px; border-radius: 50px; background: transparent; color: white;
+            border: 1px solid white; font-weight: bold;">
+            SIGN IN
+        </button>
     </div>
 </div>
