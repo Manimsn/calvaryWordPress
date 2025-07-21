@@ -123,7 +123,7 @@ function show_certificate_iframe($atts)
     $date = urlencode($atts['date']);
 
     $iframe = '<iframe 
-        src="https://calvaryftlv1.wpenginepowered.com/certificate/en.php?name=' . $name . '&year=' . $year . '&month=' . $month . '&date=' . $date . '" 
+        src="https://calvaryftl.org/certificate/en.php?name=' . $name . '&year=' . $year . '&month=' . $month . '&date=' . $date . '" 
         frameborder="0" 
         style="overflow:hidden;height:450px;width:60%">
     </iframe>';
@@ -347,14 +347,18 @@ function custom_login_form_function()
 add_shortcode('custom_login_form', 'custom_login_form_function');
 
 
-function enqueue_custom_login_scripts() {
-    wp_enqueue_script(
-        'main-script',
-        get_stylesheet_directory_uri() . '/assets/js/main.js',
-        [],
-        null,
-        true // Load in footer
-    );
+function enqueue_custom_login_validation_script()
+{
+    // Enqueue only on front end
+    if (!is_admin()) {
+        wp_enqueue_script(
+            'login-validation',
+            get_stylesheet_directory_uri() . '/js/login-validation.js',
+            array(), // No dependencies
+            '1.0',
+            true // Load in footer
+        );
+    }
 }
-add_action('wp_enqueue_scripts', 'enqueue_custom_login_scripts');
+add_action('wp_enqueue_scripts', 'enqueue_custom_login_validation_script');
 
