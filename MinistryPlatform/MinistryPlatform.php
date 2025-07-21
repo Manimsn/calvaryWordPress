@@ -253,6 +253,7 @@ class MP_API_SHORTCODES
 
             $user = $mp->table('dp_Users')
                 ->select('Contact_ID') // fetch only specific fields
+                // ->filter("User_Name = '$name'")   // filter by email address (where $name holds the email)
                 ->filter("User_Name = 'mikeg@calvaryftl.org'")   // filter by email address (where $name holds the email)
                 ->get();
 
@@ -702,3 +703,4 @@ class MP_API_SHORTCODES
 
 
 }
+
