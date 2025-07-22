@@ -2,16 +2,6 @@ const login = document.getElementById("loginButton");
 const inputElement = document.getElementById("loginInput");
 const errorDiv = document.getElementById("inputError");
 
-login?.addEventListener("click", () => {
-  console.log("Login button clicked");
-  //   const closeBtn = document.querySelector(".mfp-close");
-
-  //   closeBtn?.addEventListener('click', () => {
-  //   console.log("Close button clicked");
-  // })
-  resetLoginState();
-});
-
 function validateEmail(email) {
   const re = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
   return re.test(email);
@@ -44,24 +34,6 @@ function validateInput() {
       "Please enter a valid email address or 10-digit phone number.";
     errorDiv.style.color = "#B91C1C";
     inputElement.style.borderColor = "#B91C1C"; // Add red border
-  }
-}
-
-function resetLoginState() {
-  const inputElement = document.getElementById("loginInput");
-  const errorText = document.getElementById("inputError");
-  console.log("before login input state", inputElement.value);
-  console.log("before error state", errorDiv.textContent);
-
-  if (inputElement) {
-    console.log("Resetting login input state", inputElement.value);
-    inputElement.value = "";
-    inputElement.style.borderColor = "#D1D5DB"; // Reset to normal border
-  }
-
-  if (errorDiv) {
-    console.log("Resetting error state", errorDiv.textContent);
-    errorDiv.textContent = "";
   }
 }
 
@@ -295,7 +267,7 @@ async function resendOtp() {
   isResending = true;
 
   resetCodeLink.classList.add("link-loading");
-  resetCodeLink.textContent = "Resending...";  
+  resetCodeLink.textContent = "Resending...";
 
   try {
     const response = await fetch(
@@ -336,3 +308,30 @@ async function resendOtp() {
     isResending = false;
   }
 }
+
+document.addEventListener("click", function (e) {
+  // Match only the close button with class "mfp-close"
+  const isCloseButton = e.target.closest(".mfp-close");
+
+  if (isCloseButton) {
+    console.log("✅ DIVI modal close button clicked");
+
+    // Clear your modal-related inputs here
+    const input = document.getElementById("loginInput");
+    const continueBtn = document.getElementById("continueButton");
+    const error = document.getElementById("inputError");
+
+    if (input) {
+      input.value = "";
+      input.style.borderColor = "";
+    }
+
+    if (error) {
+      error.innerText = "";
+    }
+
+    if (continueBtn) {
+      continueBtn.innerText = "Continue";
+    }
+  }
+});
