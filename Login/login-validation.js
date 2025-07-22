@@ -335,3 +335,22 @@ document.addEventListener("click", function (e) {
     }
   }
 });
+
+jQuery(document).ready(function ($) {
+  $(document).on("mfpClose", function () {
+    console.log("Modal closed (by close button or outside click)");
+
+    const input = document.getElementById("loginInput");
+    const continueBtn = document.getElementById("continueButton");
+    const error = document.getElementById("inputError");
+
+    if (input) {
+      input.value = "";
+      input.style.borderColor = "";
+    }
+    if (error) error.innerText = "";
+    if (continueBtn) {
+      continueBtn.innerText = "Continue";
+    }
+  });
+});
