@@ -179,7 +179,7 @@ async function verifyOtp() {
     .join("");
 
   // Reset previous error styles
-  otpInputs.forEach((input) => (input.style.borderColor = "white"));
+  otpInputs.forEach((input) => (input.style.border = "2px solid white"));
 
   // Remove existing error message
   const oldErr = document.getElementById("otpErrorMessage");
@@ -216,7 +216,7 @@ async function verifyOtp() {
       alert("SecondaryContact: " + data.SecondaryContact);
     } else {
       // Error: invalid OTP
-      otpInputs.forEach((input) => (input.style.borderColor = "#B91C1C"));
+      otpInputs.forEach((input) => (input.style.border = "2px solid #B91C1C"));
 
       const err = document.createElement("div");
       err.id = "otpErrorMessage";

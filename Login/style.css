@@ -132,7 +132,7 @@ height: 55px;
 text-align: center;
 font-size: 24px;
 border-radius: 10px;
-border: 2px solid white !important;
+border: 2px solid white;
 background-color: transparent !important;
 color: white !important;
 outline: none;
