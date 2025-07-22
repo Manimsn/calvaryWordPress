@@ -1,3 +1,17 @@
+const login = document.getElementById("loginButton");
+const inputElement = document.getElementById("loginInput");
+const errorDiv = document.getElementById("inputError");
+
+login?.addEventListener("click", () => {
+  console.log("Login button clicked");
+  //   const closeBtn = document.querySelector(".mfp-close");
+
+  //   closeBtn?.addEventListener('click', () => {
+  //   console.log("Close button clicked");
+  // })
+  resetLoginState();
+});
+
 function validateEmail(email) {
   const re = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
   return re.test(email);
@@ -15,20 +29,39 @@ function validatePhone(phone) {
 
 function validateInput() {
   const inputElement = document.getElementById("loginInput");
+  const errorDiv = document.getElementById("inputError");
   const input = inputElement.value.trim();
   const continueBtn = document.getElementById("continueButton");
-  const errorDiv = document.getElementById("inputError");
+  console.log("Validating input:", input);
 
   if (validateEmail(input) || validatePhone(input)) {
     continueBtn.disabled = false;
     errorDiv.textContent = "";
-    inputElement.style.borderColor = "#ccc"; // Reset to normal border
+    inputElement.style.borderColor = "#D1D5DB"; // Reset to normal border
   } else {
     continueBtn.disabled = true;
     errorDiv.textContent =
       "Please enter a valid email address or 10-digit phone number.";
-    errorDiv.style.color = "red";
-    inputElement.style.borderColor = "red"; // Add red border
+    errorDiv.style.color = "#B91C1C";
+    inputElement.style.borderColor = "#B91C1C"; // Add red border
+  }
+}
+
+function resetLoginState() {
+  const inputElement = document.getElementById("loginInput");
+  const errorText = document.getElementById("inputError");
+  console.log("before login input state", inputElement.value);
+  console.log("before error state", errorDiv.textContent);
+
+  if (inputElement) {
+    console.log("Resetting login input state", inputElement.value);
+    inputElement.value = "";
+    inputElement.style.borderColor = "#D1D5DB"; // Reset to normal border
+  }
+
+  if (errorDiv) {
+    console.log("Resetting error state", errorDiv.textContent);
+    errorDiv.textContent = "";
   }
 }
 
@@ -41,7 +74,7 @@ async function handleLogin() {
   // Double check validation before calling API
   if (!(validateEmail(value) || validatePhone(value))) {
     error.innerText = "Please enter a valid email or phone number.";
-    input.style.borderColor = "red";
+    input.style.borderColor = "#B91C1C";
     return;
   }
 
@@ -64,7 +97,12 @@ async function handleLogin() {
     const text = await response.text();
 
     if (!response.ok) {
-      input.style.borderColor = "red";
+      console.log(response);
+      if (response.status === 404) {
+        document.getElementById("loginForm").style.display = "none";
+        document.getElementById("signupSection").style.display = "flex";
+      }
+      input.style.borderColor = "#B91C1C";
       error.innerText = text || "Login failed.";
       continueBtn.disabled = false;
       continueBtn.innerText = "Continue";
@@ -95,7 +133,7 @@ async function handleLogin() {
       }
     }
   } catch (err) {
-    input.style.borderColor = "red";
+    input.style.borderColor = "#B91C1C";
     error.innerText = "Something went wrong. Please try again.";
     continueBtn.disabled = false;
     continueBtn.innerText = "Continue";
@@ -206,11 +244,11 @@ async function verifyOtp() {
       alert("SecondaryContact: " + data.SecondaryContact);
     } else {
       // Error: invalid OTP
-      otpInputs.forEach((input) => (input.style.borderColor = "red"));
+      otpInputs.forEach((input) => (input.style.borderColor = "#B91C1C"));
 
       const err = document.createElement("div");
       err.id = "otpErrorMessage";
-      err.style.color = "red";
+      err.style.color = "#B91C1C";
       err.style.fontSize = "14px";
       err.style.marginTop = "10px";
       err.innerText = "Invalid or expired code. Please try again.";
@@ -245,4 +283,56 @@ function showLoginForm() {
   // Optional: Clear any OTP errors
   const otpError = document.getElementById("otpErrorMessage");
   if (otpError) otpError.remove();
+}
+
+let isResending = false;
+
+async function resendOtp() {
+  if (isResending) return; // Prevent multiple clicks
+  const input = document.getElementById("loginInput");
+  const value = input.value.trim();
+  const resetCodeLink = document.getElementById("resetCodeLink");
+  isResending = true;
+
+  resetCodeLink.classList.add("link-loading");
+  resetCodeLink.textContent = "Resending...";  
+
+  try {
+    const response = await fetch(
+      "https://mobileserverdev.calvaryftl.org/api/LoginCode",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ Phone_Email: value }),
+      }
+    );
+
+    const text = await response.text();
+
+    if (!response.ok) {
+      console.log(response);
+      if (response.status === 404) {
+        console.log(response.status);
+        // document.getElementById("loginForm").style.display = "none";
+        // document.getElementById("signupSection").style.display = "flex";
+      }
+      // input.style.borderColor = "#B91C1C";
+      // error.innerText = text || "Login failed.";
+      resetCodeLink.classList.remove("link-loading");
+      resetCodeLink.textContent = "Resend Code";
+      isResending = false;
+    } else {
+      resetCodeLink.classList.remove("link-loading");
+      resetCodeLink.textContent = "Resend Code";
+      isResending = false;
+      alert(value);
+    }
+  } catch (err) {
+    // input.style.borderColor = "#B91C1C";
+    // error.innerText = "Something went wrong. Please try again.";
+
+    resetCodeLink.classList.remove("link-loading");
+    resetCodeLink.textContent = "Resend Code";
+    isResending = false;
+  }
 }

@@ -170,3 +170,21 @@
 .form-row .inputField {
   flex: 1;
 }
+
+/* ---------Resend OTP animation--------- */
+.link-loading {
+  animation: pulseBg 1s infinite;
+  opacity: 0.6;
+  cursor: not-allowed !important;
+  color: #cccccc !important;
+}
+
+.link-loading:hover {
+  cursor: not-allowed !important;
+}
+
+@keyframes pulseBg {
+  0% { background-color: rgba(255, 255, 255, 0.2); }
+  50% { background-color: rgba(255, 255, 255, 0.4); }
+  100% { background-color: rgba(255, 255, 255, 0.2); }
+}
