@@ -2,7 +2,7 @@
   display: none !important;
 }
 
-.modal-content {
+.modalContent {
   font-family: "Poppins", sans-serif !important;
   color: white;
 }
@@ -126,16 +126,32 @@
   padding-right: 16%;
 }
 
-.otpBox {
-  width: 40px;
-  height: 50px;
-  text-align: center;
-  font-size: 24px;
-  border-radius: 10px;
-  border: 1px solid white !important;
-  background-color: transparent !important;
-  color: white !important;
-  outline: none;
+.otpInputBox {
+width: 64px;
+height: 55px;
+text-align: center;
+font-size: 24px;
+border-radius: 10px;
+border: 2px solid white !important;
+background-color: transparent !important;
+color: white !important;
+outline: none;
+}
+
+@media (max-width: 767px) {
+  .otpInputBox {
+    width: 40px !important;
+  }
+  .otpHeader{
+    gap: 8px !important;
+  }
+  #otpWrapper {
+    margin-left: 30px !important;
+  }
+}
+    
+.otpErrorMessage{
+  order: 1;
 }
 
 .button-loading {

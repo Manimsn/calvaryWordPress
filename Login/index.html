@@ -1,6 +1,6 @@
 <!-- Modal + Backdrop -->
 
-<div class="modal-content">
+<div class="modalContent">
 
     <div class="loginForm" id="loginForm">
         <!-- Logo (Replace logo.png with your own) -->
@@ -23,29 +23,33 @@
         </div>
     </div>
 
-    <div id="otpSection" style="display: none; flex-direction: column; gap: 20px;">
-        <div style="display: flex; align-items: center; gap: 32px;">
-            <span id="otpBackArrow" onclick="showLoginForm()" style="cursor: pointer; font-size: 24px;">←</span>
+    <div id="otpSection" style="display: none; flex-direction: column; gap: 24px;">
+        <div class="otpHeader" style="display: flex; align-items: center; gap: 32px;">
+            <span id="otpBackArrow" onclick="showLoginForm()"
+                style="cursor: pointer; font-size: 24px; align-self: flex-start">←</span>
             <p id="otpText" style="margin: 0; color: white; font-size: 20px;">Enter the code sent to <span
-                    id="userValueDisplay" style="font-weight: bold; color: black;"></span></p>
+                    id="userValueDisplay" style="font-weight: bold; color: #005B78; word-break: break-word;"></span></p>
         </div>
 
         <!-- OTP Boxes aligned with text -->
         <div id="otpWrapper"
-            style="display: flex; flex-direction: column; align-items: center; gap: 6px; margin-left: 32px;">
+            style="display: flex; flex-direction: column; align-items: start; gap: 6px; margin-left: 52px;">
             <div style="display: flex; flex-direction: column; align-items: flex-end;">
-                <div id="otpBoxes" style="display: flex; gap: 20px;">
-                    <input maxlength="1" type="text" class="otpBox" />
-                    <input maxlength="1" type="text" class="otpBox" />
-                    <input maxlength="1" type="text" class="otpBox" />
-                    <input maxlength="1" type="text" class="otpBox" />
-                    <input maxlength="1" type="text" class="otpBox" />
-                    <input maxlength="1" type="text" class="otpBox" />
+                <div id="otpBoxes" style="display: flex; gap: 8px;">
+                    <input maxlength="1" type="text" class="otpInputBox" style="border: 2px solid white;" />
+                    <input maxlength="1" type="text" class="otpInputBox" style="border: 2px solid white;" />
+                    <input maxlength="1" type="text" class="otpInputBox" style="border: 2px solid white;" />
+                    <input maxlength="1" type="text" class="otpInputBox" style="border: 2px solid white;" />
+                    <input maxlength="1" type="text" class="otpInputBox" style="border: 2px solid white;" />
+                    <input maxlength="1" type="text" class="otpInputBox" style="border: 2px solid white;" />
                 </div>
-                <a id="resetCodeLink" onclick="resendOtp()" href="#"
-                    style="margin-top: 4px; color: white; font-size: 14px;">
-                    Resend Code
-                </a>
+                <div id="otpResendSection"
+                    style="display: flex; align-items: flex-end; justify-content: space-between; width: 100%">
+                    <a id="resetCodeLink" onclick="resendOtp()" href="#"
+                        style="margin-top: 8px; color: white; font-size: 14px; margin-left: auto; min-width: fit-content; align-self: flex-start; order: 2;">
+                        Resend Code
+                    </a>
+                </div>
             </div>
         </div>
 

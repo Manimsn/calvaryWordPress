@@ -93,7 +93,7 @@ async function handleLogin() {
       error.innerText = "";
 
       // Focus OTP box
-      const otpBox = document.querySelector(".otpBox");
+      const otpBox = document.querySelector(".otpInputBox");
       if (otpBox) otpBox.focus();
 
       // Optional: Attach OTP listeners once
@@ -113,7 +113,7 @@ async function handleLogin() {
 }
 
 function checkOtpAndToggleButton() {
-  const otpInputs = document.querySelectorAll(".otpBox");
+  const otpInputs = document.querySelectorAll(".otpInputBox");
   const signInButton = document.getElementById("signInButton");
 
   const enteredDigits = Array.from(otpInputs)
@@ -136,7 +136,7 @@ function checkOtpAndToggleButton() {
 }
 
 function setupOtpListeners() {
-  const otpInputs = document.querySelectorAll(".otpBox");
+  const otpInputs = document.querySelectorAll(".otpInputBox");
 
   otpInputs.forEach((input, index) => {
     input.addEventListener("input", (e) => {
@@ -170,7 +170,7 @@ function setupOtpListeners() {
 
 async function verifyOtp() {
   const signInBtn = document.getElementById("signInButton");
-  const otpInputs = document.querySelectorAll(".otpBox");
+  const otpInputs = document.querySelectorAll(".otpInputBox");
   const Phone_Email = document
     .getElementById("userValueDisplay")
     .innerText.trim();
@@ -224,7 +224,7 @@ async function verifyOtp() {
       err.style.fontSize = "14px";
       err.style.marginTop = "10px";
       err.innerText = "Invalid or expired code. Please try again.";
-      document.getElementById("otpWrapper").appendChild(err);
+      document.getElementById("otpResendSection").appendChild(err);
     }
   } catch (err) {
     alert("Something went wrong. Please try again.");
@@ -249,7 +249,7 @@ function showLoginForm() {
   document.getElementById("otpSection").style.display = "none";
 
   // Optional: Reset OTP inputs
-  const otpInputs = document.querySelectorAll(".otpBox");
+  const otpInputs = document.querySelectorAll(".otpInputBox");
   otpInputs.forEach((input) => (input.value = ""));
 
   // Optional: Clear any OTP errors
