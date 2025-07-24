@@ -31,7 +31,7 @@
                     id="userValueDisplay" style="font-weight: bold; color: #005B78; word-break: break-word;"></span></p>
         </div>
 
-        <!-- OTP Boxes aligned with text -->
+        <!-- OTP Boxes aligned-->
         <div id="otpWrapper"
             style="display: flex; flex-direction: column; align-items: start; gap: 6px; margin-left: 52px;">
             <div style="display: flex; flex-direction: column; align-items: flex-end;">
@@ -59,31 +59,61 @@
         </button>
     </div>
 
-    <div id="signupSection" class="loginForm" style="display: none; flex-direction: column; gap: 20px;">
-        <h2>You're almost there – just a few more details to sign up!</h2>
+    <div id="signupSection" class="loginForm" style="display: none; flex-direction: column;">
+        <h5>You're almost there – just a few more details to sign up!</h5>
 
-        <form>
+        <form style="display: flex; flex-direction: column; gap: 24px; width: 100%; align-items: center;">
             <div class="form-row">
                 <div class="inputField">
                     <label for="firstName">First Name*</label>
                     <input id="firstNameInput" type="text" placeholder="John" oninput="validateInput()" />
-                    <div id="inputError"></div>
+                    <div id="inputErrorFirstName">You’ve reached the 25-character limit</div>
                 </div>
                 <div class="lastinputField">
                     <label for="lastName">Last Name*</label>
                     <input id="lastNameInput" type="text" placeholder="Doe" oninput="validateInput()" />
-                    <div id="inputError"></div>
+                    <div id="inputErrorLastName">You’ve reached the 25-character limit</div>
                 </div>
             </div>
 
-            <div class="inputField" style="margin-top: 16px;">
+            <div class="inputField">
                 <label for="email">Email Address*</label>
                 <input id="emailInput" type="text" placeholder="Phone or email address" oninput="validateInput()" />
-                <div id="inputError"></div>
+                <div id="inputErrorEmail">This email address already exists. Please provide an other email address.</div>
             </div>
 
             <button id="signUpButton" class="cta-button" disabled>CONTINUE</button>
         </form>
+    </div>
+
+    <div class="secondaryContactForm" id="secondaryContactForm" style="display: none; flex-direction: column;">
+        <div id="secondaryContactMessage" >
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="49" viewBox="0 0 48 49" fill="none">
+                <path fill-rule="evenodd" clip-rule="evenodd"
+                    d="M24 41.3C33.2783 41.3 40.7999 33.7784 40.7999 24.5C40.7999 15.2216 33.2783 7.7 24 7.7C14.7216 7.7 7.19995 15.2216 7.19995 24.5C7.19995 33.7784 14.7216 41.3 24 41.3ZM31.7849 21.7849C32.605 20.9648 32.605 19.6352 31.7849 18.8151C30.9648 17.995 29.6351 17.995 28.815 18.8151L21.9 25.7301L19.1849 23.0151C18.3648 22.195 17.0351 22.195 16.215 23.0151C15.3949 23.8352 15.3949 25.1648 16.215 25.9849L20.415 30.1849C21.2351 31.005 22.5648 31.005 23.3849 30.1849L31.7849 21.7849Z"
+                    fill="#16A34A"></path>
+            </svg>
+            <p> You've logged in !</p>
+        </div>
+
+        <div class="inputWrapper">
+            <div class="inputField">
+                <label for="secondaryContact" id="secondaryContactLabel">Do you want to add your <span class="Phone_Email"></span>?</label>
+                <!-- Input -->
+                <input id="secondaryContactInput" type="text" placeholder="Enter your Phone Number"
+                    oninput="validateInput()" />
+                <!-- Error Message -->
+                <div id="inputErrorSecondary"></div>
+            </div>
+        </div>
+        <div style="align-self: flex-end; margin-top: 24px;">
+            <button id="addButton" onclick="verifySecondaryContact()">
+                ADD <span class="Phone_Email"></span>
+            </button>
+            <button id="skipButton">
+                SKIP
+            </button>
+        </div>
     </div>
 
 </div>

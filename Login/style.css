@@ -21,6 +21,14 @@
   margin-bottom: 8px;
 }
 
+.loginForm h5 {
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 32px;
+  color: white;
+  padding-bottom: 24px !important;
+}
+
 .inputWrapper {
   display: flex;
   flex-direction: column;
@@ -36,26 +44,32 @@
   letter-spacing: normal;
 }
 
-.inputField {
+.inputField,
+.lastinputField {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   width: 100%;
+  gap: 8px;
 }
 
-.lastinputField {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  width: 100%;
+.inputField label,
+.lastinputField label {
+  font-size: 18px;
+  line-height: 28px;
+  color: white;
 }
 
-#inputError {
+#inputError,
+#inputErrorFirstName,
+#inputErrorLastName,
+#inputErrorEmail,
+#inputErrorSecondary {
   color: #b91c1c;
   font-size: 14px;
   line-height: 24px;
-  margin-top: 8px;
   text-align: left;
+  word-break: break-word;
 }
 
 /* Add to your existing <style> tag */
@@ -92,11 +106,16 @@
   font-style: normal;
   font-size: 16px;
   line-height: 24px;
-  margin-top: 32px;
+  margin-top: 24px;
+}
+
+#signUpButton {
+  margin-top: 0 !important;
 }
 
 #emailInput,
-#loginInput {
+#loginInput,
+#secondaryContactInput {
   width: 100%;
 }
 
@@ -107,7 +126,8 @@
 #firstNameInput,
 #lastNameInput,
 #emailInput,
-#loginInput {
+#loginInput,
+#secondaryContactInput {
   padding: 12px 16px;
   border-radius: 12px !important;
   border: 2px solid #d1d5db;
@@ -122,35 +142,129 @@
 
 #firstNameInput,
 #lastNameInput {
-  padding: 12px 24px;
-  padding-right: 16%;
+  padding: 12px 16px;
+  width: 100%;
 }
 
 .otpInputBox {
-width: 64px;
-height: 55px;
-text-align: center;
-font-size: 24px;
-border-radius: 10px;
-border: 2px solid white;
-background-color: transparent !important;
-color: white !important;
-outline: none;
+  width: 64px;
+  height: 55px;
+  text-align: center;
+  font-size: 24px;
+  border-radius: 10px;
+  border: 2px solid white !important;
+  background-color: transparent !important;
+  color: white !important;
+  outline: none;
+}
+
+#addButton {
+  margin: 0 auto;
+  padding: 8px 24px;
+  border-radius: 50px;
+  background: white;
+  color: #00b5ef;
+  border: 1px solid white;
+  font-weight: bold;
+  text-transform: uppercase;
+  font-size: 16px;
+}
+
+#skipButton {
+  margin: 0 auto;
+  border-radius: 50px;
+  background: transparent;
+  border: 1px solid white;
+  color: white;
+  padding: 8px 24px;
+  font-weight: 600;
+  margin-left: 24px;
+  font-size: 16px;
+}
+
+#secondaryContactLabel {
+  margin-bottom: 24px;
+  margin-top: 24px;
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 32px;
+}
+
+#secondaryContactMessage {
+  font-size: 28px;
+  font-weight: 600;
+  line-height: 32px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+@media (min-width: 800px) {
+  #inputError,
+  #inputErrorFirstName,
+  #inputErrorLastName,
+  #inputErrorEmail,
+  #inputErrorSecondary {
+    min-height: 48px !important;
+  }
 }
 
 @media (max-width: 767px) {
   .otpInputBox {
     width: 40px !important;
   }
-  .otpHeader{
+
+  .otpHeader {
     gap: 8px !important;
   }
+
   #otpWrapper {
     margin-left: 30px !important;
   }
+
+  .loginForm h5 {
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 28px;
+    color: white;
+  }
+
+  .form-row {
+    display: flex;
+    flex-direction: column !important;
+    gap: 24px !important;
+    width: 100%;
+  }
+
+  .form-row .inputField {
+    width: 100% !important;
+  }
+
+  .form-row .lastinputField {
+    width: 100% !important;
+  }
+
+  #secondaryContactMessage {
+    font-size: 24px;
+  }
+
+  #secondaryContactLabel {
+    font-size: 20px;
+  }
+
+  #skipButton {
+    margin-left: 14px;
+    padding: 6px 18px;
+    font-size: 14px;
+  }
+
+  #addButton {
+    padding: 6px 18px;
+    font-size: 14px;
+  }
 }
-    
-.otpErrorMessage{
+
+.otpErrorMessage {
   order: 1;
 }
 
@@ -179,12 +293,16 @@ outline: none;
 .form-row {
   display: flex;
   justify-content: space-between;
-  gap: 16px;
+  gap: 24px;
   width: 100%;
 }
 
 .form-row .inputField {
-  flex: 1;
+  width: 50%;
+}
+
+.form-row .lastinputField {
+  width: 50%;
 }
 
 /* ---------Resend OTP animation--------- */
@@ -200,9 +318,17 @@ outline: none;
 }
 
 @keyframes pulseBg {
-  0% { background-color: rgba(255, 255, 255, 0.2); }
-  50% { background-color: rgba(255, 255, 255, 0.4); }
-  100% { background-color: rgba(255, 255, 255, 0.2); }
+  0% {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+
+  50% {
+    background-color: rgba(255, 255, 255, 0.4);
+  }
+
+  100% {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
 }
 
 /* Chrome, Safari, Edge, Opera */
