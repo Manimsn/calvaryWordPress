@@ -1,3 +1,4 @@
+console.log("QA CAN PROCEED");
 const login = document.getElementById("loginButton");
 const inputElement = document.getElementById("loginInput");
 const errorDiv = document.getElementById("inputError");
@@ -304,7 +305,30 @@ async function resendOtp() {
       otpInputs.forEach((input) => (input.value = ""));
       // Reset previous error styles
       otpInputs.forEach((input) => (input.style.border = "2px solid white"));
-      if (oldErr) oldErr.remove();
+      if (!oldErr) {
+        otpSucess = document.createElement("div");
+        otpSucess.id = "otpErrorMessage";
+        otpSucess.style.fontSize = "14px";
+        otpSucess.style.marginTop = "8px";
+        otpSucess.style.color = "Green";
+        otpSucess.innerText = "Verification code sent successfully!";
+        otpSucess.classList.add("blink");
+        document.getElementById("otpResendSection").appendChild(otpSucess);
+
+        setTimeout(() => {
+          if (otpSucess) otpSucess.remove();
+        }, 3000);
+      }
+
+      oldErr.style.color = "Green";
+      oldErr.innerText = "Verification code sent successfully!";
+      oldErr.classList.add("blink");
+
+      setTimeout(() => {
+        oldErr.innerText = "";
+        oldErr.classList.remove("blink");
+      }, 3000);
+
       signInButton.disabled = true;
       signInButton.style.cursor = "not-allowed";
       signInButton.style.opacity = "0.6";
