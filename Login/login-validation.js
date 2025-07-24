@@ -64,13 +64,34 @@ function validateFirstName() {
     return false;
   }
 }
+function validateLastName() {
+  const lastName = document.getElementById("lastNameInput");
+  const lastNameError = document.getElementById("inputErrorLastName");
+
+  const input = lastName.value.trim();
+  if (input === "") {
+    lastNameError.textContent = "";
+    lastName.style.borderColor = "#D1D5DB"; // Reset to normal border
+    return true;
+  } else if (input.length < 25) {
+    lastNameError.textContent = "First name must be at least 2 characters.";
+    lastNameError.style.color = "#B91C1C";
+    lastName.style.borderColor = "#B91C1C"; // Add red border
+    return true;
+  } else {
+    lastNameError.textContent = "";
+    lastName.style.borderColor = "#D1D5DB"; // Reset to normal border
+    return false;
+  }
+}
 
 function validateSignupInput() {
   const hasFirstNameError = validateFirstName();
+  const hasLastNameError = validateLastName();
 
   const signUpButton = document.getElementById("signUpButton");
 
-  if (hasFirstNameError) {
+  if (hasFirstNameError || hasLastNameError) {
     signUpButton.disabled = true;
     signUpButton.style.cursor = "not-allowed";
   } else {
