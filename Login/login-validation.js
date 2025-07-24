@@ -22,7 +22,7 @@ function validateInput() {
   const inputElement = document.getElementById("loginInput");
   const errorDiv = document.getElementById("inputError");
   const input = inputElement.value.trim();
-  const continueBtn = document.getElementById("continueButton");  
+  const continueBtn = document.getElementById("continueButton");
 
   if (input === "") {
     continueBtn.disabled = true;
@@ -41,6 +41,41 @@ function validateInput() {
       "Please enter a valid email address or 10-digit phone number.";
     errorDiv.style.color = "#B91C1C";
     inputElement.style.borderColor = "#B91C1C"; // Add red border
+  }
+}
+
+function validateFirstName() {
+  const firstName = document.getElementById("firstNameInput");
+  const firstNameError = document.getElementById("inputErrorFirstName");
+
+  const input = firstName.value.trim();
+  if (input === "") {
+    firstNameError.textContent = "";
+    firstName.style.borderColor = "#D1D5DB"; // Reset to normal border
+    return true;
+  } else if (input.length < 25) {
+    firstNameError.textContent = "First name must be at least 2 characters.";
+    firstNameError.style.color = "#B91C1C";
+    firstName.style.borderColor = "#B91C1C"; // Add red border
+    return true;
+  } else {
+    firstNameError.textContent = "";
+    firstName.style.borderColor = "#D1D5DB"; // Reset to normal border
+    return false;
+  }
+}
+
+function validateSignupInput() {
+  const hasFirstNameError = validateFirstName();
+
+  const signUpButton = document.getElementById("signUpButton");
+
+  if (hasFirstNameError) {
+    signUpButton.disabled = true;
+    signUpButton.style.cursor = "not-allowed";
+  } else {
+    signUpButton.disabled = false;
+    signUpButton.style.cursor = "pointer";
   }
 }
 
@@ -222,20 +257,24 @@ async function verifyOtp() {
 
       // Proceed next - show phone field if SecondaryContact is null
       // alert("SecondaryContact: " + data.SecondaryContact);
-      if(data.SecondaryContact == null){
-        const isEmail = Phone_Email.includes('@');
+      if (data.SecondaryContact == null) {
+        const isEmail = Phone_Email.includes("@");
         const contactType = !isEmail ? "email address" : "phone number";
-        const placeholder = !isEmail ? "Enter your Email Address" : "Enter your Phone Number";
+        const placeholder = !isEmail
+          ? "Enter your Email Address"
+          : "Enter your Phone Number";
 
-        document.querySelectorAll(".Phone_Email").forEach(el => { el.textContent = contactType; });
+        document.querySelectorAll(".Phone_Email").forEach((el) => {
+          el.textContent = contactType;
+        });
 
-        document.getElementById("secondaryContactInput").placeholder = placeholder;
+        document.getElementById("secondaryContactInput").placeholder =
+          placeholder;
       }
       // Hide OTP form
       document.getElementById("otpSection").style.display = "none";
 
       document.getElementById("secondaryContactForm").style.display = "flex";
-
     } else {
       // Error: invalid OTP
       otpInputs.forEach((input) => (input.style.border = "2px solid #B91C1C"));
@@ -260,7 +299,7 @@ async function verifyOtp() {
 }
 
 function verifySecondaryContact() {
-   const input = document.getElementById("secondaryContactInput");
+  const input = document.getElementById("secondaryContactInput");
   // const continueBtn = document.getElementById("continueButton");
   const error = document.getElementById("inputErrorSecondary");
   const value = input.value.trim();
