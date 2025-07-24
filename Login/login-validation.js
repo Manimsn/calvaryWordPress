@@ -199,7 +199,7 @@ async function verifyOtp() {
 
   try {
     const response = await fetch(
-      "https://mobileserverdev.calvaryftl.org/v1.0/api/LoginCode/Confirm",
+      "https://mobileserverdev.calvaryftl.org/v1.0/api/LoginCode/Confirm", // needs to be changed to new version v1.1
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -220,7 +220,21 @@ async function verifyOtp() {
       localStorage.setItem("mpp-widgets_AuthToken", data.JwtToken);
 
       // Proceed next - show phone field if SecondaryContact is null
-      alert("SecondaryContact: " + data.SecondaryContact);
+      // alert("SecondaryContact: " + data.SecondaryContact);
+      if(data.SecondaryContact == null){
+        const isEmail = Phone_Email.includes('@');
+        const contactType = !isEmail ? "email address" : "phone number";
+        const placeholder = !isEmail ? "Enter your Email Address" : "Enter your Phone Number";
+
+        document.querySelectorAll(".Phone_Email").forEach(el => { el.textContent = contactType; });
+
+        document.getElementById("secondaryContactInput").placeholder = placeholder;
+      }
+      // Hide OTP form
+      document.getElementById("otpSection").style.display = "none";
+
+      document.getElementById("secondaryContactForm").style.display = "flex";
+
     } else {
       // Error: invalid OTP
       otpInputs.forEach((input) => (input.style.border = "2px solid #B91C1C"));
@@ -242,6 +256,20 @@ async function verifyOtp() {
   signInBtn.disabled = false;
   signInBtn.classList.remove("button-loading");
   signInBtn.innerText = "SIGN IN";
+}
+
+function verifySecondaryContact() {
+   const input = document.getElementById("secondaryContactInput");
+  // const continueBtn = document.getElementById("continueButton");
+  const error = document.getElementById("inputErrorSecondary");
+  const value = input.value.trim();
+
+  // Double check validation before calling API
+  if (!(validateEmail(value) || validatePhone(value))) {
+    error.innerText = "Please enter a valid email or phone number.";
+    input.style.borderColor = "#B91C1C";
+    return;
+  }
 }
 
 function showLoginForm() {
