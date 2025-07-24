@@ -22,8 +22,14 @@ function validateInput() {
   const inputElement = document.getElementById("loginInput");
   const errorDiv = document.getElementById("inputError");
   const input = inputElement.value.trim();
-  const continueBtn = document.getElementById("continueButton");
-  console.log("Validating input:", input);
+  const continueBtn = document.getElementById("continueButton");  
+
+  if (input === "") {
+    continueBtn.disabled = true;
+    errorDiv.textContent = "";
+    inputElement.style.borderColor = "#D1D5DB"; // Reset to normal border
+    return;
+  }
 
   if (validateEmail(input) || validatePhone(input)) {
     continueBtn.disabled = false;
