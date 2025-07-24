@@ -54,7 +54,7 @@ async function handleLogin() {
   // Start sending
   continueBtn.disabled = true;
   continueBtn.classList.add("button-loading");
-  continueBtn.innerText = "Sending...";
+  continueBtn.innerText = "SENDING...";
   error.innerText = "";
 
   try {
@@ -78,7 +78,7 @@ async function handleLogin() {
       input.style.borderColor = "#B91C1C";
       error.innerText = text || "Login failed.";
       continueBtn.disabled = false;
-      continueBtn.innerText = "Continue";
+      continueBtn.innerText = "CONTINUE";
     } else {
       // Success – show OTP section
       document.getElementById("otpSection").style.display = "flex";
@@ -109,7 +109,7 @@ async function handleLogin() {
     input.style.borderColor = "#B91C1C";
     error.innerText = "Something went wrong. Please try again.";
     continueBtn.disabled = false;
-    continueBtn.innerText = "Continue";
+    continueBtn.innerText = "CONTINUE";
   }
 }
 
@@ -189,7 +189,7 @@ async function verifyOtp() {
   // Show loading UI
   signInBtn.disabled = true;
   signInBtn.classList.add("button-loading");
-  signInBtn.innerText = "Verifying...";
+  signInBtn.innerText = "VERIFYING...";
 
   try {
     const response = await fetch(
@@ -243,7 +243,7 @@ function showLoginForm() {
   // Show login form
   const continueBtn = document.getElementById("continueButton");
   continueBtn.classList.remove("button-loading");
-  continueBtn.innerText = "Continue";
+  continueBtn.innerText = "CONTINUE";
   document.getElementById("loginForm").style.display = "block";
 
   // Hide OTP form
@@ -377,7 +377,7 @@ document.addEventListener("click", function (e) {
     }
 
     if (continueBtn) {
-      continueBtn.innerText = "Continue";
+      continueBtn.innerText = "CONTINUE";
     }
   }
 });
@@ -396,7 +396,7 @@ jQuery(document).ready(function ($) {
     }
     if (error) error.innerText = "";
     if (continueBtn) {
-      continueBtn.innerText = "Continue";
+      continueBtn.innerText = "CONTINUE";
     }
   });
 });
