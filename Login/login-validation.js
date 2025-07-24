@@ -148,6 +148,7 @@ function setupOtpListeners() {
   otpInputs.forEach((input, index) => {
     input.addEventListener("input", (e) => {
       const value = e.target.value;
+      e.target.value = value.slice(0, 1); // allow only first digit
       if (value.length === 1 && index < otpInputs.length - 1) {
         otpInputs[index + 1].focus();
       }
