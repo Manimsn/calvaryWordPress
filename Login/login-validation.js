@@ -222,7 +222,7 @@ async function verifyOtp() {
       err.id = "otpErrorMessage";
       err.style.color = "#B91C1C";
       err.style.fontSize = "14px";
-      err.style.marginTop = "10px";
+      err.style.marginTop = "8px";
       err.innerText = "Invalid or expired code. Please try again.";
       document.getElementById("otpResendSection").appendChild(err);
     }
@@ -260,11 +260,14 @@ function showLoginForm() {
 let isResending = false;
 
 async function resendOtp() {
+  console.log("CALLING RESEND OTP", isResending);
   if (isResending) return; // Prevent multiple clicks
   const input = document.getElementById("loginInput");
   const value = input.value.trim();
   const resetCodeLink = document.getElementById("resetCodeLink");
-  isResending = true;
+  const otpInputs = document.querySelectorAll(".otpInputBox"); // Remove existing error message
+  const oldErr = document.getElementById("otpErrorMessage");
+  const signInButton = document.getElementById("signInButton");
 
   resetCodeLink.classList.add("link-loading");
   resetCodeLink.textContent = "Resending...";
@@ -297,7 +300,16 @@ async function resendOtp() {
       resetCodeLink.classList.remove("link-loading");
       resetCodeLink.textContent = "Resend Code";
       isResending = false;
-      alert(value);
+      // alert(value);
+      otpInputs.forEach((input) => (input.value = ""));
+      // Reset previous error styles
+      otpInputs.forEach((input) => (input.style.border = "2px solid white"));
+      if (oldErr) oldErr.remove();
+      signInButton.disabled = true;
+      signInButton.style.cursor = "not-allowed";
+      signInButton.style.opacity = "0.6";
+      signInButton.style.backgroundColor = "transparent";
+      signInButton.style.color = "white";
     }
   } catch (err) {
     // input.style.borderColor = "#B91C1C";
@@ -320,6 +332,16 @@ document.addEventListener("click", function (e) {
     const input = document.getElementById("loginInput");
     const continueBtn = document.getElementById("continueButton");
     const error = document.getElementById("inputError");
+    const otpInputs = document.querySelectorAll(".otpInputBox");
+    const oldErr = document.getElementById("otpErrorMessage");
+
+    if (oldErr) oldErr.remove();
+
+    if (otpInputs) {
+      otpInputs.forEach((input) => (input.value = ""));
+      // Reset previous error styles
+      otpInputs.forEach((input) => (input.style.border = "2px solid white"));
+    }
 
     if (input) {
       input.value = "";
