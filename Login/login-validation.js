@@ -44,62 +44,6 @@ function validateInput() {
   }
 }
 
-function validateFirstName() {
-  const firstName = document.getElementById("firstNameInput");
-  const firstNameError = document.getElementById("inputErrorFirstName");
-
-  const input = firstName.value.trim();
-  if (input === "") {
-    firstNameError.textContent = "";
-    firstName.style.borderColor = "#D1D5DB"; // Reset to normal border
-    return true;
-  } else if (input.length < 25) {
-    firstNameError.textContent = "First name must be at least 2 characters.";
-    firstNameError.style.color = "#B91C1C";
-    firstName.style.borderColor = "#B91C1C"; // Add red border
-    return true;
-  } else {
-    firstNameError.textContent = "";
-    firstName.style.borderColor = "#D1D5DB"; // Reset to normal border
-    return false;
-  }
-}
-function validateLastName() {
-  const lastName = document.getElementById("lastNameInput");
-  const lastNameError = document.getElementById("inputErrorLastName");
-
-  const input = lastName.value.trim();
-  if (input === "") {
-    lastNameError.textContent = "";
-    lastName.style.borderColor = "#D1D5DB"; // Reset to normal border
-    return true;
-  } else if (input.length < 25) {
-    lastNameError.textContent = "First name must be at least 2 characters.";
-    lastNameError.style.color = "#B91C1C";
-    lastName.style.borderColor = "#B91C1C"; // Add red border
-    return true;
-  } else {
-    lastNameError.textContent = "";
-    lastName.style.borderColor = "#D1D5DB"; // Reset to normal border
-    return false;
-  }
-}
-
-function validateSignupInput() {
-  const hasFirstNameError = validateFirstName();
-  const hasLastNameError = validateLastName();
-
-  const signUpButton = document.getElementById("signUpButton");
-
-  if (hasFirstNameError || hasLastNameError) {
-    signUpButton.disabled = true;
-    signUpButton.style.cursor = "not-allowed";
-  } else {
-    signUpButton.disabled = false;
-    signUpButton.style.cursor = "pointer";
-  }
-}
-
 async function handleLogin() {
   const input = document.getElementById("loginInput");
   const continueBtn = document.getElementById("continueButton");
@@ -136,6 +80,7 @@ async function handleLogin() {
       if (response.status === 404) {
         document.getElementById("loginForm").style.display = "none";
         document.getElementById("signupSection").style.display = "flex";
+        document.getElementById("emailInput").value = value;
       }
       input.style.borderColor = "#B91C1C";
       error.innerText = text || "Login failed.";
@@ -495,3 +440,91 @@ jQuery(document).ready(function ($) {
     }
   });
 });
+
+// ----------------------------------SING UP---------------------------
+function validateFirstName() {
+  const firstName = document.getElementById("firstNameInput");
+  const firstNameError = document.getElementById("inputErrorFirstName");
+
+  const input = firstName.value.trim();
+  if (input === "") {
+    firstNameError.textContent = "";
+    firstName.style.borderColor = "#D1D5DB"; // Reset to normal border
+    return false;
+  } else if (input.length > 25) {
+    firstNameError.textContent =
+      "First name should not be greater than 25 characters.";
+    firstNameError.style.color = "#B91C1C";
+    firstName.style.borderColor = "#B91C1C"; // Add red border
+    return false;
+  } else {
+    firstNameError.textContent = "";
+    firstName.style.borderColor = "#D1D5DB"; // Reset to normal border
+    return true;
+  }
+}
+
+function validateLastName() {
+  const lastName = document.getElementById("lastNameInput");
+  const lastNameError = document.getElementById("inputErrorLastName");
+
+  const input = lastName.value.trim();
+  if (input === "") {
+    lastNameError.textContent = "";
+    lastName.style.borderColor = "#D1D5DB"; // Reset to normal border
+    return false;
+  } else if (input.length > 25) {
+    lastNameError.textContent =
+      "Last name should not be greater than 25 characters.";
+    lastNameError.style.color = "#B91C1C";
+    lastName.style.borderColor = "#B91C1C"; // Add red border
+    return false;
+  } else {
+    lastNameError.textContent = "";
+    lastName.style.borderColor = "#D1D5DB"; // Reset to normal border
+    return true;
+  }
+}
+
+let emailTouched = false;
+
+function validateSignupInput(event) {
+  const inputElement = document.getElementById("emailInput");
+  const errorDiv = document.getElementById("inputErrorEmail");
+
+  if (event?.target?.id === "emailInput") {
+    emailTouched = true;
+  }
+
+  const isFirstNameValid = validateFirstName();
+  const isLastNameValid = validateLastName();
+  const input = inputElement.value.trim();
+  const signUpButton = document.getElementById("signUpButton");
+
+  if (input === "") {
+    signUpButton.disabled = true;
+    errorDiv.textContent = "";
+    inputElement.style.borderColor = "#D1D5DB"; // Reset to normal border
+    return;
+  }
+
+  const isEmailValid = validateEmail(input);
+  const isPhoneValid = validatePhone(input);
+
+  const allValid =
+    isFirstNameValid && isLastNameValid && (isEmailValid || isPhoneValid);
+
+  // Show email/phone error only if touched
+  if (emailTouched && !isEmailValid && !isPhoneValid) {
+    errorDiv.textContent =
+      "Please enter a valid email address or 10-digit phone number.";
+    errorDiv.style.color = "#B91C1C";
+    inputElement.style.borderColor = "#B91C1C";
+  } else if (emailTouched) {
+    errorDiv.textContent = "";
+    inputElement.style.borderColor = "#D1D5DB";
+  }
+
+  signUpButton.disabled = !allValid;
+  signUpButton.style.cursor = allValid ? "pointer" : "not-allowed";
+}
