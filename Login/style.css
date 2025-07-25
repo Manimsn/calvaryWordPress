@@ -146,6 +146,7 @@
   width: 100%;
 }
 
+.signupotpInputBox,
 .otpInputBox {
   width: 64px;
   height: 55px;

@@ -93,9 +93,11 @@
     <!-- ------------------------------------ SING UP OTP SECTION START ------------------------------------ -->
     <div id="signupotpSection" style="display: none; flex-direction: column; gap: 24px;">
         <div class="otpHeader" style="display: flex; align-items: center; gap: 32px;">
-            <span id="otpBackArrow" style="cursor: pointer; font-size: 24px; align-self: flex-start">←</span>
+            <span id="signupotpBackArrow" onclick="showSignupForm()"
+                style="cursor: pointer; font-size: 24px; align-self: flex-start">←</span>
             <p id="otpText" style="margin: 0; color: white; font-size: 20px;">Enter the code sent to <span
-                    id="signupUserValueDisplay" style="font-weight: bold; color: #005B78; word-break: break-word;"></span></p>
+                    id="signupUserValueDisplay"
+                    style="font-weight: bold; color: #005B78; word-break: break-word;"></span></p>
         </div>
 
         <!-- OTP Boxes aligned-->
@@ -103,12 +105,12 @@
             style="display: flex; flex-direction: column; align-items: start; gap: 6px; margin-left: 52px;">
             <div style="display: flex; flex-direction: column; align-items: flex-end;">
                 <div id="otpBoxes" style="display: flex; gap: 8px;">
-                    <input maxlength="1" type="number" min="0" max="9" class="otpInputBox no-spinner" />
-                    <input maxlength="1" type="number" min="0" max="9" class="otpInputBox no-spinner" />
-                    <input maxlength="1" type="number" min="0" max="9" class="otpInputBox no-spinner" />
-                    <input maxlength="1" type="number" min="0" max="9" class="otpInputBox no-spinner" />
-                    <input maxlength="1" type="number" min="0" max="9" class="otpInputBox no-spinner" />
-                    <input maxlength="1" type="number" min="0" max="9" class="otpInputBox no-spinner" />
+                    <input maxlength="1" type="number" min="0" max="9" class="signupotpInputBox no-spinner" />
+                    <input maxlength="1" type="number" min="0" max="9" class="signupotpInputBox no-spinner" />
+                    <input maxlength="1" type="number" min="0" max="9" class="signupotpInputBox no-spinner" />
+                    <input maxlength="1" type="number" min="0" max="9" class="signupotpInputBox no-spinner" />
+                    <input maxlength="1" type="number" min="0" max="9" class="signupotpInputBox no-spinner" />
+                    <input maxlength="1" type="number" min="0" max="9" class="signupotpInputBox no-spinner" />
                 </div>
                 <div id="otpResendSection"
                     style="display: flex; align-items: flex-end; justify-content: space-between; width: 100%">
@@ -120,7 +122,7 @@
             </div>
         </div>
 
-        <button id="signInButton" onclick="verifyOtp()" disabled style=" margin: 0 auto; padding: 10px 30px; border-radius: 50px; background: transparent; color: white;
+        <button id="signupOTPButton" onclick="verifyOtp()" disabled style=" margin: 0 auto; padding: 10px 30px; border-radius: 50px; background: transparent; color: white;
             border: 1px solid white; font-weight: bold;">
             SIGN IN
         </button>

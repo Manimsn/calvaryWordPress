@@ -618,13 +618,13 @@ async function submitSignup(event) {
       console.log("API Response:emailInput length", email_phone);
 
       // Focus OTP box
-      const otpBox = document.querySelector(".otpInputBox");
+      const otpBox = document.querySelector(".signupotpInputBox");
       if (otpBox) otpBox.focus();
 
       // Optional: Attach OTP listeners once
       if (!window.otpListenersAttached) {
-        if (typeof setupOtpListeners === "function") {
-          setupOtpListeners();
+        if (typeof setupSignUpOtpListeners === "function") {
+          setupSignUpOtpListeners();
           window.otpListenersAttached = true;
         }
       }
@@ -637,4 +637,86 @@ async function submitSignup(event) {
     signUpButton.innerText = "CONTINUE";
     alert("An error occurred while submitting your signup. Please try again.");
   }
+}
+
+function showSignupForm() {
+  console.log("showSignupForm");
+  // Show login form
+  const singupBtn = document.getElementById("signUpButton");
+  
+  const signUpOTPButton = document.getElementById("signupOTPButton");
+  singupBtn.classList.remove("button-loading");
+  singupBtn.innerText = "CONTINUE";
+  document.getElementById("signupSection").style.display = "block";
+
+  // Hide OTP form
+  document.getElementById("signupotpSection").style.display = "none";
+
+  // Optional: Reset OTP inputs
+  const otpInputs = document.querySelectorAll(".signupotpInputBox");
+  otpInputs.forEach((input) => (input.value = ""));
+  signUpOTPButton.disabled = true;
+
+  // Optional: Clear any OTP errors
+  const otpError = document.getElementById("otpErrorMessage");
+  if (otpError) otpError.remove();
+
+  
+}
+
+function checkSignupOtpAndToggleButton() {
+  const otpInputs = document.querySelectorAll(".signupotpInputBox");
+  const signUpOTPButton = document.getElementById("signupOTPButton");
+
+  const enteredDigits = Array.from(otpInputs)
+    .map((input) => input.value.trim())
+    .join("");
+
+  if (enteredDigits.length === 6 && /^\d{6}$/.test(enteredDigits)) {
+    signUpOTPButton.disabled = false;
+    signUpOTPButton.style.cursor = "pointer";
+    signUpOTPButton.style.opacity = "1";
+    signUpOTPButton.style.backgroundColor = "white";
+    signUpOTPButton.style.color = "#00B5EF";
+  } else {
+    signUpOTPButton.disabled = true;
+    signUpOTPButton.style.cursor = "not-allowed";
+    signUpOTPButton.style.opacity = "0.6";
+    signUpOTPButton.style.backgroundColor = "transparent";
+    signUpOTPButton.style.color = "white";
+  }
+}
+
+function setupSignUpOtpListeners() {
+  const otpInputs = document.querySelectorAll(".signupotpInputBox");
+
+  otpInputs.forEach((input, index) => {
+    input.addEventListener("input", (e) => {
+      const value = e.target.value;
+      e.target.value = value.slice(0, 1); // allow only first digit
+      if (value.length === 1 && index < otpInputs.length - 1) {
+        otpInputs[index + 1].focus();
+      }
+
+      checkSignupOtpAndToggleButton(); // ✅ Add this here
+    });
+
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Backspace" && !e.target.value && index > 0) {
+        otpInputs[index - 1].focus();
+      }
+    });
+
+    input.addEventListener("keyup", () => {
+      checkSignupOtpAndToggleButton();
+    });
+
+    input.addEventListener("keypress", (e) => {
+      if (!/\d/.test(e.key)) {
+        e.preventDefault();
+      }
+    });
+  });
+
+  checkSignupOtpAndToggleButton(); // Initial state check
 }
