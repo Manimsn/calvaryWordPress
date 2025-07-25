@@ -488,6 +488,7 @@ function validateLastName() {
 
 let emailTouched = false;
 
+
 function validateSignupInput(event) {
   const inputElement = document.getElementById("emailInput");
   const errorDiv = document.getElementById("inputErrorEmail");
@@ -502,29 +503,111 @@ function validateSignupInput(event) {
   const signUpButton = document.getElementById("signUpButton");
 
   if (input === "") {
+    if (emailTouched || !event) {
+      errorDiv.textContent = "Email or phone number is required.";
+      errorDiv.style.color = "#B91C1C";
+      inputElement.style.borderColor = "#B91C1C";
+    }
     signUpButton.disabled = true;
-    errorDiv.textContent = "";
-    inputElement.style.borderColor = "#D1D5DB"; // Reset to normal border
-    return;
+    signUpButton.style.cursor = "not-allowed";
+    return false;
   }
 
   const isEmailValid = validateEmail(input);
   const isPhoneValid = validatePhone(input);
+  const isEmailOrPhoneValid = isEmailValid || isPhoneValid;
 
-  const allValid =
-    isFirstNameValid && isLastNameValid && (isEmailValid || isPhoneValid);
+  const allValid = isFirstNameValid && isLastNameValid && isEmailOrPhoneValid;
 
-  // Show email/phone error only if touched
-  if (emailTouched && !isEmailValid && !isPhoneValid) {
+  if ((emailTouched || !event) && !isEmailOrPhoneValid) {
     errorDiv.textContent =
       "Please enter a valid email address or 10-digit phone number.";
     errorDiv.style.color = "#B91C1C";
     inputElement.style.borderColor = "#B91C1C";
-  } else if (emailTouched) {
+  } else if (emailTouched || !event) {
     errorDiv.textContent = "";
     inputElement.style.borderColor = "#D1D5DB";
   }
 
   signUpButton.disabled = !allValid;
   signUpButton.style.cursor = allValid ? "pointer" : "not-allowed";
+
+  return allValid;
+}
+
+
+async function handleSignupCode() {
+  const input = document.getElementById("emailInput");
+  const continueBtn = document.getElementById("continueButton");
+  const error = document.getElementById("inputErrorEmail");
+  const value = input.value.trim();
+
+  // Double check validation before calling API
+  if (!(validateEmail(value) || validatePhone(value))) {
+    error.innerText = "Please enter a valid email or phone number.";
+    input.style.borderColor = "#B91C1C";
+    return;
+  }
+
+  // Start sending
+  continueBtn.disabled = true;
+  continueBtn.classList.add("button-loading");
+  continueBtn.innerText = "SENDING...";
+  error.innerText = "";
+
+  try {
+    const response = await fetch(
+      "https://mobileserverdev.calvaryftl.org/api/LoginCode",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ Phone_Email: value }),
+      }
+    );
+
+    const text = await response.text();
+
+    if (!response.ok) {
+      console.log(response);
+      if (response.status === 404) {
+        document.getElementById("loginForm").style.display = "none";
+        document.getElementById("signupSection").style.display = "flex";
+        document.getElementById("emailInput").value = value;
+      }
+      input.style.borderColor = "#B91C1C";
+      error.innerText = text || "Login failed.";
+      continueBtn.disabled = false;
+      continueBtn.innerText = "CONTINUE";
+    } else {
+      // Success – show OTP section
+      document.getElementById("otpSection").style.display = "flex";
+      document.getElementById("userValueDisplay").innerText = value;
+
+      // Hide initial login form
+      // document.querySelector("img").style.display = "none";
+      // document.querySelector("h2").style.display = "none";
+      // document.querySelector("p").style.display = "none";
+      document.getElementById("loginForm").style.display = "none";
+      // input.style.display = "none";
+      // continueBtn.style.display = "none";
+      error.innerText = "";
+
+      // Focus OTP box
+      const otpBox = document.querySelector(".otpInputBox");
+      if (otpBox) otpBox.focus();
+
+      // Optional: Attach OTP listeners once
+      if (!window.otpListenersAttached) {
+        if (typeof setupOtpListeners === "function") {
+          setupOtpListeners();
+          window.otpListenersAttached = true;
+        }
+      }
+    }
+  } catch (err) {
+    input.style.borderColor = "#B91C1C";
+    error.innerText = "Something went wrong. Please try again.";
+    continueBtn.disabled = false;
+    continueBtn.innerText = "CONTINUE";
+  }
 }
