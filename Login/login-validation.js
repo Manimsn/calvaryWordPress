@@ -643,7 +643,7 @@ function showSignupForm() {
   console.log("showSignupForm");
   // Show login form
   const singupBtn = document.getElementById("signUpButton");
-  
+
   const signUpOTPButton = document.getElementById("signupOTPButton");
   singupBtn.classList.remove("button-loading");
   singupBtn.innerText = "CONTINUE";
@@ -660,8 +660,6 @@ function showSignupForm() {
   // Optional: Clear any OTP errors
   const otpError = document.getElementById("otpErrorMessage");
   if (otpError) otpError.remove();
-
-  
 }
 
 function checkSignupOtpAndToggleButton() {
@@ -719,4 +717,103 @@ function setupSignUpOtpListeners() {
   });
 
   checkSignupOtpAndToggleButton(); // Initial state check
+}
+
+let isSignUpResending = false;
+
+async function resendSignUpOtp() {
+  console.log("CALLING RESEND OTP", isSignUpResending);
+  if (isSignUpResending) return; // Prevent multiple clicks
+
+  const firstName = document.getElementById("firstNameInput");
+  const lastName = document.getElementById("lastNameInput");
+  const emailInput = document.getElementById("emailInput");
+  const resetCodeLink = document.getElementById("signupResetCodeLink");
+  const otpInputs = document.querySelectorAll(".signupotpInputBox"); // Remove existing error message
+  const signUpOtpBtn = document.getElementById("signupOTPButton");
+  const oldErr = document.getElementById("otpSignupErrorMessage");
+
+  const isValid = validateSignupInput(); // No event passed
+  const email_phone = emailInput.value.trim();
+  const firstNameValue = firstName.value.trim();
+  const lastNameValue = lastName.value.trim();
+
+  if (!isValid) return;
+
+  const payload = {
+    code: {
+      Phone_Email: email_phone,
+    },
+    First_Name: firstNameValue,
+    Last_Name: lastNameValue,
+  };
+
+
+  resetCodeLink.classList.add("link-loading");
+  resetCodeLink.textContent = "Resending...";
+
+  try {
+    const response = await fetch(
+      "https://mobileserverdev.calvaryftl.org/api/SignupCode",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      }
+    );
+
+    const text = await response.text();
+
+    if (!response.ok) {
+      console.log(response);
+      if (response.status === 404) {
+        console.log(response.status);
+      }
+
+      resetCodeLink.classList.remove("link-loading");
+      resetCodeLink.textContent = "Resend Code";
+      isSignUpResending = false;
+    } else {
+      resetCodeLink.classList.remove("link-loading");
+      resetCodeLink.textContent = "Resend Code";
+      isSignUpResending = false;
+      // alert(value);
+      otpInputs.forEach((input) => (input.value = ""));
+      // Reset previous error styles
+      otpInputs.forEach((input) => (input.style.border = "2px solid white"));
+      if (!oldErr) {
+        otpSucess = document.createElement("div");
+        otpSucess.id = "otpSignupErrorMessage";
+        otpSucess.style.fontSize = "14px";
+        otpSucess.style.marginTop = "8px";
+        otpSucess.style.color = "Green";
+        otpSucess.innerText = "Verification code sent successfully!";
+        otpSucess.classList.add("blink");
+        document.getElementById("signupotpResendSection").appendChild(otpSucess);
+
+        setTimeout(() => {
+          if (otpSucess) otpSucess.remove();
+        }, 3000);
+      }
+
+      oldErr.style.color = "Green";
+      oldErr.innerText = "Verification code sent successfully!";
+      oldErr.classList.add("blink");
+
+      setTimeout(() => {
+        oldErr.innerText = "";
+        oldErr.classList.remove("blink");
+      }, 3000);
+
+      signUpOtpBtn.disabled = true;
+      signUpOtpBtn.style.cursor = "not-allowed";
+      signUpOtpBtn.style.opacity = "0.6";
+      signUpOtpBtn.style.backgroundColor = "transparent";
+      signUpOtpBtn.style.color = "white";
+    }
+  } catch (err) {
+    resetCodeLink.classList.remove("link-loading");
+    resetCodeLink.textContent = "Resend Code";
+    isSignUpResending = false;
+  }
 }
