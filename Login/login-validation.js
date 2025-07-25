@@ -545,15 +545,18 @@ async function submitSignup(event) {
   const errorlastName = document.getElementById("inputErrorLastName");
 
   const isValid = validateSignupInput(); // No event passed
+  const email_phone = emailInput.value.trim();
+  const firstNameValue = firstName.value.trim();
+  const lastNameValue = lastName.value.trim();
 
   if (!isValid) return;
 
   const payload = {
     code: {
-      Phone_Email: emailInput.value.trim(),
+      Phone_Email: email_phone,
     },
-    First_Name: firstName.value.trim(),
-    Last_Name: lastName.value.trim(),
+    First_Name: firstNameValue,
+    Last_Name: lastNameValue,
   };
 
   // Start sending
@@ -573,14 +576,7 @@ async function submitSignup(event) {
     );
 
     const text = await response.text();
-    console.log("API Response:", response);
-    console.log("API Response:text", text);
-    console.log("API Response:firstName length", firstName.length);
-    console.log("API Response:lastName length", lastName.value.trim().length);
-    console.log(
-      "API Response:emailInput length",
-      emailInput.value.trim().length
-    );
+
     if (!response.ok) {
       if (firstName.value.trim().length === 0) {
         // status - 400
@@ -608,9 +604,30 @@ async function submitSignup(event) {
       signUpButton.classList.remove("button-loading");
       signUpButton.disabled = false;
       signUpButton.innerText = "CONTINUE";
-      alert(
-        "Signup successful! Please check your email or phone for the verification code."
-      );
+      document.getElementById("signupSection").style.display = "none";
+      document.getElementById("signupotpSection").style.display = "flex";
+      document.getElementById("signupUserValueDisplay").innerText = email_phone;
+      errorFirstName.innerText = "";
+      errorlastName.innerText = "";
+      errorDiv.innerText = "";
+
+      console.log("API Response:", response);
+      console.log("API Response:text", text);
+      console.log("API Response:firstName length", firstNameValue);
+      console.log("API Response:lastName length", lastNameValue);
+      console.log("API Response:emailInput length", email_phone);
+
+      // Focus OTP box
+      const otpBox = document.querySelector(".otpInputBox");
+      if (otpBox) otpBox.focus();
+
+      // Optional: Attach OTP listeners once
+      if (!window.otpListenersAttached) {
+        if (typeof setupOtpListeners === "function") {
+          setupOtpListeners();
+          window.otpListenersAttached = true;
+        }
+      }
     }
   } catch (error) {
     console.error("Error submitting signup:", error);
