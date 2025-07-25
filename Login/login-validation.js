@@ -488,7 +488,6 @@ function validateLastName() {
 
 let emailTouched = false;
 
-
 function validateSignupInput(event) {
   const inputElement = document.getElementById("emailInput");
   const errorDiv = document.getElementById("inputErrorEmail");
@@ -535,79 +534,90 @@ function validateSignupInput(event) {
   return allValid;
 }
 
+async function submitSignup(event) {
+  event.preventDefault();
+  const firstName = document.getElementById("firstNameInput");
+  const lastName = document.getElementById("lastNameInput");
+  const emailInput = document.getElementById("emailInput");
+  const errorDiv = document.getElementById("inputErrorEmail");
+  const signUpButton = document.getElementById("signUpButton");
+  const errorFirstName = document.getElementById("inputErrorFirstName");
+  const errorlastName = document.getElementById("inputErrorLastName");
 
-async function handleSignupCode() {
-  const input = document.getElementById("emailInput");
-  const continueBtn = document.getElementById("continueButton");
-  const error = document.getElementById("inputErrorEmail");
-  const value = input.value.trim();
+  const isValid = validateSignupInput(); // No event passed
 
-  // Double check validation before calling API
-  if (!(validateEmail(value) || validatePhone(value))) {
-    error.innerText = "Please enter a valid email or phone number.";
-    input.style.borderColor = "#B91C1C";
-    return;
-  }
+  if (!isValid) return;
+
+  const payload = {
+    code: {
+      Phone_Email: emailInput.value.trim(),
+    },
+    First_Name: firstName.value.trim(),
+    Last_Name: lastName.value.trim(),
+  };
 
   // Start sending
-  continueBtn.disabled = true;
-  continueBtn.classList.add("button-loading");
-  continueBtn.innerText = "SENDING...";
-  error.innerText = "";
+  signUpButton.disabled = true;
+  signUpButton.classList.add("button-loading");
+  signUpButton.innerText = "SENDING...";
+  errorDiv.innerText = "";
 
   try {
     const response = await fetch(
-      "https://mobileserverdev.calvaryftl.org/api/LoginCode",
+      "https://mobileserverdev.calvaryftl.org/api/SignupCode",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ Phone_Email: value }),
+        body: JSON.stringify(payload),
       }
     );
 
     const text = await response.text();
-
+    console.log("API Response:", response);
+    console.log("API Response:text", text);
+    console.log("API Response:firstName length", firstName.length);
+    console.log("API Response:lastName length", lastName.value.trim().length);
+    console.log(
+      "API Response:emailInput length",
+      emailInput.value.trim().length
+    );
     if (!response.ok) {
-      console.log(response);
-      if (response.status === 404) {
-        document.getElementById("loginForm").style.display = "none";
-        document.getElementById("signupSection").style.display = "flex";
-        document.getElementById("emailInput").value = value;
+      if (firstName.value.trim().length === 0) {
+        // status - 400
+        errorFirstName.innerText = "First name is required.";
+        errorFirstName.style.color = "#B91C1C";
+        document.getElementById("firstNameInput").style.borderColor = "#B91C1C";
       }
-      input.style.borderColor = "#B91C1C";
-      error.innerText = text || "Login failed.";
-      continueBtn.disabled = false;
-      continueBtn.innerText = "CONTINUE";
+      if (lastName.value.trim().length === 0) {
+        errorlastName.innerText = "Last name is required.";
+        errorlastName.style.color = "#B91C1C";
+        lastName.style.borderColor = "#B91C1C";
+      }
+      if (emailInput.value.trim().length === 0) {
+        errorDiv.innerText = "Email or phone number is required.";
+        errorDiv.style.color = "#B91C1C";
+        emailInput.style.borderColor = "#B91C1C";
+      }
+      emailInput.style.borderColor = "#B91C1C";
+      errorDiv.innerText = text || "Login failed.";
+      signUpButton.classList.remove("button-loading");
+      signUpButton.disabled = false;
+      signUpButton.innerText = "CONTINUE";
     } else {
-      // Success – show OTP section
-      document.getElementById("otpSection").style.display = "flex";
-      document.getElementById("userValueDisplay").innerText = value;
-
-      // Hide initial login form
-      // document.querySelector("img").style.display = "none";
-      // document.querySelector("h2").style.display = "none";
-      // document.querySelector("p").style.display = "none";
-      document.getElementById("loginForm").style.display = "none";
-      // input.style.display = "none";
-      // continueBtn.style.display = "none";
-      error.innerText = "";
-
-      // Focus OTP box
-      const otpBox = document.querySelector(".otpInputBox");
-      if (otpBox) otpBox.focus();
-
-      // Optional: Attach OTP listeners once
-      if (!window.otpListenersAttached) {
-        if (typeof setupOtpListeners === "function") {
-          setupOtpListeners();
-          window.otpListenersAttached = true;
-        }
-      }
+      console.log("API Response:else", response);
+      signUpButton.classList.remove("button-loading");
+      signUpButton.disabled = false;
+      signUpButton.innerText = "CONTINUE";
+      alert(
+        "Signup successful! Please check your email or phone for the verification code."
+      );
     }
-  } catch (err) {
-    input.style.borderColor = "#B91C1C";
-    error.innerText = "Something went wrong. Please try again.";
-    continueBtn.disabled = false;
-    continueBtn.innerText = "CONTINUE";
+  } catch (error) {
+    console.error("Error submitting signup:", error);
+    emailInput.style.borderColor = "#B91C1C";
+    errorDiv.innerText = "Something went wrong. Please try again.";
+    signUpButton.disabled = false;
+    signUpButton.innerText = "CONTINUE";
+    alert("An error occurred while submitting your signup. Please try again.");
   }
 }

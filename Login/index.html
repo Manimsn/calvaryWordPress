@@ -62,7 +62,8 @@
     <div id="signupSection" class="loginForm" style="display: none; flex-direction: column;">
         <h5>You're almost there – just a few more details to sign up!</h5>
 
-        <form style="display: flex; flex-direction: column; gap: 24px; width: 100%; align-items: center;">
+        <form onsubmit="submitSignup(event)"
+            style="display: flex; flex-direction: column; gap: 24px; width: 100%; align-items: center;">
             <div class="form-row">
                 <div class="inputField">
                     <label for="firstName">First Name*</label>
