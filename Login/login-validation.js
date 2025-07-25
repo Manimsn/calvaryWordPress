@@ -748,7 +748,6 @@ async function resendSignUpOtp() {
     Last_Name: lastNameValue,
   };
 
-
   resetCodeLink.classList.add("link-loading");
   resetCodeLink.textContent = "Resending...";
 
@@ -789,7 +788,9 @@ async function resendSignUpOtp() {
         otpSucess.style.color = "Green";
         otpSucess.innerText = "Verification code sent successfully!";
         otpSucess.classList.add("blink");
-        document.getElementById("signupotpResendSection").appendChild(otpSucess);
+        document
+          .getElementById("signupotpResendSection")
+          .appendChild(otpSucess);
 
         setTimeout(() => {
           if (otpSucess) otpSucess.remove();
@@ -816,4 +817,106 @@ async function resendSignUpOtp() {
     resetCodeLink.textContent = "Resend Code";
     isSignUpResending = false;
   }
+}
+
+async function verifySingupOtp() {
+  const signUpOtpBtn = document.getElementById("signupOTPButton");
+  const signUpotpInputs = document.querySelectorAll(".signupotpInputBox");
+
+  const firstName = document.getElementById("firstNameInput");
+  const lastName = document.getElementById("lastNameInput");
+  const emailInput = document.getElementById("emailInput");
+
+  const Code = Array.from(signUpotpInputs)
+    .map((input) => input.value.trim())
+    .join("");
+
+  const email_phone = emailInput.value.trim();
+  const firstNameValue = firstName.value.trim();
+  const lastNameValue = lastName.value.trim();
+
+  const payload = {
+    code: {
+      Phone_Email: email_phone,
+      Code,
+      DeviceID: "string",
+      API_Key: "string",
+    },
+    First_Name: firstNameValue,
+    Last_Name: lastNameValue,
+  };
+
+  // Reset previous error styles
+  signUpotpInputs.forEach((input) => (input.style.border = "2px solid white"));
+
+  // Remove existing error message
+  const oldErr = document.getElementById("otpSignupErrorMessage");
+  if (oldErr) oldErr.remove();
+
+  // Show loading UI
+  signUpOtpBtn.disabled = true;
+  signUpOtpBtn.classList.add("button-loading");
+  signUpOtpBtn.innerText = "VERIFYING...";
+
+  try {
+    const response = await fetch(
+      "https://mobileserverdev.calvaryftl.org/api/SignUpCode/Confirm", // needs to be changed to new version v1.1
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      }
+    );
+
+    if (response.ok) {
+      const data = await response.json();
+      console.log("✅ OTP Verified:", data);
+
+      // Save JWT Token
+      localStorage.setItem("mpp-widgets_AuthToken", data.JwtToken);
+
+      // Proceed next - show phone field if SecondaryContact is null
+      // alert("SecondaryContact: " + data.SecondaryContact);
+      if (data.SecondaryContact == null) {
+        const isEmail = email_phone.includes("@");
+        const contactType = !isEmail ? "email address" : "phone number";
+        const placeholder = !isEmail
+          ? "Enter your Email Address"
+          : "Enter your Phone Number";
+
+        document.querySelectorAll(".Phone_Email").forEach((el) => {
+          el.textContent = contactType;
+        });
+
+        document.getElementById("secondaryContactInput").placeholder =
+          placeholder;
+      }
+      // Hide OTP form
+      document.getElementById("signupotpSection").style.display = "none";
+
+      document.getElementById("secondaryContactForm").style.display = "flex";
+    } else {
+      console.log("✅ OTP failed:", response);
+      // Error: invalid OTP
+      signUpotpInputs.forEach(
+        (input) => (input.style.border = "2px solid #B91C1C")
+      );
+
+      const err = document.createElement("div");
+      err.id = "otpSignupErrorMessage";
+      err.style.color = "#B91C1C";
+      err.style.fontSize = "14px";
+      err.style.marginTop = "8px";
+      err.innerText = "Invalid or expired code. Please try again.";
+      document.getElementById("signupotpResendSection").appendChild(err);
+    }
+  } catch (err) {
+    alert("Something went wrong. Please try again.");
+    console.error("❌ OTP verification failed:", err);
+  }
+
+  // Reset button
+  signUpOtpBtn.disabled = false;
+  signUpOtpBtn.classList.remove("button-loading");
+  signUpOtpBtn.innerText = "SIGN IN";
 }
