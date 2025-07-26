@@ -222,21 +222,26 @@ async function verifyOtp() {
       localStorage.setItem("mpp-widgets_AuthToken", data.JwtToken);
 
       // Proceed next - show phone field if SecondaryContact is null
-      // alert("SecondaryContact: " + data.SecondaryContact);
-      if(data.SecondaryContact.includes('null')){
+
+      if (data.SecondaryContact.includes("null")) {
+        // Hide OTP form
+        document.getElementById("otpSection").style.display = "none";
         document.getElementById("secondaryContactForm").style.display = "flex";
-        const isEmail = data.SecondaryContact == 'Email_null';
+        const isEmail = data.SecondaryContact == "Email_null";
         const contactType = isEmail ? "email address" : "phone number";
 
-        document.querySelectorAll(".Phone_Email").forEach(el => { el.textContent = contactType; });
-        if(isEmail)
-          document.getElementById('secondaryContactInputEmail').style.display = "flex";
+        document.querySelectorAll(".Phone_Email").forEach((el) => {
+          el.textContent = contactType;
+        });
+        if (isEmail)
+          document.getElementById("secondaryContactInputEmail").style.display =
+            "flex";
         else
-          document.getElementById('secondaryContactInputPhone').style.display = "flex";
-
+          document.getElementById("secondaryContactInputPhone").style.display =
+            "flex";
+      } else {
+        $.magnificPopup.close();
       }
-      // Hide OTP form
-      document.getElementById("otpSection").style.display = "none";
     } else {
       // Error: invalid OTP
       otpInputs.forEach((input) => (input.style.border = "2px solid #B91C1C"));
@@ -261,87 +266,50 @@ async function verifyOtp() {
 }
 
 async function verifySecondaryContact() {
-  const isEmail = document.getElementById('secondaryContactInputPhone').style.display = 'flex' ? true : false;
-  const input = isEmail ? document.getElementById('secondaryContactInputPhone') 
-  : document.getElementById('secondaryContactInputEmail');  
+  const email_input = document.getElementById("secondaryContactInputEmail");
+  const phone_input = document.getElementById("secondaryContactInputPhone");
+  const addButton = document.getElementById("addButton");
   const error = document.getElementById("inputErrorSecondary");
-  const value = input.value.trim();
-  const addButton = document.getElementById('addButton');
-  const jwtToken = localStorage.getItem('mpp-widgets_AuthToken');
-  
-  // to check the OTP screen ----------------
-    document.getElementById("secondaryContactForm").style.display = "none";
-    document.getElementById("secondaryotpSection").style.display = "flex";
-    document.getElementById("secondaryValueDisplay").innerText = value;
-    // Focus OTP box
-      const otpBox = document.querySelector(".secondaryotpInputBox");
-      if (otpBox) otpBox.focus();
+  const input_value = email_input.value.trim() || phone_input.value.trim();
+  const isEmail = email_input.value.trim() !== "" ? true : false;
 
-      // Optional: Attach OTP listeners once
-      if (!window.otpListenersAttached) {
-        if (typeof setupSecondaryOtpListeners === "function") {
-          console.log("called");
-          
-          setupSecondaryOtpListeners();
-          window.otpListenersAttached = true;
-        }
-      }
-  // ---------------------
+  const jwtToken = localStorage.getItem("mpp-widgets_AuthToken");
+  console.log("JWT Token:", jwtToken);
 
-  if(isEmail){
-    if(!(validateEmail(value))){
-      error.innerText = "Please enter a valid email or phone number.";
-      input.style.borderColor = "#B91C1C";
-      return;
-    }
-  }
-  else{
-    if(!(validatePhone(value))){
-      error.innerText = "Please enter a valid phone number.";
-      input.style.borderColor = "#B91C1C";
-      return;
-    }
-  }
-
+  // Start sending
+  addButton.disabled = true;
+  addButton.classList.add("button-loading");
+  addButton.innerText = "SENDING...";
+  error.innerText = "";
+  console.log("input_value: " + input_value);
+  console.log("input_value: isEmail " + isEmail);
 
   try {
-    addButton.disabled = true;
-    addButton.classList.add("button-loading");
-    addButton.innerText = "SENDING...";
-    error.innerText = "";
-
     const response = await fetch(
-      "https://mobileserverdev.calvaryftl.org/api/My/SecondaryContact",
+      "https://mobileserverdev.calvaryftl.org/v1.1/api/LoginCode/Confirm",
       {
         method: "POST",
-        headers: { 
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${jwtToken}`
-         },
-        body: JSON.stringify({ Phone_Email: value })
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          Phone_Email,
+          Code,
+          DeviceID: "dummy-device-id", // Replace if needed
+          API_Key: "dummy-api-key", // Replace if needed
+        }),
       }
     );
-    const text = await response.text();
-    if(response.ok){
-      console.log(response);
-    }
-    else{
-      console.log(response);
-      error.innerText = text;
-      error.style.color = "#B91C1C";
-      input.style.borderColor = "#B91C1C";
-    }
-
+  } catch (err) {
+    isEmail
+      ? (email_input.style.borderColor = "#B91C1C")
+      : (phone_input.style.borderColor = "#B91C1C");
+    error.innerText = "Something went wrong. Please try again.";
     addButton.disabled = false;
     addButton.classList.remove("button-loading");
-    addButton.innerText = isEmail ? "add phone number": "add email address";
-  } catch (error) {
-    console.log(error);
+    addButton.innerText = isEmail ? "add email address" : "add phone number";
   }
-  
 }
 
-function validateInputEmail(){
+function validateInputEmail() {
   const inputElement = document.getElementById("secondaryContactInputEmail");
   const errorDiv = document.getElementById("inputErrorSecondary");
   const input = inputElement.value.trim();
@@ -357,14 +325,13 @@ function validateInputEmail(){
   if (validateEmail(input)) {
     continueBtn.disabled = false;
     errorDiv.textContent = "";
-    inputElement.style.opacity= 1;
+    inputElement.style.opacity = 1;
   } else {
     continueBtn.disabled = true;
     errorDiv.textContent = "Please enter a valid email address";
     errorDiv.style.color = "#B91C1C";
     inputElement.style.borderColor = "#B91C1C";
   }
-
 }
 
 function validateInputPhone() {
@@ -419,11 +386,11 @@ function checkSecondaryOtpAndToggleButton() {
 function setupSecondaryOtpListeners() {
   const otpInputs = document.querySelectorAll(".secondaryotpInputBox");
   console.log("secondary hello");
-  
+
   otpInputs.forEach((input, index) => {
     input.addEventListener("input", (e) => {
       console.log("listener called");
-      
+
       const value = e.target.value;
       e.target.value = value.slice(0, 1); // allow only first digit
       if (value.length === 1 && index < otpInputs.length - 1) {
@@ -862,7 +829,7 @@ function checkSignupOtpAndToggleButton() {
 
 function setupSignUpOtpListeners() {
   const otpInputs = document.querySelectorAll(".signupotpInputBox");
-  
+
   otpInputs.forEach((input, index) => {
     input.addEventListener("input", (e) => {
       const value = e.target.value;
@@ -1094,4 +1061,27 @@ async function verifySingupOtp() {
   signUpOtpBtn.disabled = false;
   signUpOtpBtn.classList.remove("button-loading");
   signUpOtpBtn.innerText = "SIGN IN";
+}
+
+function showAddSecondaryContactForm() {
+  console.log("showAddSecondaryContactForm");
+  // Show login form
+  const singupBtn = document.getElementById("addButton");
+
+  const signUpOTPButton = document.getElementById("signupOTPButton");
+  singupBtn.classList.remove("button-loading");
+  singupBtn.innerText = "CONTINUE";
+  document.getElementById("signupSection").style.display = "block";
+
+  // Hide OTP form
+  document.getElementById("signupotpSection").style.display = "none";
+
+  // Optional: Reset OTP inputs
+  const otpInputs = document.querySelectorAll(".signupotpInputBox");
+  otpInputs.forEach((input) => (input.value = ""));
+  signUpOTPButton.disabled = true;
+
+  // Optional: Clear any OTP errors
+  const otpError = document.getElementById("otpErrorMessage");
+  if (otpError) otpError.remove();
 }
