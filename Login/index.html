@@ -146,14 +146,16 @@
                 <label for="secondaryContact" id="secondaryContactLabel">Do you want to add your <span
                         class="Phone_Email"></span>?</label>
                 <!-- Input -->
-                <input id="secondaryContactInput" type="text" placeholder="Enter your Phone Number"
-                    oninput="validateInput()" />
+                <input id="secondaryContactInputEmail" class="no-spinner" maxlength="10" type="number"
+                    style="display: none;" placeholder="Enter your email address" oninput="validateInputEmail()" />
+                <input id="secondaryContactInputPhone" type="email" style="display: none;"
+                    placeholder="Enter your phone number" oninput="validateInputPhone()" />
                 <!-- Error Message -->
                 <div id="inputErrorSecondary"></div>
             </div>
         </div>
         <div style="align-self: flex-end; margin-top: 24px;">
-            <button id="addButton" onclick="verifySecondaryContact()">
+            <button id="addButton" onclick="verifySecondaryContact()" disabled>
                 ADD <span class="Phone_Email"></span>
             </button>
             <button id="skipButton">
@@ -162,5 +164,42 @@
         </div>
     </div>
     <!-- ------------------------------------ SING UP END ------------------------------------ -->
+    <div id="secondaryotpSection" style="display: flex; flex-direction: column; gap: 24px;">
+        <div class="otpHeader" style="display: flex; align-items: center; gap: 32px;">
+            <span id="secondaryotpBackArrow" onclick="showSignupForm()"
+                style="cursor: pointer; font-size: 24px; align-self: flex-start">←</span>
+            <p id="otpText" style="margin: 0; color: white; font-size: 20px;">Enter the code sent to <span
+                    id="secondaryValueDisplay"
+                    style="font-weight: bold; color: #005B78; word-break: break-word;"></span></p>
+        </div>
+
+        <!-- OTP Boxes aligned-->
+        <div id="otpWrapper"
+            style="display: flex; flex-direction: column; align-items: start; gap: 6px; margin-left: 52px;">
+            <div style="display: flex; flex-direction: column; align-items: flex-end;">
+                <div id="otpBoxes" style="display: flex; gap: 8px;">
+                    <input maxlength="1" type="number" min="0" max="9" class="secondaryotpInputBox no-spinner" />
+                    <input maxlength="1" type="number" min="0" max="9" class="secondaryotpInputBox no-spinner" />
+                    <input maxlength="1" type="number" min="0" max="9" class="secondaryotpInputBox no-spinner" />
+                    <input maxlength="1" type="number" min="0" max="9" class="secondaryotpInputBox no-spinner" />
+                    <input maxlength="1" type="number" min="0" max="9" class="secondaryotpInputBox no-spinner" />
+                    <input maxlength="1" type="number" min="0" max="9" class="secondaryotpInputBox no-spinner" />
+                </div>
+                <div id="otpResendSection"
+                    style="display: flex; align-items: flex-end; justify-content: space-between; width: 100%">
+                    <a id="resetCodeLink" onclick="resendOtp()" href="#"
+                        style="margin-top: 8px; color: white; font-size: 14px; margin-left: auto; min-width: fit-content; align-self: flex-start; order: 2;">
+                        Resend Code
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <button id="secondaryOTPButton" onclick="verifyOtp()" disabled style=" margin: 0 auto; padding: 10px 30px; border-radius: 50px; background: transparent; color: white;
+            border: 1px solid white; font-weight: bold;">
+            VERIFY
+        </button>
+    </div>
+    <!--  secondary otp done -->
 
 </div>
