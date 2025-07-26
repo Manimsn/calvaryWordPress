@@ -265,50 +265,6 @@ async function verifyOtp() {
   signInBtn.innerText = "SIGN IN";
 }
 
-async function verifySecondaryContact() {
-  const email_input = document.getElementById("secondaryContactInputEmail");
-  const phone_input = document.getElementById("secondaryContactInputPhone");
-  const addButton = document.getElementById("addButton");
-  const error = document.getElementById("inputErrorSecondary");
-  const input_value = email_input.value.trim() || phone_input.value.trim();
-  const isEmail = email_input.value.trim() !== "" ? true : false;
-
-  const jwtToken = localStorage.getItem("mpp-widgets_AuthToken");
-  console.log("JWT Token:", jwtToken);
-
-  // Start sending
-  addButton.disabled = true;
-  addButton.classList.add("button-loading");
-  addButton.innerText = "SENDING...";
-  error.innerText = "";
-  console.log("input_value: " + input_value);
-  console.log("input_value: isEmail " + isEmail);
-
-  try {
-    const response = await fetch(
-      "https://mobileserverdev.calvaryftl.org/v1.1/api/LoginCode/Confirm",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          Phone_Email,
-          Code,
-          DeviceID: "dummy-device-id", // Replace if needed
-          API_Key: "dummy-api-key", // Replace if needed
-        }),
-      }
-    );
-  } catch (err) {
-    isEmail
-      ? (email_input.style.borderColor = "#B91C1C")
-      : (phone_input.style.borderColor = "#B91C1C");
-    error.innerText = "Something went wrong. Please try again.";
-    addButton.disabled = false;
-    addButton.classList.remove("button-loading");
-    addButton.innerText = isEmail ? "add email address" : "add phone number";
-  }
-}
-
 function validateInputEmail() {
   const inputElement = document.getElementById("secondaryContactInputEmail");
   const errorDiv = document.getElementById("inputErrorSecondary");
@@ -361,36 +317,37 @@ function validateInputPhone() {
 }
 
 function checkSecondaryOtpAndToggleButton() {
+  console.log("checkSecondaryOtpAndToggleButton called");
   const otpInputs = document.querySelectorAll(".secondaryotpInputBox");
-  const secondaryOTPButton = document.getElementById("secondaryOTPButton");
+  const secondaryLoginOTPButton = document.getElementById("secondaryOTPButton");
 
   const enteredDigits = Array.from(otpInputs)
     .map((input) => input.value.trim())
     .join("");
 
+  console.log("CALLED checkSecondaryOtpAndToggleButton", enteredDigits);
+
   if (enteredDigits.length === 6 && /^\d{6}$/.test(enteredDigits)) {
-    secondaryOTPButton.disabled = false;
-    secondaryOTPButton.style.cursor = "pointer";
-    secondaryOTPButton.style.opacity = "1";
-    secondaryOTPButton.style.backgroundColor = "white";
-    secondaryOTPButton.style.color = "#00B5EF";
+    secondaryLoginOTPButton.disabled = false;
+    secondaryLoginOTPButton.style.cursor = "pointer";
+    secondaryLoginOTPButton.style.opacity = "1";
+    secondaryLoginOTPButton.style.backgroundColor = "white";
+    secondaryLoginOTPButton.style.color = "#00B5EF";
   } else {
-    secondaryOTPButton.disabled = true;
-    secondaryOTPButton.style.cursor = "not-allowed";
-    secondaryOTPButton.style.opacity = "0.6";
-    secondaryOTPButton.style.backgroundColor = "transparent";
-    secondaryOTPButton.style.color = "white";
+    secondaryLoginOTPButton.disabled = true;
+    secondaryLoginOTPButton.style.cursor = "not-allowed";
+    secondaryLoginOTPButton.style.opacity = "0.6";
+    secondaryLoginOTPButton.style.backgroundColor = "transparent";
+    secondaryLoginOTPButton.style.color = "white";
   }
 }
 
 function setupSecondaryOtpListeners() {
   const otpInputs = document.querySelectorAll(".secondaryotpInputBox");
-  console.log("secondary hello");
+  console.log("setupSecondaryOtpListeners called");
 
   otpInputs.forEach((input, index) => {
     input.addEventListener("input", (e) => {
-      console.log("listener called");
-
       const value = e.target.value;
       e.target.value = value.slice(0, 1); // allow only first digit
       if (value.length === 1 && index < otpInputs.length - 1) {
@@ -418,6 +375,97 @@ function setupSecondaryOtpListeners() {
   });
 
   checkSecondaryOtpAndToggleButton(); // Initial state check
+}
+
+async function verifySecondaryContact() {
+  const email_input = document.getElementById("secondaryContactInputEmail");
+  const phone_input = document.getElementById("secondaryContactInputPhone");
+  const addButton = document.getElementById("addButton");
+  const error = document.getElementById("inputErrorSecondary");
+  const input_value = email_input.value.trim() || phone_input.value.trim();
+  const isEmail = email_input.value.trim() !== "" ? true : false;
+
+  const jwtToken = localStorage.getItem("mpp-widgets_AuthToken");
+  console.log("JWT Token:", jwtToken);
+
+  // Start sending
+  addButton.disabled = true;
+  addButton.classList.add("button-loading");
+  addButton.innerText = "SENDING...";
+  error.innerText = "";
+  isEmail
+    ? (email_input.style.borderColor = "#D1D5DB")
+    : (phone_input.style.borderColor = "#D1D5DB");
+  console.log("input_value: " + input_value);
+  console.log("input_value: isEmail " + isEmail);
+
+  try {
+    const response = await fetch(
+      "https://mobileserverdev.calvaryftl.org/api/My/SecondaryContact",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${jwtToken}`,
+        },
+        body: JSON.stringify({ Phone_Email: input_value }),
+      }
+    );
+
+    const text = await response.text();
+
+    if (!response.ok) {
+      console.log("API Response:", response);
+      console.log("API Response:text", text);
+
+      // Success – close modal
+      // $.magnificPopup.close();
+
+      isEmail
+        ? (email_input.style.borderColor = "#B91C1C")
+        : (phone_input.style.borderColor = "#B91C1C");
+      error.innerText = text || "Something went wrong. Please try again.";
+      addButton.disabled = false;
+      addButton.classList.remove("button-loading");
+      addButton.innerText = isEmail ? "add email address" : "add phone number";
+    } else {
+      addButton.disabled = false;
+      addButton.classList.remove("button-loading");
+      addButton.innerText = isEmail ? "add email address" : "add phone number";
+      error.innerText = "";
+      document.getElementById("secondaryContactForm").style.display = "none";
+      document.getElementById("secondaryotpSection").style.display = "flex";
+      document.getElementById("secondaryValueDisplay").innerText = input_value;
+
+      // Focus OTP box
+      const otpBox = document.querySelector(".secondaryotpInputBox");
+      if (otpBox) otpBox.focus();
+
+      // Optional: Attach OTP listeners once
+      // if (!window.otpListenersAttached) {
+      //   console.log("Checking for setupSecondaryOtpListeners function");
+      //   if (typeof setupSecondaryOtpListeners === "function") {
+      //     console.log(
+      //       "Checking for setupSecondaryOtpListeners function if block"
+      //     );
+      //     setupSecondaryOtpListeners();
+      //     window.otpListenersAttached = true;
+      //   }
+      // }
+      // ✅ Replace with this:
+      if (typeof setupSecondaryOtpListeners === "function") {
+        setupSecondaryOtpListeners();
+      }
+    }
+  } catch (err) {
+    isEmail
+      ? (email_input.style.borderColor = "#B91C1C")
+      : (phone_input.style.borderColor = "#B91C1C");
+    error.innerText = "Something went wrong. Please try again.";
+    addButton.disabled = false;
+    addButton.classList.remove("button-loading");
+    addButton.innerText = isEmail ? "add email address" : "add phone number";
+  }
 }
 
 function showLoginForm() {
