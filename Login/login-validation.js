@@ -442,16 +442,6 @@ async function verifySecondaryContact() {
       if (otpBox) otpBox.focus();
 
       // Optional: Attach OTP listeners once
-      // if (!window.otpListenersAttached) {
-      //   console.log("Checking for setupSecondaryOtpListeners function");
-      //   if (typeof setupSecondaryOtpListeners === "function") {
-      //     console.log(
-      //       "Checking for setupSecondaryOtpListeners function if block"
-      //     );
-      //     setupSecondaryOtpListeners();
-      //     window.otpListenersAttached = true;
-      //   }
-      // }
       // ✅ Replace with this:
       if (typeof setupSecondaryOtpListeners === "function") {
         setupSecondaryOtpListeners();
@@ -1132,4 +1122,207 @@ function showAddSecondaryContactForm() {
   // Optional: Clear any OTP errors
   const otpError = document.getElementById("otpErrorMessage");
   if (otpError) otpError.remove();
+}
+
+async function secodaryLoginverifyOtp() {
+  const secondaryLoginOtpBtn = document.getElementById("secondaryOTPButton");
+  const secondaryLoginotpInputs = document.querySelectorAll(
+    ".secondaryotpInputBox"
+  );
+  const errorDiv = document.getElementById("inputErrorSecondary");
+
+  const email_input = document.getElementById("secondaryContactInputEmail");
+  const phone_input = document.getElementById("secondaryContactInputPhone");
+
+  const email_phone = email_input.value.trim() || phone_input.value.trim();
+  const jwtToken = localStorage.getItem("mpp-widgets_AuthToken");
+  console.log("JWT Token:", jwtToken);
+
+  const Code = Array.from(secondaryLoginotpInputs)
+    .map((input) => input.value.trim())
+    .join("");
+
+  const payload = {
+    Phone_Email: email_phone,
+    Code: Code,
+    DeviceID: "string",
+    API_Key: "string",
+  };
+
+  // Reset previous error styles
+  secondaryLoginotpInputs.forEach(
+    (input) => (input.style.border = "2px solid white")
+  );
+
+  // Remove existing error message
+  const oldErr = document.getElementById("otpSecondaryLoginErrorMessage");
+  if (oldErr) oldErr.remove();
+
+  // Start sending
+  secondaryLoginOtpBtn.disabled = true;
+  secondaryLoginOtpBtn.classList.add("button-loading");
+  secondaryLoginOtpBtn.innerText = "VERIFYING...";
+
+  try {
+    const response = await fetch(
+      "https://mobileserverdev.calvaryftl.org/api/My/SecondaryContact/Confirm",
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${jwtToken}`,
+        },
+        body: JSON.stringify(payload),
+      }
+    );
+
+    const text = await response.text();
+    console.log("API Response:", response);
+    console.log("API Response:text", text);
+    if (response.ok) {
+      console.log("✅ OTP success:", response);
+    } else {
+      console.log("✅ OTP failed:", response);
+      secondaryLoginotpInputs.forEach(
+        (input) => (input.style.border = "2px solid #B91C1C")
+      );
+
+      const secondaryotperr = document.createElement("div");
+      secondaryotperr.id = "otpSecondaryLoginErrorMessage";
+      secondaryotperr.style.color = "#B91C1C";
+      secondaryotperr.style.fontSize = "14px";
+      secondaryotperr.style.marginTop = "8px";
+      secondaryotperr.innerText =
+        text || "Invalid or expired code. Please try again.";
+      document
+        .getElementById("secondaryLoginotpResendSection")
+        .appendChild(secondaryotperr);
+      secondaryLoginOtpBtn.disabled = false;
+      secondaryLoginOtpBtn.classList.remove("button-loading");
+      secondaryLoginOtpBtn.innerText = "VERIFY";
+    }
+  } catch (err) {
+    // alert("Something went wrong. Please try again.");
+    console.error("❌ OTP verification failed:", err);
+    secondaryLoginotpInputs.forEach(
+      (input) => (input.style.border = "2px solid #B91C1C")
+    );
+
+    const secondaryotperr = document.createElement("div");
+    secondaryotperr.id = "otpSecondaryLoginErrorMessage";
+    secondaryotperr.style.color = "#B91C1C";
+    secondaryotperr.style.fontSize = "14px";
+    secondaryotperr.style.marginTop = "8px";
+    secondaryotperr.innerText = "Something went wrong. Please try again.";
+    document
+      .getElementById("secondaryLoginotpResendSection")
+      .appendChild(secondaryotperr);
+    secondaryLoginOtpBtn.disabled = false;
+    secondaryLoginOtpBtn.classList.remove("button-loading");
+    secondaryLoginOtpBtn.innerText = "VERIFY";
+    return;
+  }
+
+  console.log("secodaryLoginverifyOtp", payload);
+}
+
+let isSecondaryLoginResending = false;
+async function resendSecondaryLoginOtp() {
+  console.log(
+    "CALLING RESEND OTP isSecondaryLoginResending",
+    isSecondaryLoginResending
+  );
+
+  if (isSecondaryLoginResending) return; // Prevent multiple clicks
+
+  const email_input = document.getElementById("secondaryContactInputEmail");
+  const phone_input = document.getElementById("secondaryContactInputPhone");
+  const email_phone = email_input.value.trim() || phone_input.value.trim();
+
+  const resetCodeLink = document.getElementById("secondaryLoginresetCodeLink");
+  const otpInputs = document.querySelectorAll(".secondaryotpInputBox"); // Remove existing error message
+  const signUpOtpBtn = document.getElementById("secondaryOTPButton");
+  const oldErr = document.getElementById("otpSecondaryLoginErrorMessage");
+  const jwtToken = localStorage.getItem("mpp-widgets_AuthToken");
+  console.log("JWT Token:", jwtToken);
+
+  const payload = {
+    Phone_Email: email_phone,
+  };
+
+  console.log("object", payload);
+
+  resetCodeLink.classList.add("link-loading");
+  resetCodeLink.textContent = "Resending...";
+
+  try {
+    const response = await fetch(
+      "https://mobileserverdev.calvaryftl.org/api/My/SecondaryContact",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${jwtToken}`,
+        },
+        body: JSON.stringify(payload),
+      }
+    );
+
+    const text = await response.text();
+    console.log("object", text);
+
+    if (!response.ok) {
+      console.log("✅ Resend OTP failed:", response);
+
+      if (response.status === 404) {
+        console.log(response.status);
+      }
+
+      resetCodeLink.classList.remove("link-loading");
+      resetCodeLink.textContent = "Resend Code";
+      isSecondaryLoginResending = false;
+    } else {
+      resetCodeLink.classList.remove("link-loading");
+      resetCodeLink.textContent = "Resend Code";
+      isSecondaryLoginResending = false;
+      otpInputs.forEach((input) => (input.value = "")); // Reset previous error styles
+      otpInputs.forEach((input) => (input.style.border = "2px solid white"));
+      if (!oldErr) {
+        otpSucess = document.createElement("div");
+        otpSucess.id = "otpSecondaryLoginErrorMessage";
+        otpSucess.style.fontSize = "14px";
+        otpSucess.style.marginTop = "8px";
+        otpSucess.style.color = "Green";
+        otpSucess.innerText = "Verification code sent successfully!";
+        otpSucess.classList.add("blink");
+        document
+          .getElementById("secondaryLoginotpResendSection")
+          .appendChild(otpSucess);
+
+        setTimeout(() => {
+          if (otpSucess) otpSucess.remove();
+        }, 3000);
+      }
+
+      oldErr.style.color = "Green";
+      oldErr.innerText = "Verification code sent successfully!";
+      oldErr.classList.add("blink");
+
+      setTimeout(() => {
+        oldErr.innerText = "";
+        oldErr.classList.remove("blink");
+      }, 3000);
+
+      signUpOtpBtn.disabled = true;
+      signUpOtpBtn.style.cursor = "not-allowed";
+      signUpOtpBtn.style.opacity = "0.6";
+      signUpOtpBtn.style.backgroundColor = "transparent";
+      signUpOtpBtn.style.color = "white";
+    }
+  } catch (err) {
+    console.log("err", err);
+    resetCodeLink.classList.remove("link-loading");
+    resetCodeLink.textContent = "Resend Code";
+    isSecondaryLoginResending = false;
+  }
 }
