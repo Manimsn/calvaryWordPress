@@ -831,10 +831,14 @@ function showSignupForm() {
 
   // Hide OTP form
   document.getElementById("signupotpSection").style.display = "none";
+  const oldErr = document.getElementById("otpSignupErrorMessage");
+
+  if (oldErr) oldErr.remove();
 
   // Optional: Reset OTP inputs
   const otpInputs = document.querySelectorAll(".signupotpInputBox");
   otpInputs.forEach((input) => (input.value = ""));
+  otpInputs.forEach((input) => (input.style.border = "2px solid white"));
   signUpOTPButton.disabled = true;
 
   // Optional: Clear any OTP errors
@@ -1057,24 +1061,29 @@ async function verifySingupOtp() {
 
       // Proceed next - show phone field if SecondaryContact is null
       // alert("SecondaryContact: " + data.SecondaryContact);
-      if (data.SecondaryContact == null) {
-        const isEmail = email_phone.includes("@");
-        const contactType = !isEmail ? "email address" : "phone number";
-        const placeholder = !isEmail
+      if (data.SecondaryContact === "") {
+        // Hide OTP form
+        document.getElementById("signupotpSection").style.display = "none";
+        document.getElementById("secondaryContactForm").style.display = "flex";
+        // const contactType = isEmail ? "email address" : "phone number";
+        const contactType = "phone number";
+
+        if (false) {
+          document.getElementById("secondaryContactInputEmail").style.display =
+            "flex";
+        } else {
+          document.getElementById("secondaryContactInputPhone").style.display =
+            "flex";
+        }
+
+        const placeholder = false
           ? "Enter your Email Address"
           : "Enter your Phone Number";
 
         document.querySelectorAll(".Phone_Email").forEach((el) => {
           el.textContent = contactType;
         });
-
-        document.getElementById("secondaryContactInput").placeholder =
-          placeholder;
       }
-      // Hide OTP form
-      document.getElementById("signupotpSection").style.display = "none";
-
-      document.getElementById("secondaryContactForm").style.display = "flex";
     } else {
       console.log("✅ OTP failed:", response);
       // Error: invalid OTP
