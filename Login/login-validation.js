@@ -251,6 +251,7 @@ async function verifyOtp() {
       err.style.color = "#B91C1C";
       err.style.fontSize = "14px";
       err.style.marginTop = "8px";
+      err.style.fontFamily = "Poppins, sans-serif";
       err.innerText = "Invalid or expired code. Please try again.";
       document.getElementById("otpResendSection").appendChild(err);
     }
@@ -535,6 +536,7 @@ async function resendOtp() {
         otpSucess.style.fontSize = "14px";
         otpSucess.style.marginTop = "8px";
         otpSucess.style.color = "Green";
+        otpSucess.style.fontFamily = "Poppins, sans-serif";
         otpSucess.innerText = "Verification code sent successfully!";
         otpSucess.classList.add("blink");
         document.getElementById("otpResendSection").appendChild(otpSucess);
@@ -972,6 +974,7 @@ async function resendSignUpOtp() {
         otpSucess.style.fontSize = "14px";
         otpSucess.style.marginTop = "8px";
         otpSucess.style.color = "Green";
+        otpSucess.style.fontFamily = "Poppins, sans-serif";
         otpSucess.innerText = "Verification code sent successfully!";
         otpSucess.classList.add("blink");
         document
@@ -1107,6 +1110,7 @@ async function verifySingupOtp() {
       err.style.color = "#B91C1C";
       err.style.fontSize = "14px";
       err.style.marginTop = "8px";
+      err.style.fontFamily = "Poppins, sans-serif";
       err.innerText = "Invalid or expired code. Please try again.";
       document.getElementById("signupotpResendSection").appendChild(err);
     }
