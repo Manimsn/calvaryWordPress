@@ -70,6 +70,7 @@
   line-height: 24px;
   text-align: left;
   word-break: break-word;
+  font-family: 'Poppins', sans-serif !important;
 }
 
 /* Add to your existing <style> tag */
@@ -160,6 +161,11 @@
   background-color: transparent !important;
   color: white !important;
   outline: none;
+  font-family: 'Poppins', sans-serif !important;
+}
+
+#otpErrorMessage{
+  font-family: 'Poppins', sans-serif !important;
 }
 
 #addButton {
