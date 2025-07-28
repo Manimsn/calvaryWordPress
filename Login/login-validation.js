@@ -62,6 +62,7 @@ async function handleLogin() {
   continueBtn.classList.add("button-loading");
   continueBtn.innerText = "SENDING...";
   error.innerText = "";
+  input.style.borderColor = "#D1D5DB";
 
   try {
     const response = await fetch(
@@ -86,6 +87,7 @@ async function handleLogin() {
       error.innerText = text || "Login failed.";
       continueBtn.disabled = false;
       continueBtn.innerText = "CONTINUE";
+      continueBtn.classList.remove("button-loading");
     } else {
       // Success – show OTP section
       document.getElementById("otpSection").style.display = "flex";
@@ -1206,6 +1208,12 @@ async function secodaryLoginverifyOtp() {
     console.log("API Response:text", text);
     if (response.ok) {
       console.log("✅ OTP success:", response);
+      // Start sending
+      secondaryLoginOtpBtn.disabled = false;
+      secondaryLoginOtpBtn.classList.remove("button-loading");
+      secondaryLoginOtpBtn.innerText = "VERIFY";
+      //NEEDTOWORK - CONGRATS MODAL
+      closeModal();
     } else {
       console.log("✅ OTP failed:", response);
       secondaryLoginotpInputs.forEach(
