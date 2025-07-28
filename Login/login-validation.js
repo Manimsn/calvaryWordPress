@@ -463,6 +463,7 @@ function showLoginForm() {
   // Show login form
   const continueBtn = document.getElementById("continueButton");
   continueBtn.classList.remove("button-loading");
+  continueBtn.disabled = false;
   continueBtn.innerText = "CONTINUE";
   document.getElementById("loginForm").style.display = "block";
 
@@ -472,6 +473,9 @@ function showLoginForm() {
   // Optional: Reset OTP inputs
   const otpInputs = document.querySelectorAll(".otpInputBox");
   otpInputs.forEach((input) => (input.value = ""));
+  // Reset previous error styles
+  otpInputs.forEach((input) => (input.style.border = "2px solid white"));
+  document.getElementById("userValueDisplay").textContent = "";
 
   // Optional: Clear any OTP errors
   const otpError = document.getElementById("otpErrorMessage");
@@ -824,25 +828,23 @@ function showSignupForm() {
   // Show login form
   const singupBtn = document.getElementById("signUpButton");
 
-  const signUpOTPButton = document.getElementById("signupOTPButton");
+  // const signUpOTPButton = document.getElementById("signupOTPButton");
   singupBtn.classList.remove("button-loading");
+  singupBtn.disabled = false;
   singupBtn.innerText = "CONTINUE";
   document.getElementById("signupSection").style.display = "block";
 
   // Hide OTP form
   document.getElementById("signupotpSection").style.display = "none";
-  const oldErr = document.getElementById("otpSignupErrorMessage");
-
-  if (oldErr) oldErr.remove();
 
   // Optional: Reset OTP inputs
   const otpInputs = document.querySelectorAll(".signupotpInputBox");
   otpInputs.forEach((input) => (input.value = ""));
   otpInputs.forEach((input) => (input.style.border = "2px solid white"));
-  signUpOTPButton.disabled = true;
+  document.getElementById("signupUserValueDisplay").textContent = "";
 
   // Optional: Clear any OTP errors
-  const otpError = document.getElementById("otpErrorMessage");
+  const otpError = document.getElementById("otpSignupErrorMessage");
   if (otpError) otpError.remove();
 }
 
@@ -1061,14 +1063,14 @@ async function verifySingupOtp() {
 
       // Proceed next - show phone field if SecondaryContact is null
       // alert("SecondaryContact: " + data.SecondaryContact);
-      if (data.SecondaryContact === "") {
+      if (data.SecondaryContact.includes("null")) {
         // Hide OTP form
         document.getElementById("signupotpSection").style.display = "none";
         document.getElementById("secondaryContactForm").style.display = "flex";
-        // const contactType = isEmail ? "email address" : "phone number";
-        const contactType = "phone number";
+        const isEmail = data.SecondaryContact == "Email_null";
+        const contactType = isEmail ? "email address" : "phone number";
 
-        if (false) {
+        if (isEmail) {
           document.getElementById("secondaryContactInputEmail").style.display =
             "flex";
         } else {
@@ -1083,6 +1085,15 @@ async function verifySingupOtp() {
         document.querySelectorAll(".Phone_Email").forEach((el) => {
           el.textContent = contactType;
         });
+      } else {
+        // Need to handle if user created an account but for some reason he has deleted and again trying to signup
+        // in this scenario he might have added an secondary contact when he previously created an account so we are mapping to the old account
+        // so secondary contact will not be null
+        // Close the modal
+        $.magnificPopup.close();
+
+        // Show success message or redirect
+        alert("Sign up successful! You are now logged in.");
       }
     } else {
       console.log("✅ OTP failed:", response);
@@ -1114,22 +1125,23 @@ function showAddSecondaryContactForm() {
   console.log("showAddSecondaryContactForm");
   // Show login form
   const singupBtn = document.getElementById("addButton");
-
-  const signUpOTPButton = document.getElementById("signupOTPButton");
   singupBtn.classList.remove("button-loading");
-  singupBtn.innerText = "CONTINUE";
-  document.getElementById("signupSection").style.display = "block";
+  singupBtn.disabled = false;
+  singupBtn.innerText = "ADD PHONE NUMBER";
+  document.getElementById("secondaryContactForm").style.display = "block";
 
   // Hide OTP form
-  document.getElementById("signupotpSection").style.display = "none";
+  document.getElementById("secondaryotpSection").style.display = "none";
 
   // Optional: Reset OTP inputs
-  const otpInputs = document.querySelectorAll(".signupotpInputBox");
+  const otpInputs = document.querySelectorAll(".secondaryotpInputBox");
   otpInputs.forEach((input) => (input.value = ""));
-  signUpOTPButton.disabled = true;
+  // Reset previous error styles
+  otpInputs.forEach((input) => (input.style.border = "2px solid white"));
+  document.getElementById("secondaryValueDisplay").textContent = "";
 
   // Optional: Clear any OTP errors
-  const otpError = document.getElementById("otpErrorMessage");
+  const otpError = document.getElementById("otpSecondaryLoginErrorMessage");
   if (otpError) otpError.remove();
 }
 
@@ -1334,4 +1346,8 @@ async function resendSecondaryLoginOtp() {
     resetCodeLink.textContent = "Resend Code";
     isSecondaryLoginResending = false;
   }
+}
+
+function closeModal() {
+  $.magnificPopup.close();
 }
