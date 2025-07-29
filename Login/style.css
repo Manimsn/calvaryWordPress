@@ -70,7 +70,7 @@
   line-height: 24px;
   text-align: left;
   word-break: break-word;
-  font-family: 'Poppins', sans-serif !important;
+  font-family: "Poppins", sans-serif !important;
 }
 
 /* Add to your existing <style> tag */
@@ -161,11 +161,11 @@
   background-color: transparent !important;
   color: white !important;
   outline: none;
-  font-family: 'Poppins', sans-serif !important;
+  font-family: "Poppins", sans-serif !important;
 }
 
-#otpErrorMessage{
-  font-family: 'Poppins', sans-serif !important;
+#otpErrorMessage {
+  font-family: "Poppins", sans-serif !important;
 }
 
 #addButton {
@@ -322,7 +322,7 @@
 
 /* ---------Resend OTP animation--------- */
 .link-loading {
-  animation: pulseBg 1s infinite;
+  animation: pulseOpacity 1s infinite;
   opacity: 0.6;
   cursor: not-allowed !important;
   color: #cccccc !important;
@@ -330,6 +330,18 @@
 
 .link-loading:hover {
   cursor: not-allowed !important;
+}
+
+@keyframes pulseOpacity {
+  0% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.6;
+  }
 }
 
 @keyframes pulseBg {
@@ -359,5 +371,5 @@
 }
 
 .blink {
-  animation: pulseBg 0.5s linear infinite;
+  animation: pulseOpacity 0.5s linear infinite;
 }
