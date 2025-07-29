@@ -223,6 +223,11 @@ async function verifyOtp() {
       // Save JWT Token
       localStorage.setItem("mpp-widgets_AuthToken", data.JwtToken);
 
+      // Immediately update header UI
+      if (typeof updateUserHeaderUI === "function") {
+        updateUserHeaderUI();
+      }
+
       // Proceed next - show phone field if SecondaryContact is null
 
       if (data.SecondaryContact.includes("null")) {
@@ -1363,3 +1368,41 @@ async function resendSecondaryLoginOtp() {
 function closeModal() {
   $.magnificPopup.close();
 }
+
+function updateUserHeaderUI() {
+  const token = localStorage.getItem("mpp-widgets_AuthToken");
+  const loginButton = document.getElementById("loginButton");
+  const userInfo = document.getElementById("user-info");
+  const userAvatar = document.getElementById("user-avatar");
+  const userNameSpan = document.getElementById("user-name");
+
+  if (token) {
+    try {
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      console.log("Decoded JWT payload:", payload);
+
+      const firstName = payload.FirstName || "";
+      const lastName = payload.LastName || "";
+      const email = payload.UserName || "";
+
+      const fullName =
+        firstName && lastName ? `${firstName} ${lastName}` : email;
+      const initials =
+        firstName && lastName
+          ? `${firstName.charAt(0)}${lastName.charAt(0)}`
+          : email.charAt(0).toUpperCase();
+
+      // Update UI
+      if (loginButton) loginButton.style.display = "none";
+      if (userInfo) {
+        userInfo.style.display = "flex";
+        userAvatar.textContent = initials;
+        userNameSpan.textContent = fullName;
+      }
+    } catch (error) {
+      console.error("Invalid JWT token", error);
+    }
+  }
+}
+
+document.addEventListener("DOMContentLoaded", updateUserHeaderUI);
