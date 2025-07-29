@@ -136,6 +136,10 @@ function checkOtpAndToggleButton() {
     signInButton.style.opacity = "1";
     signInButton.style.backgroundColor = "white";
     signInButton.style.color = "#00B5EF";
+  } else if(enteredDigits.length === 0){
+    otpInputs.forEach((input) => (input.style.border = "2px solid white"));
+    const otpError = document.getElementById("otpErrorMessage");
+    if (otpError) otpError.remove();
   } else {
     signInButton.disabled = true;
     signInButton.style.cursor = "not-allowed";
@@ -147,7 +151,7 @@ function checkOtpAndToggleButton() {
 
 function setupOtpListeners() {
   const otpInputs = document.querySelectorAll(".otpInputBox");
-
+  
   otpInputs.forEach((input, index) => {
     input.addEventListener("input", (e) => {
       const value = e.target.value;
@@ -290,6 +294,7 @@ function validateInputEmail() {
     continueBtn.disabled = false;
     errorDiv.textContent = "";
     inputElement.style.opacity = 1;
+    inputElement.style.borderColor = "#D1D5DB";
   } else {
     continueBtn.disabled = true;
     errorDiv.textContent = "Please enter a valid email address";
@@ -301,7 +306,7 @@ function validateInputEmail() {
 function validateInputPhone() {
   const inputElement = document.getElementById("secondaryContactInputPhone");
   const errorDiv = document.getElementById("inputErrorSecondary");
-  const input = inputElement.value.trim();
+  let input = inputElement.value.trim();
   const continueBtn = document.getElementById("addButton");
 
   if (input === "") {
@@ -309,6 +314,10 @@ function validateInputPhone() {
     errorDiv.textContent = "";
     inputElement.style.borderColor = "#D1D5DB";
     return;
+  }
+  if (input.length > 10){
+    inputElement.value = input.slice(0, 10);
+    input = inputElement.value.trim();
   }
 
   if (validatePhone(input)) {
@@ -341,6 +350,10 @@ function checkSecondaryOtpAndToggleButton() {
     secondaryLoginOTPButton.style.opacity = "1";
     secondaryLoginOTPButton.style.backgroundColor = "white";
     secondaryLoginOTPButton.style.color = "#00B5EF";
+  } else if(enteredDigits.length === 0){
+    otpInputs.forEach((input) => (input.style.border = "2px solid white"));
+    const otpError = document.getElementById("otpSecondaryLoginErrorMessage");
+    if (otpError) otpError.remove();
   } else {
     secondaryLoginOTPButton.disabled = true;
     secondaryLoginOTPButton.style.cursor = "not-allowed";
@@ -578,60 +591,120 @@ async function resendOtp() {
   }
 }
 
+function resetLoginModalState() {
+  console.log("🔁 Resetting modal state...");
+
+  // Login - First Page
+  const input = document.getElementById("loginInput");
+  const error = document.getElementById("inputError");
+  const continueBtn = document.getElementById("continueButton");
+
+  // Login OTP
+  const otpInputs = document.querySelectorAll(".otpInputBox");
+  const oldErr = document.getElementById("otpErrorMessage");
+
+  // Secondary contact
+  document.getElementById("secondaryContactInputEmail").value = "";
+  document.getElementById("secondaryContactInputPhone").value = "";
+  document.querySelector(".Phone_Email").innerText = "";
+  document.getElementById("inputErrorSecondary").innerText = "";
+  const addButton = document.getElementById("addButton");
+
+  // Secondary OTP section
+  document.getElementById("secondaryValueDisplay").innerText = "";
+  const secondaryotpInputs = document.querySelectorAll(".secondaryotpInputBox");
+  const secondaryOTPButton = document.getElementById("secondaryOTPButton");
+
+  if (input) {
+    input.value = "";
+    input.style.borderColor = "";
+  }
+
+  if (error) {
+    error.innerText = "";
+  }
+
+  if (continueBtn) {
+    continueBtn.innerText = "CONTINUE";
+    continueBtn.disabled = true;
+    continueBtn.classList.remove("button-loading");
+  }
+
+  if (oldErr) oldErr.remove();
+
+  if (otpInputs) {
+    otpInputs.forEach((input) => {
+      input.value = "";
+      input.style.border = "2px solid white";
+    });
+  }
+
+  if (addButton) {
+    addButton.disabled = true;
+    addButton.classList.remove("button-loading");
+  }
+
+  if (secondaryotpInputs) {
+    secondaryotpInputs.forEach((input) => {
+      input.value = "";
+      input.style.border = "2px solid white";
+    });
+  }
+
+  if (secondaryOTPButton) {
+    secondaryOTPButton.disabled = true;
+    secondaryOTPButton.classList.remove("button-loading");
+  }
+
+  // Reset form sections
+  document.getElementById("loginForm").style.display = "block";
+  document.getElementById("otpSection").style.display = "none";
+  document.getElementById("secondaryContactForm").style.display = "none";
+  document.getElementById("signupSection").style.display = "none";
+}
+
+// Close button click listener
 document.addEventListener("click", function (e) {
-  // Match only the close button with class "mfp-close"
   const isCloseButton = e.target.closest(".mfp-close");
 
   if (isCloseButton) {
     console.log("✅ DIVI modal close button clicked");
-
-    // Clear your modal-related inputs here
-    const input = document.getElementById("loginInput");
-    const continueBtn = document.getElementById("continueButton");
-    const error = document.getElementById("inputError");
-    const otpInputs = document.querySelectorAll(".otpInputBox");
-    const oldErr = document.getElementById("otpErrorMessage");
-
-    if (oldErr) oldErr.remove();
-
-    if (otpInputs) {
-      otpInputs.forEach((input) => (input.value = ""));
-      // Reset previous error styles
-      otpInputs.forEach((input) => (input.style.border = "2px solid white"));
-    }
-
-    if (input) {
-      input.value = "";
-      input.style.borderColor = "";
-    }
-
-    if (error) {
-      error.innerText = "";
-    }
-
-    if (continueBtn) {
-      continueBtn.innerText = "CONTINUE";
-    }
+    resetLoginModalState();
   }
 });
 
+// DIVI modal closed via overlay or close button
 jQuery(document).ready(function ($) {
   $(document).on("mfpClose", function () {
-    console.log("Modal closed (by close button or outside click)");
+    console.log("✅ Modal closed (by close button or outside click)");
+    // Enable scrolling
+    // document.body.style.overflow = '';
+    // document.body.style.position = '';
+    // document.body.style.width = '';
+ 
+    resetLoginModalState();
+  });
 
-    const input = document.getElementById("loginInput");
-    const continueBtn = document.getElementById("continueButton");
-    const error = document.getElementById("inputError");
+  $(document).on("mfpOpen", function () {
+    const successModal = document.getElementById("successModal");
+    const mfpBg = document.querySelector(".mfp-bg");
 
-    if (input) {
-      input.value = "";
-      input.style.borderColor = "";
-    }
-    if (error) error.innerText = "";
-    if (continueBtn) {
-      continueBtn.innerText = "CONTINUE";
+    // Disable scrolling
+    // document.body.style.overflow = 'hidden';
+    // document.body.style.position = 'fixed'; 
+    // document.body.style.width = '100%';  
+
+    if (mfpBg && successModal) {
+      const style = window.getComputedStyle(successModal);
+      if (style.display === "flex") {
+        mfpBg.classList.add("no-bg");
+        mfpBg.classList.remove("fadeIn", "animated");
+      } else {
+        mfpBg.classList.remove("no-bg");
+      }
     }
   });
+
 });
 
 // ----------------------------------SING UP---------------------------
@@ -871,7 +944,11 @@ function checkSignupOtpAndToggleButton() {
     signUpOTPButton.style.opacity = "1";
     signUpOTPButton.style.backgroundColor = "white";
     signUpOTPButton.style.color = "#00B5EF";
-  } else {
+  }else if(enteredDigits.length === 0){
+    otpInputs.forEach((input) => (input.style.border = "2px solid white"));
+    const otpError = document.getElementById("otpSignupErrorMessage");
+    if (otpError) otpError.remove();
+  }  else {
     signUpOTPButton.disabled = true;
     signUpOTPButton.style.cursor = "not-allowed";
     signUpOTPButton.style.opacity = "0.6";

@@ -144,13 +144,11 @@
 
         <div class="inputWrapper">
             <div class="inputField">
-                <label for="secondaryContact" id="secondaryContactLabel" style="font-family: 'Poppins', sans-serif !important;">Do you want to add your <span
-                        class="Phone_Email" style="font-family: 'Poppins', sans-serif !important;"></span>?</label>
+                <label for="secondaryContact" id="secondaryContactLabel" style="font-family: 'Poppins', sans-serif !important;">Do you want to add your <span class="Phone_Email" style="font-family: 'Poppins', sans-serif !important;"></span>?</label>
                 <!-- Input -->
-                <input id="secondaryContactInputEmail" class="no-spinner" maxlength="10" type="number"
+                <input id="secondaryContactInputEmail" type="email"
                     style="display: none; font-family: 'Poppins', sans-serif !important;" placeholder="Enter your email address" oninput="validateInputEmail()" />
-                <input id="secondaryContactInputPhone" type="email" style="display: none; font-family: 'Poppins', sans-serif !important;"
-                    placeholder="Enter your phone number" oninput="validateInputPhone()" />
+                <input id="secondaryContactInputPhone" class="no-spinner" type="number" style="display: none; font-family: 'Poppins', sans-serif !important;" placeholder="Enter your phone number" oninput="validateInputPhone()" />
                 <!-- Error Message -->
                 <div id="inputErrorSecondary" style="font-family: 'Poppins', sans-serif !important;"></div>
             </div>
@@ -203,5 +201,12 @@
         </button>
     </div>
     <!--  secondary otp done -->
+
+    <!-- Success Modal -->
+     <div id="successModal" style="display: none; flex-direction: column; align-items: center; text-align: center;">
+        <img src="http://localhost/calvary/wp-content/uploads/2025/07/Congratulations.png"  alt="Congratulations" style="margin-bottom: 12px;"/>
+        <!-- <h3 style="color: white; font-size: 32px; font-family: 'Poppins', sans-serif !important; font-weight: 600; line-height: 40px; padding-bottom: 0;">Congratulations! </h3> -->
+        <h4 style="color: white; font-size: 28px; font-family: 'Poppins', sans-serif !important; font-weight: 500; line-height: 36px;">You've successfully updated your information.</h4>
+     </div>
 
 </div>

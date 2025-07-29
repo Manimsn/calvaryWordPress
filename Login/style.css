@@ -178,6 +178,7 @@
   font-weight: bold;
   text-transform: uppercase;
   font-size: 16px;
+  cursor: pointer;
 }
 
 #addButton:disabled {
@@ -195,6 +196,7 @@
   font-weight: 600;
   margin-left: 24px;
   font-size: 16px;
+  cursor: pointer;
 }
 
 #secondaryContactLabel {
@@ -276,6 +278,15 @@
   #addButton {
     padding: 6px 18px;
     font-size: 14px;
+  }
+
+  #successModal h4{
+    font-size: 24px !important;
+    line-height: 32px !important;
+  }
+
+  .secondaryotpInputBox {
+    width: 40px !important;
   }
 }
 
@@ -373,3 +384,10 @@
 .blink {
   animation: pulseOpacity 0.5s linear infinite;
 }
+
+.mfp-bg.no-bg {
+  background: none !important;
+  backdrop-filter: none !important;
+  opacity: 0 !important;
+}
+
