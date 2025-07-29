@@ -1216,7 +1216,7 @@ function showAddSecondaryContactForm() {
   singupBtn.classList.remove("button-loading");
   singupBtn.disabled = false;
   singupBtn.innerText = "ADD PHONE NUMBER";
-  document.getElementById("secondaryContactForm").style.display = "block";
+  document.getElementById("secondaryContactForm").style.display = "flex";
 
   // Hide OTP form
   document.getElementById("secondaryotpSection").style.display = "none";
