@@ -143,6 +143,44 @@
   box-sizing: border-box;
 }
 
+#et_pb_button_0_tb_header:focus{  
+  border-radius: 20px;
+  outline: 2px solid white;
+}
+
+#firstNameInput:focus,
+#lastNameInput:focus,
+#emailInput:focus,
+#loginInput:focus,
+#secondaryContactInputEmail:focus,
+#secondaryContactInputPhone:focus{
+  border: 2px solid #146DFC;
+}
+
+#signInButton:focus,
+#continueButton:focus,
+#skipButton:focus,
+#addButton:focus,
+#secondaryOTPButton:focus{
+  outline: 1px solid white;
+  outline-offset: 2px;
+}
+
+#resetCodeLink:focus,
+#secondaryLoginresetCodeLink:focus{
+	outline: 1px solid white;
+  outline-offset: 2px;
+  border-radius: 15px;
+}
+
+#secondaryotpBackArrow:focus,
+#otpBackArrow:focus,
+#signupotpBackArrow:focus{
+  outline: 1px solid white;
+  outline-offset: 2px;
+  border-radius: 15px;
+}
+
 #firstNameInput,
 #lastNameInput {
   padding: 12px 16px;
@@ -392,4 +430,3 @@
   backdrop-filter: none !important;
   opacity: 0 !important;
 }
-

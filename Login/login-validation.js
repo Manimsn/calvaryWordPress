@@ -30,7 +30,7 @@ function validateInput() {
     inputElement.style.borderColor = "#D1D5DB"; // Reset to normal border
     return;
   }
-
+  
   if (validateEmail(input) || validatePhone(input)) {
     continueBtn.disabled = false;
     errorDiv.textContent = "";
@@ -38,11 +38,32 @@ function validateInput() {
   } else {
     continueBtn.disabled = true;
     errorDiv.textContent =
-      "Please enter a valid email address or 10-digit phone number.";
+    "Please enter a valid email address or 10-digit phone number.";
     errorDiv.style.color = "#B91C1C";
     inputElement.style.borderColor = "#B91C1C"; // Add red border
   }
+
 }
+
+function onBlurvalidatePhone() {
+  const inputElement = document.getElementById("loginInput");
+  const rawInput = inputElement.value.trim();
+
+  const formattedPattern = /^\d{3}-\d{3}-\d{4}$/;
+  if (formattedPattern.test(rawInput)) {
+    return;
+  }
+
+  const digitsOnly = rawInput.replace(/\D/g, "");
+  
+  if (digitsOnly.length === 10) {
+    const formatted = `${digitsOnly.slice(0, 3)}-${digitsOnly.slice(3, 6)}-${digitsOnly.slice(6)}`;
+    inputElement.value = formatted;
+  } else {
+    inputElement.value = rawInput;
+  }
+}
+
 
 async function handleLogin() {
   const input = document.getElementById("loginInput");
@@ -91,6 +112,7 @@ async function handleLogin() {
     } else {
       // Success – show OTP section
       document.getElementById("otpSection").style.display = "flex";
+      document.getElementById('signInButton').disabled = true;
       document.getElementById("userValueDisplay").innerText = value;
 
       // Hide initial login form
@@ -136,11 +158,10 @@ function checkOtpAndToggleButton() {
     signInButton.style.opacity = "1";
     signInButton.style.backgroundColor = "white";
     signInButton.style.color = "#00B5EF";
-  } else if (enteredDigits.length === 0) {
+  } else {
     otpInputs.forEach((input) => (input.style.border = "2px solid white"));
     const otpError = document.getElementById("otpErrorMessage");
     if (otpError) otpError.remove();
-  } else {
     signInButton.disabled = true;
     signInButton.style.cursor = "not-allowed";
     signInButton.style.opacity = "0.6";
@@ -151,6 +172,13 @@ function checkOtpAndToggleButton() {
 
 function setupOtpListeners() {
   const otpInputs = document.querySelectorAll(".otpInputBox");
+  const backarrow = document.getElementById("otpBackArrow");
+  backarrow.addEventListener("keydown", function (event) {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      showLoginForm();
+    }
+  });
 
   otpInputs.forEach((input, index) => {
     input.addEventListener("input", (e) => {
@@ -176,6 +204,16 @@ function setupOtpListeners() {
     input.addEventListener("keypress", (e) => {
       if (!/\d/.test(e.key)) {
         e.preventDefault();
+      }
+    });
+
+    input.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        const btn = document.getElementById("signInButton");
+        if (!btn.disabled) {
+          btn.click();
+        }
       }
     });
   });
@@ -355,11 +393,11 @@ function checkSecondaryOtpAndToggleButton() {
     secondaryLoginOTPButton.style.opacity = "1";
     secondaryLoginOTPButton.style.backgroundColor = "white";
     secondaryLoginOTPButton.style.color = "#00B5EF";
-  } else if (enteredDigits.length === 0) {
+  } else {
     otpInputs.forEach((input) => (input.style.border = "2px solid white"));
     const otpError = document.getElementById("otpSecondaryLoginErrorMessage");
     if (otpError) otpError.remove();
-  } else {
+  // } else {
     secondaryLoginOTPButton.disabled = true;
     secondaryLoginOTPButton.style.cursor = "not-allowed";
     secondaryLoginOTPButton.style.opacity = "0.6";
@@ -370,7 +408,13 @@ function checkSecondaryOtpAndToggleButton() {
 
 function setupSecondaryOtpListeners() {
   const otpInputs = document.querySelectorAll(".secondaryotpInputBox");
-  console.log("setupSecondaryOtpListeners called");
+  const backarrow = document.getElementById("secondaryotpBackArrow");
+  backarrow.addEventListener("keydown", function (event) {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault(); // Prevent scroll on space
+      showAddSecondaryContactForm();
+    }
+  });
 
   otpInputs.forEach((input, index) => {
     input.addEventListener("input", (e) => {
@@ -396,6 +440,16 @@ function setupSecondaryOtpListeners() {
     input.addEventListener("keypress", (e) => {
       if (!/\d/.test(e.key)) {
         e.preventDefault();
+      }
+    });
+
+    input.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        const btn = document.getElementById("secondaryOTPButton");
+        if (!btn.disabled) {
+          btn.click();
+        }
       }
     });
   });
@@ -968,11 +1022,10 @@ function checkSignupOtpAndToggleButton() {
     signUpOTPButton.style.opacity = "1";
     signUpOTPButton.style.backgroundColor = "white";
     signUpOTPButton.style.color = "#00B5EF";
-  } else if (enteredDigits.length === 0) {
+  } else {
     otpInputs.forEach((input) => (input.style.border = "2px solid white"));
     const otpError = document.getElementById("otpSignupErrorMessage");
     if (otpError) otpError.remove();
-  } else {
     signUpOTPButton.disabled = true;
     signUpOTPButton.style.cursor = "not-allowed";
     signUpOTPButton.style.opacity = "0.6";
@@ -983,6 +1036,13 @@ function checkSignupOtpAndToggleButton() {
 
 function setupSignUpOtpListeners() {
   const otpInputs = document.querySelectorAll(".signupotpInputBox");
+  const backarrow = document.getElementById("signupotpBackArrow");
+  backarrow.addEventListener("keydown", function (event) {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault(); // Prevent scroll on space
+      showSignupForm();
+    }
+  });
 
   otpInputs.forEach((input, index) => {
     input.addEventListener("input", (e) => {
@@ -1008,6 +1068,16 @@ function setupSignUpOtpListeners() {
     input.addEventListener("keypress", (e) => {
       if (!/\d/.test(e.key)) {
         e.preventDefault();
+      }
+    });
+
+    input.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        const btn = document.getElementById("signupOTPButton");
+        if (!btn.disabled) {
+          btn.click();
+        }
       }
     });
   });

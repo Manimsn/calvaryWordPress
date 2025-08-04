@@ -10,26 +10,25 @@
         </div>
         <h2 style="font-family: 'Poppins', sans-serif !important;">Welcome!</h2>
 
-        <div class="inputWrapper">
+        <form class="inputWrapper" onsubmit="handleLogin();return false">
             <div class="inputField">
                 <label for="login" style="margin-bottom: 8px; font-family: 'Poppins', sans-serif !important;">Type in your phone number or email to continue.</label>
                 <!-- Input -->
-                <input id="loginInput" style="font-family: 'Poppins', sans-serif !important;" type="text" placeholder="Phone or email address" oninput="validateInput()" />
+                <input id="loginInput" style="font-family: 'Poppins', sans-serif !important;" type="text" placeholder="Phone or email address" oninput="validateInput()" onblur="onBlurvalidatePhone()" />
                 <!-- Error Message -->
                 <div id="inputError" style="font-family: 'Poppins', sans-serif !important;"></div>
             </div>
             <!-- Continue Button -->
-            <button id="continueButton" style="font-family: 'Poppins', sans-serif !important;" onclick="handleLogin()" disabled>CONTINUE</button>
-        </div>
+            <button id="continueButton" style="font-family: 'Poppins', sans-serif !important;" disabled>CONTINUE</button>
+        </form>
     </div>
 
     <div id="otpSection" style="display: none; flex-direction: column; gap: 24px;">
         <div class="otpHeader" style="display: flex; align-items: center; gap: 32px;">
-            <span id="otpBackArrow" onclick="showLoginForm()"
+            <span id="otpBackArrow" onclick="showLoginForm()" tabindex="0" onkeydown="showLoginForm()"
                 style="cursor: pointer; font-size: 24px; align-self: flex-start">←</span>
-             <p id="otpText" style="margin: 0; color: white; font-size: 20px; font-family: 'Poppins', sans-serif !important;">Enter the code sent to 
-                <span><a id="userValueDisplay"  style="font-weight: bold; color: #005B78; word-break: break-word; font-family: 'Poppins', sans-serif !important;" href="#"></a></span>
-            </p>
+            <p id="otpText" style="margin: 0; color: white; font-size: 20px; font-family: 'Poppins', sans-serif !important;">Enter the code sent to <span
+                    id="userValueDisplay" style="font-weight: bold; color: #005B78; word-break: break-word; font-family: 'Poppins', sans-serif !important;"></span></p>
         </div>
 
         <!-- OTP Boxes aligned-->
@@ -54,7 +53,7 @@
             </div>
         </div>
 
-        <button id="signInButton" onclick="verifyOtp()" disabled style=" margin: 0 auto; padding: 10px 30px; border-radius: 50px; background: transparent; color: white;
+        <button id="signInButton" onclick="verifyOtp()" type="submit" disabled style=" margin: 0 auto; padding: 10px 30px; border-radius: 50px; background: transparent; color: white;
             border: 1px solid white; font-weight: bold; font-family: 'Poppins', sans-serif !important;">
             SIGN IN
         </button>
@@ -96,7 +95,7 @@
     <!-- ------------------------------------ OTP SECTION START ------------------------------------ -->
     <div id="signupotpSection" style="display: none; flex-direction: column; gap: 24px;">
         <div class="otpHeader" style="display: flex; align-items: center; gap: 32px;">
-            <span id="signupotpBackArrow" onclick="showSignupForm()"
+            <span id="signupotpBackArrow" onclick="showSignupForm()" tabindex="0" onkeydown="showSignupForm()"
                 style="cursor: pointer; font-size: 24px; align-self: flex-start">←</span>
             <p id="otpText" style="margin: 0; color: white; font-size: 20px; font-family: 'Poppins', sans-serif !important;">Enter the code sent to <span
                     id="signupUserValueDisplay"
@@ -133,7 +132,7 @@
     <!-- ------------------------------------ SING UP END ------------------------------------ -->
     <!-- ------------------------------------ SECONDARY CONTACT FOR BOTH LOGIN & SIGN UP------------------------------------ -->
 
-    <div class="secondaryContactForm" id="secondaryContactForm" style="display: none; flex-direction: column;">
+    <form class="secondaryContactForm" id="secondaryContactForm" style="display: none; flex-direction: column;" onsubmit="verifySecondaryContact();return false">
         <div id="secondaryContactMessage">
             <svg xmlns="http://www.w3.org/2000/svg" width="48" height="49" viewBox="0 0 48 49" fill="none">
                 <path fill-rule="evenodd" clip-rule="evenodd"
@@ -149,25 +148,25 @@
                 <!-- Input -->
                 <input id="secondaryContactInputEmail" type="email"
                     style="display: none; font-family: 'Poppins', sans-serif !important;" placeholder="sampleuser@yourdomain.com" oninput="validateInputEmail()" />
-                <input id="secondaryContactInputPhone" class="no-spinner" type="tel" pattern="[0-9\-]*" inputmode="numeric"
+                <input id="secondaryContactInputPhone" class="no-spinner"  type="tel" pattern="[0-9\-]*" inputmode="numeric"
                     style="display: none; font-family: 'Poppins', sans-serif !important;" placeholder="999-999-9999" oninput="validateInputPhone()" />
                 <!-- Error Message -->
                 <div id="inputErrorSecondary" style="font-family: 'Poppins', sans-serif !important;"></div>
             </div>
         </div>
         <div style="align-self: flex-end; margin-top: 24px;">
-            <button id="addButton" onclick="verifySecondaryContact()" style="font-family: 'Poppins', sans-serif !important;" disabled>
+            <button id="addButton" type="submit" style="font-family: 'Poppins', sans-serif !important;" disabled>
                 ADD <span class="Phone_Email" style="font-family: 'Poppins', sans-serif !important;"></span>
             </button>
             <button id="skipButton" style="font-family: 'Poppins', sans-serif !important;" onclick="closeModal()">
                 SKIP
             </button>
         </div>
-    </div>
+    </form>
 
     <div id="secondaryotpSection" style="display: none; flex-direction: column; gap: 24px;">
         <div class="otpHeader" style="display: flex; align-items: center; gap: 32px;">
-            <span id="secondaryotpBackArrow" onclick="showAddSecondaryContactForm()"
+            <span id="secondaryotpBackArrow" onclick="showAddSecondaryContactForm()" tabindex="0" onkeydown="showAddSecondaryContactForm()"
                 style="cursor: pointer; font-size: 24px; align-self: flex-start">←</span>
             <p id="otpText" style="margin: 0; color: white; font-size: 20px; font-family: 'Poppins', sans-serif !important;">Enter the code sent to <span
                     id="secondaryValueDisplay"
