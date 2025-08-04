@@ -136,7 +136,7 @@ function checkOtpAndToggleButton() {
     signInButton.style.opacity = "1";
     signInButton.style.backgroundColor = "white";
     signInButton.style.color = "#00B5EF";
-  } else if(enteredDigits.length === 0){
+  } else if (enteredDigits.length === 0) {
     otpInputs.forEach((input) => (input.style.border = "2px solid white"));
     const otpError = document.getElementById("otpErrorMessage");
     if (otpError) otpError.remove();
@@ -151,7 +151,7 @@ function checkOtpAndToggleButton() {
 
 function setupOtpListeners() {
   const otpInputs = document.querySelectorAll(".otpInputBox");
-  
+
   otpInputs.forEach((input, index) => {
     input.addEventListener("input", (e) => {
       const value = e.target.value;
@@ -306,18 +306,23 @@ function validateInputEmail() {
 function validateInputPhone() {
   const inputElement = document.getElementById("secondaryContactInputPhone");
   const errorDiv = document.getElementById("inputErrorSecondary");
-  let input = inputElement.value.trim();
   const continueBtn = document.getElementById("addButton");
+  
+  let input = inputElement.value.replace(/[^\d]/g, "").slice(0, 10);
+  let formatted = input;
+  if (input.length > 6) {
+    formatted = `${input.slice(0, 3)}-${input.slice(3, 6)}-${input.slice(6)}`;
+  } else if (input.length > 3) {
+    formatted = `${input.slice(0, 3)}-${input.slice(3)}`;
+  }
+
+  inputElement.value = formatted;
 
   if (input === "") {
     continueBtn.disabled = true;
     errorDiv.textContent = "";
     inputElement.style.borderColor = "#D1D5DB";
     return;
-  }
-  if (input.length > 10){
-    inputElement.value = input.slice(0, 10);
-    input = inputElement.value.trim();
   }
 
   if (validatePhone(input)) {
@@ -350,7 +355,7 @@ function checkSecondaryOtpAndToggleButton() {
     secondaryLoginOTPButton.style.opacity = "1";
     secondaryLoginOTPButton.style.backgroundColor = "white";
     secondaryLoginOTPButton.style.color = "#00B5EF";
-  } else if(enteredDigits.length === 0){
+  } else if (enteredDigits.length === 0) {
     otpInputs.forEach((input) => (input.style.border = "2px solid white"));
     const otpError = document.getElementById("otpSecondaryLoginErrorMessage");
     if (otpError) otpError.remove();
@@ -656,11 +661,14 @@ function resetLoginModalState() {
     secondaryOTPButton.classList.remove("button-loading");
   }
 
-  // Reset form sections
-  document.getElementById("loginForm").style.display = "block";
-  document.getElementById("otpSection").style.display = "none";
-  document.getElementById("secondaryContactForm").style.display = "none";
-  document.getElementById("signupSection").style.display = "none";
+  setTimeout(() => {
+    // Reset form sections
+    document.getElementById("loginForm").style.display = "block";
+    document.getElementById("otpSection").style.display = "none";
+    document.getElementById("secondaryContactForm").style.display = "none";
+    document.getElementById("signupSection").style.display = "none";
+    document.getElementById("successModal").style.display = "none";
+  }, 1000); // 1000 milliseconds = 1 second
 }
 
 // Close button click listener
@@ -673,26 +681,43 @@ document.addEventListener("click", function (e) {
   }
 });
 
+function preventTouchMove(e) {
+  e.preventDefault();
+}
+
+function lockScroll() {
+  document.body.style.overflow = "hidden";
+  document.body.style.position = "fixed";
+  document.body.style.width = "100%";
+  document.documentElement.style.overflow = "hidden";
+  document.documentElement.style.position = "fixed";
+  document.addEventListener("touchmove", preventTouchMove, { passive: false });
+}
+
+function unlockScroll() {
+  document.body.style.overflow = "";
+  document.body.style.position = "";
+  document.body.style.width = "";
+  document.documentElement.style.overflow = "";
+  document.documentElement.style.position = "";
+  document.removeEventListener("touchmove", preventTouchMove);
+}
+
 // DIVI modal closed via overlay or close button
 jQuery(document).ready(function ($) {
   $(document).on("mfpClose", function () {
     console.log("✅ Modal closed (by close button or outside click)");
     // Enable scrolling
-    // document.body.style.overflow = '';
-    // document.body.style.position = '';
-    // document.body.style.width = '';
- 
+    unlockScroll();
+
     resetLoginModalState();
   });
 
   $(document).on("mfpOpen", function () {
     const successModal = document.getElementById("successModal");
     const mfpBg = document.querySelector(".mfp-bg");
-
     // Disable scrolling
-    // document.body.style.overflow = 'hidden';
-    // document.body.style.position = 'fixed'; 
-    // document.body.style.width = '100%';  
+    lockScroll();
 
     if (mfpBg && successModal) {
       const style = window.getComputedStyle(successModal);
@@ -704,7 +729,6 @@ jQuery(document).ready(function ($) {
       }
     }
   });
-
 });
 
 // ----------------------------------SING UP---------------------------
@@ -944,11 +968,11 @@ function checkSignupOtpAndToggleButton() {
     signUpOTPButton.style.opacity = "1";
     signUpOTPButton.style.backgroundColor = "white";
     signUpOTPButton.style.color = "#00B5EF";
-  }else if(enteredDigits.length === 0){
+  } else if (enteredDigits.length === 0) {
     otpInputs.forEach((input) => (input.style.border = "2px solid white"));
     const otpError = document.getElementById("otpSignupErrorMessage");
     if (otpError) otpError.remove();
-  }  else {
+  } else {
     signUpOTPButton.disabled = true;
     signUpOTPButton.style.cursor = "not-allowed";
     signUpOTPButton.style.opacity = "0.6";
@@ -1295,7 +1319,9 @@ async function secodaryLoginverifyOtp() {
       secondaryLoginOtpBtn.classList.remove("button-loading");
       secondaryLoginOtpBtn.innerText = "VERIFY";
       //NEEDTOWORK - CONGRATS MODAL
-      closeModal();
+      // closeModal();
+      document.getElementById("successModal").style.display = "flex";
+      document.getElementById("secondaryotpSection").style.display = "none";
     } else {
       console.log("✅ OTP failed:", response);
       secondaryLoginotpInputs.forEach(

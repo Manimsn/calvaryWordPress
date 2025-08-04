@@ -162,6 +162,7 @@
   color: white !important;
   outline: none;
   font-family: "Poppins", sans-serif !important;
+  padding : 0 !important;
 }
 
 #otpErrorMessage {
@@ -229,6 +230,7 @@
 @media (max-width: 767px) {
   .otpInputBox {
     width: 40px !important;
+    padding: 0 !important; 
   }
 
   .otpHeader {
