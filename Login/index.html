@@ -25,10 +25,11 @@
 
     <div id="otpSection" style="display: none; flex-direction: column; gap: 24px;">
         <div class="otpHeader" style="display: flex; align-items: center; gap: 32px;">
-            <span id="otpBackArrow" onclick="showLoginForm()" tabindex="0" onkeydown="showLoginForm()"
+            <span id="otpBackArrow" onclick="showLoginForm()" tabindex="0" onkeydown="checkshowLoginForm(event)"
                 style="cursor: pointer; font-size: 24px; align-self: flex-start">←</span>
-            <p id="otpText" style="margin: 0; color: white; font-size: 20px; font-family: 'Poppins', sans-serif !important;">Enter the code sent to <span
-                    id="userValueDisplay" style="font-weight: bold; color: #005B78; word-break: break-word; font-family: 'Poppins', sans-serif !important;"></span></p>
+             <p id="otpText" style="margin: 0; color: white; font-size: 20px; font-family: 'Poppins', sans-serif !important;">Enter the code sent to 
+                <span><a id="userValueDisplay"  style="font-weight: bold; color: #005B78; word-break: break-word; font-family: 'Poppins', sans-serif !important; pointer-events: none; cursor: default;" href="#"></a></span>
+            </p>
         </div>
 
         <!-- OTP Boxes aligned-->
@@ -81,7 +82,7 @@
             </div>
 
             <div class="inputField">
-                <label for="email" style="font-family: 'Poppins', sans-serif !important;">Email Address*</label>
+                <label for="signupemail" style="font-family: 'Poppins', sans-serif !important;">Email Address*</label>
                 <input id="emailInput" style="font-family: 'Poppins', sans-serif !important;" type="text" placeholder="Phone or email address"
                     oninput="validateSignupInput(event)" />
                 <div id="inputErrorEmail" style="font-family: 'Poppins', sans-serif !important;">
@@ -95,7 +96,7 @@
     <!-- ------------------------------------ OTP SECTION START ------------------------------------ -->
     <div id="signupotpSection" style="display: none; flex-direction: column; gap: 24px;">
         <div class="otpHeader" style="display: flex; align-items: center; gap: 32px;">
-            <span id="signupotpBackArrow" onclick="showSignupForm()" tabindex="0" onkeydown="showSignupForm()"
+            <span id="signupotpBackArrow" onclick="showSignupForm()" tabindex="0" onkeydown="checkshowSignupForm(event)"
                 style="cursor: pointer; font-size: 24px; align-self: flex-start">←</span>
             <p id="otpText" style="margin: 0; color: white; font-size: 20px; font-family: 'Poppins', sans-serif !important;">Enter the code sent to <span
                     id="signupUserValueDisplay"
@@ -166,7 +167,7 @@
 
     <div id="secondaryotpSection" style="display: none; flex-direction: column; gap: 24px;">
         <div class="otpHeader" style="display: flex; align-items: center; gap: 32px;">
-            <span id="secondaryotpBackArrow" onclick="showAddSecondaryContactForm()" tabindex="0" onkeydown="showAddSecondaryContactForm()"
+            <span id="secondaryotpBackArrow" onclick="showAddSecondaryContactForm()" tabindex="0" onkeydown="checkshowAddSecondaryContactForm(event)"
                 style="cursor: pointer; font-size: 24px; align-self: flex-start">←</span>
             <p id="otpText" style="margin: 0; color: white; font-size: 20px; font-family: 'Poppins', sans-serif !important;">Enter the code sent to <span
                     id="secondaryValueDisplay"

@@ -42,7 +42,6 @@ function validateInput() {
     errorDiv.style.color = "#B91C1C";
     inputElement.style.borderColor = "#B91C1C"; // Add red border
   }
-
 }
 
 function onBlurvalidatePhone() {
@@ -63,7 +62,6 @@ function onBlurvalidatePhone() {
     inputElement.value = rawInput;
   }
 }
-
 
 async function handleLogin() {
   const input = document.getElementById("loginInput");
@@ -102,6 +100,9 @@ async function handleLogin() {
       if (response.status === 404) {
         document.getElementById("loginForm").style.display = "none";
         document.getElementById("signupSection").style.display = "flex";
+        if(!value.includes("@")){
+          document.querySelector("label[for='signupemail']").innerHTML="Phone Number*";
+        }
         document.getElementById("emailInput").value = value;
       }
       input.style.borderColor = "#B91C1C";
@@ -109,6 +110,8 @@ async function handleLogin() {
       continueBtn.disabled = false;
       continueBtn.innerText = "CONTINUE";
       continueBtn.classList.remove("button-loading");
+      continueBtn.style.border = "1px solid white";
+      continueBtn.style.color = "white";
     } else {
       // Success – show OTP section
       document.getElementById("otpSection").style.display = "flex";
@@ -144,6 +147,13 @@ async function handleLogin() {
   }
 }
 
+function checkshowLoginForm(event){
+  if (event.key === "Enter" || event.key === " ") {
+    event.preventDefault();
+    showLoginForm();
+  }
+}
+
 function checkOtpAndToggleButton() {
   const otpInputs = document.querySelectorAll(".otpInputBox");
   const signInButton = document.getElementById("signInButton");
@@ -172,17 +182,18 @@ function checkOtpAndToggleButton() {
 
 function setupOtpListeners() {
   const otpInputs = document.querySelectorAll(".otpInputBox");
-  const backarrow = document.getElementById("otpBackArrow");
-  backarrow.addEventListener("keydown", function (event) {
-    if (event.key === "Enter" || event.key === " ") {
-      event.preventDefault();
-      showLoginForm();
-    }
-  });
 
   otpInputs.forEach((input, index) => {
     input.addEventListener("input", (e) => {
       const value = e.target.value;
+      if (value.length === 6) {
+        for (let i = 0; i < 6; i++) {
+          if (otpInputs[i]) {
+            otpInputs[i].value = value[i];
+          }
+        }
+        otpInputs[5].focus();
+      }
       e.target.value = value.slice(0, 1); // allow only first digit
       if (value.length === 1 && index < otpInputs.length - 1) {
         otpInputs[index + 1].focus();
@@ -202,6 +213,26 @@ function setupOtpListeners() {
     });
 
     input.addEventListener("keypress", (e) => {
+      console.log(e);
+      
+      // paste for safari ----------------------------------------
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "v") {
+        setTimeout(async () => {
+          try {
+            const text = await navigator.clipboard.readText();
+            if (text && /^\d{6}$/.test(text)) {
+              for (let i = 0; i < otpInputs.length; i++) {
+                otpInputs[i].value = text[i] || "";
+              }
+              otpInputs[5].focus();
+              checkOtpAndToggleButton();
+            }
+          } catch (err) {
+            console.warn("Clipboard read failed", err);
+          }
+        }, 0);
+      }
+      // ---------------------------------------
       if (!/\d/.test(e.key)) {
         e.preventDefault();
       }
@@ -214,6 +245,21 @@ function setupOtpListeners() {
         if (!btn.disabled) {
           btn.click();
         }
+      }
+    });
+
+    input.addEventListener("paste", (e) => {
+      console.log(e,"----------");
+      
+      e.preventDefault();
+      const pasted = e.clipboardData.getData("text").trim();
+
+      if (/^\d{6}$/.test(pasted)) {
+        otpInputs.forEach((el, i) => {
+          el.value = pasted[i] || "";
+        });
+        otpInputs[5].focus();
+        checkOtpAndToggleButton();
       }
     });
   });
@@ -397,7 +443,6 @@ function checkSecondaryOtpAndToggleButton() {
     otpInputs.forEach((input) => (input.style.border = "2px solid white"));
     const otpError = document.getElementById("otpSecondaryLoginErrorMessage");
     if (otpError) otpError.remove();
-  // } else {
     secondaryLoginOTPButton.disabled = true;
     secondaryLoginOTPButton.style.cursor = "not-allowed";
     secondaryLoginOTPButton.style.opacity = "0.6";
@@ -406,19 +451,27 @@ function checkSecondaryOtpAndToggleButton() {
   }
 }
 
+function checkshowAddSecondaryContactForm(event) {
+  if (event.key === "Enter" || event.key === " ") {
+    event.preventDefault();
+    showAddSecondaryContactForm();
+  }
+}
+
 function setupSecondaryOtpListeners() {
   const otpInputs = document.querySelectorAll(".secondaryotpInputBox");
-  const backarrow = document.getElementById("secondaryotpBackArrow");
-  backarrow.addEventListener("keydown", function (event) {
-    if (event.key === "Enter" || event.key === " ") {
-      event.preventDefault(); // Prevent scroll on space
-      showAddSecondaryContactForm();
-    }
-  });
 
   otpInputs.forEach((input, index) => {
     input.addEventListener("input", (e) => {
       const value = e.target.value;
+      if (value.length === 6) {
+        for (let i = 0; i < 6; i++) {
+          if (otpInputs[i]) {
+            otpInputs[i].value = value[i];
+          }
+        }
+        otpInputs[5].focus();
+      }
       e.target.value = value.slice(0, 1); // allow only first digit
       if (value.length === 1 && index < otpInputs.length - 1) {
         otpInputs[index + 1].focus();
@@ -674,6 +727,18 @@ function resetLoginModalState() {
   const secondaryotpInputs = document.querySelectorAll(".secondaryotpInputBox");
   const secondaryOTPButton = document.getElementById("secondaryOTPButton");
 
+  //Signup section
+  document.getElementById("firstNameInput").value = "";
+  document.getElementById("lastNameInput").value = "";
+  document.getElementById("emailInput").value = "";
+  document.getElementById("inputErrorFirstName").textContent = "";
+  document.getElementById("inputErrorLastName").textContent = "";
+  const signupBtn = document.getElementById("signUpButton");
+
+  //signup OTP section
+  const signupotpInputs = document.querySelectorAll(".signupotpInputBox");
+  const signupOTPButton = document.getElementById("signupOTPButton");
+
   if (input) {
     input.value = "";
     input.style.borderColor = "";
@@ -715,12 +780,31 @@ function resetLoginModalState() {
     secondaryOTPButton.classList.remove("button-loading");
   }
 
+  if (signupBtn) {
+    signupBtn.disabled = true;
+    signupBtn.classList.remove("button-loading");
+  }
+
+  if (signupotpInputs) {
+    signupotpInputs.forEach((input) => {
+      input.value = "";
+      input.style.border = "2px solid white";
+    });
+  }
+
+  if (signupOTPButton) {
+    signupOTPButton.disabled = true;
+    signupOTPButton.classList.remove("button-loading");
+  }
+
   setTimeout(() => {
     // Reset form sections
     document.getElementById("loginForm").style.display = "block";
     document.getElementById("otpSection").style.display = "none";
     document.getElementById("secondaryContactForm").style.display = "none";
+    document.getElementById("secondaryotpSection").style.display = "none";
     document.getElementById("signupSection").style.display = "none";
+    document.getElementById("signupotpSection").style.display = "none";
     document.getElementById("successModal").style.display = "none";
   }, 1000); // 1000 milliseconds = 1 second
 }
@@ -789,21 +873,17 @@ jQuery(document).ready(function ($) {
 function validateFirstName() {
   const firstName = document.getElementById("firstNameInput");
   const firstNameError = document.getElementById("inputErrorFirstName");
+  let input = firstName.value.replace(/[^a-zA-Z.,'’‘\- ]/g, '').slice(0, 25);
+  firstName.value = input;
 
-  const input = firstName.value.trim();
   if (input === "") {
     firstNameError.textContent = "";
-    firstName.style.borderColor = "#D1D5DB"; // Reset to normal border
     return false;
-  } else if (input.length > 25) {
-    firstNameError.textContent =
-      "First name should not be greater than 25 characters.";
-    firstNameError.style.color = "#B91C1C";
-    firstName.style.borderColor = "#B91C1C"; // Add red border
-    return false;
+  } else if(input.length == 25){
+    firstNameError.textContent = "*You’ve reached the 25-character limit";
+    return true;
   } else {
     firstNameError.textContent = "";
-    firstName.style.borderColor = "#D1D5DB"; // Reset to normal border
     return true;
   }
 }
@@ -811,21 +891,17 @@ function validateFirstName() {
 function validateLastName() {
   const lastName = document.getElementById("lastNameInput");
   const lastNameError = document.getElementById("inputErrorLastName");
+  let input = lastName.value.replace(/[^a-zA-Z.,'’‘\- ]/g, '').slice(0, 25);
+  lastName.value = input;
 
-  const input = lastName.value.trim();
   if (input === "") {
     lastNameError.textContent = "";
-    lastName.style.borderColor = "#D1D5DB"; // Reset to normal border
     return false;
-  } else if (input.length > 25) {
-    lastNameError.textContent =
-      "Last name should not be greater than 25 characters.";
-    lastNameError.style.color = "#B91C1C";
-    lastName.style.borderColor = "#B91C1C"; // Add red border
-    return false;
+  } else if(input.length == 25){
+    lastNameError.textContent = "*You’ve reached the 25-character limit";
+    return true;
   } else {
     lastNameError.textContent = "";
-    lastName.style.borderColor = "#D1D5DB"; // Reset to normal border
     return true;
   }
 }
@@ -1034,19 +1110,27 @@ function checkSignupOtpAndToggleButton() {
   }
 }
 
+function checkshowSignupForm(event){
+  if (event.key === "Enter" || event.key === " ") {
+    event.preventDefault();
+    showSignupForm();
+  }
+}
+
 function setupSignUpOtpListeners() {
   const otpInputs = document.querySelectorAll(".signupotpInputBox");
-  const backarrow = document.getElementById("signupotpBackArrow");
-  backarrow.addEventListener("keydown", function (event) {
-    if (event.key === "Enter" || event.key === " ") {
-      event.preventDefault(); // Prevent scroll on space
-      showSignupForm();
-    }
-  });
 
   otpInputs.forEach((input, index) => {
     input.addEventListener("input", (e) => {
       const value = e.target.value;
+      if (value.length === 6) {
+        for (let i = 0; i < 6; i++) {
+          if (otpInputs[i]) {
+            otpInputs[i].value = value[i];
+          }
+        }
+        otpInputs[5].focus();
+      }
       e.target.value = value.slice(0, 1); // allow only first digit
       if (value.length === 1 && index < otpInputs.length - 1) {
         otpInputs[index + 1].focus();
