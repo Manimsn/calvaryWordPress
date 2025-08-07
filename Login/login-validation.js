@@ -105,8 +105,13 @@ async function handleLogin() {
         document.getElementById("loginForm").style.display = "none";
         document.getElementById("signupSection").style.display = "flex";
         if (!value.includes("@")) {
-          document.querySelector("label[for='signupemail']").innerHTML =
-            "Phone Number*";
+          document.querySelector("label[for='signupemail']").innerHTML = "Phone Number*";
+          const input = document.getElementById("emailInput");
+          input.classList.add("no-spinner");
+          input.type = "tel";
+          input.setAttribute("pattern", "[0-9\\-]*");
+          input.setAttribute("inputmode", "numeric");
+          input.setAttribute("placeholder","999-999-9999");
         }
         document.getElementById("emailInput").value = value;
       }
@@ -169,19 +174,11 @@ function checkOtpAndToggleButton() {
 
   if (enteredDigits.length === 6 && /^\d{6}$/.test(enteredDigits)) {
     signInButton.disabled = false;
-    signInButton.style.cursor = "pointer";
-    signInButton.style.opacity = "1";
-    signInButton.style.backgroundColor = "white";
-    signInButton.style.color = "#00B5EF";
   } else {
     otpInputs.forEach((input) => (input.style.border = "2px solid white"));
     const otpError = document.getElementById("otpErrorMessage");
     if (otpError) otpError.remove();
     signInButton.disabled = true;
-    signInButton.style.cursor = "not-allowed";
-    signInButton.style.opacity = "0.6";
-    signInButton.style.backgroundColor = "transparent";
-    signInButton.style.color = "white";
   }
 }
 
@@ -218,8 +215,6 @@ function setupOtpListeners() {
     });
 
     input.addEventListener("keypress", (e) => {
-      console.log(e);
-
       // paste for safari ----------------------------------------
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "v") {
         setTimeout(async () => {
@@ -250,21 +245,6 @@ function setupOtpListeners() {
         if (!btn.disabled) {
           btn.click();
         }
-      }
-    });
-
-    input.addEventListener("paste", (e) => {
-      console.log(e, "----------");
-
-      e.preventDefault();
-      const pasted = e.clipboardData.getData("text").trim();
-
-      if (/^\d{6}$/.test(pasted)) {
-        otpInputs.forEach((el, i) => {
-          el.value = pasted[i] || "";
-        });
-        otpInputs[5].focus();
-        checkOtpAndToggleButton();
       }
     });
   });
@@ -463,19 +443,11 @@ function checkSecondaryOtpAndToggleButton() {
 
   if (enteredDigits.length === 6 && /^\d{6}$/.test(enteredDigits)) {
     secondaryLoginOTPButton.disabled = false;
-    secondaryLoginOTPButton.style.cursor = "pointer";
-    secondaryLoginOTPButton.style.opacity = "1";
-    secondaryLoginOTPButton.style.backgroundColor = "white";
-    secondaryLoginOTPButton.style.color = "#00B5EF";
   } else {
     otpInputs.forEach((input) => (input.style.border = "2px solid white"));
     const otpError = document.getElementById("otpSecondaryLoginErrorMessage");
     if (otpError) otpError.remove();
     secondaryLoginOTPButton.disabled = true;
-    secondaryLoginOTPButton.style.cursor = "not-allowed";
-    secondaryLoginOTPButton.style.opacity = "0.6";
-    secondaryLoginOTPButton.style.backgroundColor = "transparent";
-    secondaryLoginOTPButton.style.color = "white";
   }
 }
 
@@ -519,6 +491,24 @@ function setupSecondaryOtpListeners() {
     });
 
     input.addEventListener("keypress", (e) => {
+      // paste for safari ----------------------------------------
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "v") {
+        setTimeout(async () => {
+          try {
+            const text = await navigator.clipboard.readText();
+            if (text && /^\d{6}$/.test(text)) {
+              for (let i = 0; i < otpInputs.length; i++) {
+                otpInputs[i].value = text[i] || "";
+              }
+              otpInputs[5].focus();
+              checkOtpAndToggleButton();
+            }
+          } catch (err) {
+            console.warn("Clipboard read failed", err);
+          }
+        }, 0);
+      }
+      // ---------------------------------------
       if (!/\d/.test(e.key)) {
         e.preventDefault();
       }
@@ -716,10 +706,6 @@ async function resendOtp() {
       }, 3000);
 
       signInButton.disabled = true;
-      signInButton.style.cursor = "not-allowed";
-      signInButton.style.opacity = "0.6";
-      signInButton.style.backgroundColor = "transparent";
-      signInButton.style.color = "white";
     }
   } catch (err) {
     // input.style.borderColor = "#B91C1C";
@@ -758,10 +744,12 @@ function resetLoginModalState() {
   //Signup section
   document.getElementById("firstNameInput").value = "";
   document.getElementById("lastNameInput").value = "";
-  document.getElementById("emailInput").value = "";
   document.getElementById("inputErrorFirstName").textContent = "";
   document.getElementById("inputErrorLastName").textContent = "";
+  document.getElementById("inputErrorEmail").textContent = "";
   const signupBtn = document.getElementById("signUpButton");
+  const signupInput = document.getElementById("emailInput");
+  document.querySelector("label[for='signupemail']").innerHTML = "Email Address*";
 
   //signup OTP section
   const signupotpInputs = document.querySelectorAll(".signupotpInputBox");
@@ -825,16 +813,25 @@ function resetLoginModalState() {
     signupOTPButton.classList.remove("button-loading");
   }
 
+  if(signupInput){
+    signupInput.type = "email";
+    signupInput.classList.remove("no-spinner");
+    signupInput.removeAttribute("pattern");
+    signupInput.removeAttribute("inputmode");
+    signupInput.style.borderColor = "#D1D5DB";
+    signupInput.value = "";
+  }
+
   setTimeout(() => {
     // Reset form sections
     document.getElementById("loginForm").style.display = "block";
     document.getElementById("otpSection").style.display = "none";
-    document.getElementById("secondaryContactForm").style.display = "none";
-    document.getElementById("secondaryotpSection").style.display = "none";
     document.getElementById("signupSection").style.display = "none";
     document.getElementById("signupotpSection").style.display = "none";
+    document.getElementById("secondaryContactForm").style.display = "none";
+    document.getElementById("secondaryotpSection").style.display = "none";
     document.getElementById("successModal").style.display = "none";
-  }, 1000); // 1000 milliseconds = 1 second
+  }, 900); // 1000 milliseconds = 1 second
 }
 
 // Close button click listener
@@ -939,6 +936,7 @@ let emailTouched = false;
 function validateSignupInput(event) {
   const inputElement = document.getElementById("emailInput");
   const errorDiv = document.getElementById("inputErrorEmail");
+  const isEmail = inputElement.type == "email";
 
   if (event?.target?.id === "emailInput") {
     emailTouched = true;
@@ -946,12 +944,12 @@ function validateSignupInput(event) {
 
   const isFirstNameValid = validateFirstName();
   const isLastNameValid = validateLastName();
-  const input = inputElement.value.trim();
+  const input = isEmail ? inputElement.value.trim() : inputElement.value.replace(/[^\d]/g, "").slice(0, 10);
   const signUpButton = document.getElementById("signUpButton");
 
   if (input === "") {
     if (emailTouched || !event) {
-      errorDiv.textContent = "Email or phone number is required.";
+      errorDiv.textContent = isEmail ? "Email is required." : "Phone number is required.";
       errorDiv.style.color = "#B91C1C";
       inputElement.style.borderColor = "#B91C1C";
     }
@@ -960,18 +958,27 @@ function validateSignupInput(event) {
     return false;
   }
 
+  if(emailTouched && !isEmail){
+    let formatted = input;
+    if (input.length > 6) {
+      formatted = `${input.slice(0, 3)}-${input.slice(3, 6)}-${input.slice(6)}`;
+    } else if (input.length > 3) {
+      formatted = `${input.slice(0, 3)}-${input.slice(3)}`;
+    }
+    inputElement.value = formatted;
+  }
+
   const isEmailValid = validateEmail(input);
   const isPhoneValid = validatePhone(input);
-  const isEmailOrPhoneValid = isEmailValid || isPhoneValid;
+  const isEmailOrPhoneValid = isEmail ? isEmailValid : isPhoneValid;
 
   const allValid = isFirstNameValid && isLastNameValid && isEmailOrPhoneValid;
 
   if ((emailTouched || !event) && !isEmailOrPhoneValid) {
-    errorDiv.textContent =
-      "Please enter a valid email address or 10-digit phone number.";
+    errorDiv.textContent = isEmail ? "Please enter a valid email address." : "Please enter a valid phone number.";
     errorDiv.style.color = "#B91C1C";
     inputElement.style.borderColor = "#B91C1C";
-  } else if (emailTouched || !event) {
+  } else if ((emailTouched || !event) && isEmailOrPhoneValid) {
     errorDiv.textContent = "";
     inputElement.style.borderColor = "#D1D5DB";
   }
@@ -1070,11 +1077,8 @@ async function submitSignup(event) {
       if (otpBox) otpBox.focus();
 
       // Optional: Attach OTP listeners once
-      if (!window.otpListenersAttached) {
-        if (typeof setupSignUpOtpListeners === "function") {
-          setupSignUpOtpListeners();
-          window.otpListenersAttached = true;
-        }
+      if (typeof setupSignUpOtpListeners === "function") {
+        setupSignUpOtpListeners();
       }
     }
   } catch (error) {
@@ -1122,19 +1126,11 @@ function checkSignupOtpAndToggleButton() {
 
   if (enteredDigits.length === 6 && /^\d{6}$/.test(enteredDigits)) {
     signUpOTPButton.disabled = false;
-    signUpOTPButton.style.cursor = "pointer";
-    signUpOTPButton.style.opacity = "1";
-    signUpOTPButton.style.backgroundColor = "white";
-    signUpOTPButton.style.color = "#00B5EF";
   } else {
     otpInputs.forEach((input) => (input.style.border = "2px solid white"));
     const otpError = document.getElementById("otpSignupErrorMessage");
     if (otpError) otpError.remove();
     signUpOTPButton.disabled = true;
-    signUpOTPButton.style.cursor = "not-allowed";
-    signUpOTPButton.style.opacity = "0.6";
-    signUpOTPButton.style.backgroundColor = "transparent";
-    signUpOTPButton.style.color = "white";
   }
 }
 
@@ -1178,6 +1174,24 @@ function setupSignUpOtpListeners() {
     });
 
     input.addEventListener("keypress", (e) => {
+      // paste for safari ----------------------------------------
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "v") {
+        setTimeout(async () => {
+          try {
+            const text = await navigator.clipboard.readText();
+            if (text && /^\d{6}$/.test(text)) {
+              for (let i = 0; i < otpInputs.length; i++) {
+                otpInputs[i].value = text[i] || "";
+              }
+              otpInputs[5].focus();
+              checkOtpAndToggleButton();
+            }
+          } catch (err) {
+            console.warn("Clipboard read failed", err);
+          }
+        }, 0);
+      }
+      // ---------------------------------------
       if (!/\d/.test(e.key)) {
         e.preventDefault();
       }
@@ -1644,10 +1658,6 @@ async function resendSecondaryLoginOtp() {
       }, 3000);
 
       signUpOtpBtn.disabled = true;
-      signUpOtpBtn.style.cursor = "not-allowed";
-      signUpOtpBtn.style.opacity = "0.6";
-      signUpOtpBtn.style.backgroundColor = "transparent";
-      signUpOtpBtn.style.color = "white";
     }
   } catch (err) {
     console.log("err", err);

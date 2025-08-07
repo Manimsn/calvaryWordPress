@@ -54,8 +54,7 @@
             </div>
         </div>
 
-        <button id="signInButton" onclick="verifyOtp()" type="submit" disabled style=" margin: 0 auto; padding: 10px 30px; border-radius: 50px; background: transparent; color: white;
-            border: 1px solid white; font-weight: bold; font-family: 'Poppins', sans-serif !important;">
+        <button id="signInButton" onclick="verifyOtp()" type="submit" disabled style="font-family: 'Poppins', sans-serif !important;">
             SIGN IN
         </button>
     </div>
@@ -63,7 +62,7 @@
     <!-- ------------------------------------ SING UP START ------------------------------------ -->
     <!-- ------------------------------------ SING UP FIRST SECTION ------------------------------------ -->
     <div id="signupSection" class="loginForm" style="display: none; flex-direction: column;">
-        <h5 style="font-family: 'Poppins', sans-serif !important;">You're almost there – just a few more details to sign up!</h5>
+        <h5 style="font-family: 'Poppins', sans-serif !important;">You're almost there – just a few more details to login!</h5>
 
         <form onsubmit="submitSignup(event)"
             style="display: flex; flex-direction: column; gap: 24px; width: 100%; align-items: center;">
@@ -83,7 +82,7 @@
 
             <div class="inputField">
                 <label for="signupemail" style="font-family: 'Poppins', sans-serif !important;">Email Address*</label>
-                <input id="emailInput" style="font-family: 'Poppins', sans-serif !important;" type="text" placeholder="Phone or email address"
+                <input id="emailInput" style="font-family: 'Poppins', sans-serif !important;" type="email" placeholder="sampleuser@yourdomain.com"
                     oninput="validateSignupInput(event)" />
                 <div id="inputErrorEmail" style="font-family: 'Poppins', sans-serif !important;">
                 </div>
@@ -125,8 +124,7 @@
             </div>
         </div>
 
-        <button id="signupOTPButton" onclick="verifySingupOtp()" disabled style=" margin: 0 auto; padding: 10px 30px; border-radius: 50px; background: transparent; color: white; font-family: 'Poppins', sans-serif !important;
-            border: 1px solid white; font-weight: bold;">
+        <button id="signupOTPButton" onclick="verifySingupOtp()" disabled style="font-family: 'Poppins', sans-serif !important;">
             SIGN IN
         </button>
     </div>
@@ -197,8 +195,7 @@
             </div>
         </div>
 
-        <button id="secondaryOTPButton" onclick="secodaryLoginverifyOtp()" disabled style=" margin: 0 auto; padding: 10px 30px; border-radius: 50px; background: transparent; color: white; font-family: 'Poppins', sans-serif !important;
-            border: 1px solid white; font-weight: bold;">
+        <button id="secondaryOTPButton" onclick="secodaryLoginverifyOtp()" disabled style="font-family: 'Poppins', sans-serif !important;">
             VERIFY
         </button>
     </div>

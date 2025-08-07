@@ -74,28 +74,34 @@
 }
 
 /* Add to your existing <style> tag */
+#signUpButton:hover,
+.cta-button:hover,
+#continueButton:hover,
+#signInButton:hover,
+#signupOTPButton:hover,
+#secondaryOTPButton:hover,
+#addButton:hover,
+#skipButton:hover {
+  opacity: 0.8;
+}
+
 #signUpButton:disabled,
 .cta-button:disabled,
 #continueButton:disabled {
-  border: 1px solid #4b5563 !important;
-  color: #4b5563 !important;
+  background: transparent !important; 
+  color: white !important;
+  border: 1px solid white !important; 
   cursor: not-allowed !important;
-}
-
-#signUpButton:hover,
-.cta-button:hover,
-#continueButton:hover {
-  color: black;
-  border: 1px solid black;
+  opacity: 0.6;
 }
 
 .cta-button,
 #signUpButton,
 #continueButton {
-  color: white;
+  color: #00B5EF !important;
   cursor: pointer;
   transition: background-color 0.3s ease, cursor 0.3s ease;
-  background-color: transparent;
+  background-color: white;
   padding: 8px 24px;
   border: 1px solid white;
   border-radius: 20px;
@@ -108,6 +114,29 @@
   font-size: 16px;
   line-height: 24px;
   margin-top: 24px;
+}
+
+
+#signInButton,
+#signupOTPButton,
+#secondaryOTPButton{
+  margin: 0 auto; 
+  padding: 10px 30px; 
+  border-radius: 50px; 
+  background: white; 
+  color: #00B5EF;
+  border: 1px solid white; 
+  font-weight: bold; 
+  cursor: pointer;
+}
+
+#signInButton:disabled,
+#signupOTPButton:disabled,
+#secondaryOTPButton:disabled{
+  cursor: not-allowed;
+  opacity: 0.6;
+  background-color: transparent;
+  color: white;
 }
 
 #signUpButton {
@@ -157,17 +186,12 @@
   border: 2px solid #146DFC;
 }
 
-#continueButton:focus {
-  color: black;
-  border: 1px solid black;
-  outline: 1px solid black;
-  outline-offset: 2px;
-}
-
+#continueButton:focus,
 #signInButton:focus,
 #skipButton:focus,
 #addButton:focus,
-#secondaryOTPButton:focus{
+#secondaryOTPButton:focus,
+#signUpButton:focus{
   outline: 1px solid white;
   outline-offset: 2px;
 }
@@ -182,7 +206,8 @@
 
 #secondaryotpBackArrow:focus,
 #otpBackArrow:focus,
-#signupotpBackArrow:focus{
+#signupotpBackArrow:focus,
+#signupOTPButton:focus{
   outline: 1px solid white;
   outline-offset: 2px;
   border-radius: 15px;
