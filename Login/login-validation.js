@@ -2,6 +2,7 @@ console.log("QA CAN PROCEED");
 const login = document.getElementById("loginButton");
 const inputElement = document.getElementById("loginInput");
 const errorDiv = document.getElementById("inputError");
+let globalSuccessText = document.getElementById("secondaryContactSuccess");
 
 function validateEmail(email) {
   const re = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -54,9 +55,12 @@ function onBlurvalidatePhone() {
   }
 
   const digitsOnly = rawInput.replace(/\D/g, "");
-  
+
   if (digitsOnly.length === 10) {
-    const formatted = `${digitsOnly.slice(0, 3)}-${digitsOnly.slice(3, 6)}-${digitsOnly.slice(6)}`;
+    const formatted = `${digitsOnly.slice(0, 3)}-${digitsOnly.slice(
+      3,
+      6
+    )}-${digitsOnly.slice(6)}`;
     inputElement.value = formatted;
   } else {
     inputElement.value = rawInput;
@@ -100,8 +104,9 @@ async function handleLogin() {
       if (response.status === 404) {
         document.getElementById("loginForm").style.display = "none";
         document.getElementById("signupSection").style.display = "flex";
-        if(!value.includes("@")){
-          document.querySelector("label[for='signupemail']").innerHTML="Phone Number*";
+        if (!value.includes("@")) {
+          document.querySelector("label[for='signupemail']").innerHTML =
+            "Phone Number*";
         }
         document.getElementById("emailInput").value = value;
       }
@@ -115,7 +120,7 @@ async function handleLogin() {
     } else {
       // Success – show OTP section
       document.getElementById("otpSection").style.display = "flex";
-      document.getElementById('signInButton').disabled = true;
+      document.getElementById("signInButton").disabled = true;
       document.getElementById("userValueDisplay").innerText = value;
 
       // Hide initial login form
@@ -147,7 +152,7 @@ async function handleLogin() {
   }
 }
 
-function checkshowLoginForm(event){
+function checkshowLoginForm(event) {
   if (event.key === "Enter" || event.key === " ") {
     event.preventDefault();
     showLoginForm();
@@ -214,7 +219,7 @@ function setupOtpListeners() {
 
     input.addEventListener("keypress", (e) => {
       console.log(e);
-      
+
       // paste for safari ----------------------------------------
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "v") {
         setTimeout(async () => {
@@ -249,8 +254,8 @@ function setupOtpListeners() {
     });
 
     input.addEventListener("paste", (e) => {
-      console.log(e,"----------");
-      
+      console.log(e, "----------");
+
       e.preventDefault();
       const pasted = e.clipboardData.getData("text").trim();
 
@@ -311,6 +316,27 @@ async function verifyOtp() {
       // Save JWT Token
       localStorage.setItem("mpp-widgets_AuthToken", data.JwtToken);
 
+      // 🔹 Adobe Target Integration
+      if (typeof adobe !== "undefined" && adobe.target) {
+        adobe.target.getOffer({
+          mbox: "target-global-mbox",
+          params: {
+            userId: data.UserId || "", // adjust if actual key is different
+            email: data.Email || "",
+            role: data.Roles || "",
+            firstName: data.First_Name || "",
+            lastName: data.Last_Name || "",
+          },
+          success: function (offer) {
+            adobe.target.applyOffer({ offer: offer });
+            console.log("🎯 Adobe Target personalization applied");
+          },
+          error: function (error) {
+            console.error("⚠️ Adobe Target offer error:", error);
+          },
+        });
+      }
+
       // Immediately update header UI
       if (typeof updateUserHeaderUI === "function") {
         updateUserHeaderUI();
@@ -322,6 +348,8 @@ async function verifyOtp() {
         // Hide OTP form
         document.getElementById("otpSection").style.display = "none";
         document.getElementById("secondaryContactForm").style.display = "flex";
+        globalSuccessText.innerText = "You've logged in!";
+
         const isEmail = data.SecondaryContact == "Email_null";
         const contactType = isEmail ? "email address" : "phone number";
 
@@ -391,7 +419,7 @@ function validateInputPhone() {
   const inputElement = document.getElementById("secondaryContactInputPhone");
   const errorDiv = document.getElementById("inputErrorSecondary");
   const continueBtn = document.getElementById("addButton");
-  
+
   let input = inputElement.value.replace(/[^\d]/g, "").slice(0, 10);
   let formatted = input;
   if (input.length > 6) {
@@ -873,13 +901,13 @@ jQuery(document).ready(function ($) {
 function validateFirstName() {
   const firstName = document.getElementById("firstNameInput");
   const firstNameError = document.getElementById("inputErrorFirstName");
-  let input = firstName.value.replace(/[^a-zA-Z.,'’‘\- ]/g, '').slice(0, 25);
+  let input = firstName.value.replace(/[^a-zA-Z.,'’‘\- ]/g, "").slice(0, 25);
   firstName.value = input;
 
   if (input === "") {
     firstNameError.textContent = "";
     return false;
-  } else if(input.length == 25){
+  } else if (input.length == 25) {
     firstNameError.textContent = "*You’ve reached the 25-character limit";
     return true;
   } else {
@@ -891,13 +919,13 @@ function validateFirstName() {
 function validateLastName() {
   const lastName = document.getElementById("lastNameInput");
   const lastNameError = document.getElementById("inputErrorLastName");
-  let input = lastName.value.replace(/[^a-zA-Z.,'’‘\- ]/g, '').slice(0, 25);
+  let input = lastName.value.replace(/[^a-zA-Z.,'’‘\- ]/g, "").slice(0, 25);
   lastName.value = input;
 
   if (input === "") {
     lastNameError.textContent = "";
     return false;
-  } else if(input.length == 25){
+  } else if (input.length == 25) {
     lastNameError.textContent = "*You’ve reached the 25-character limit";
     return true;
   } else {
@@ -1110,7 +1138,7 @@ function checkSignupOtpAndToggleButton() {
   }
 }
 
-function checkshowSignupForm(event){
+function checkshowSignupForm(event) {
   if (event.key === "Enter" || event.key === " ") {
     event.preventDefault();
     showSignupForm();
@@ -1332,6 +1360,7 @@ async function verifySingupOtp() {
         // Hide OTP form
         document.getElementById("signupotpSection").style.display = "none";
         document.getElementById("secondaryContactForm").style.display = "flex";
+        globalSuccessText.innerText = "You're all set!";
         const isEmail = data.SecondaryContact == "Email_null";
         const contactType = isEmail ? "email address" : "phone number";
 
@@ -1474,7 +1503,13 @@ async function secodaryLoginverifyOtp() {
       secondaryLoginOtpBtn.innerText = "VERIFY";
       //NEEDTOWORK - CONGRATS MODAL
       // closeModal();
-      document.getElementById("successModal").style.display = "flex";
+      if(globalSuccessText.innerText.trim() === "You're all set!"){
+        document.getElementById("successModal").style.display = "flex";
+        document.getElementById("successTitle").style.display = "block";
+        document.getElementById("successMessage").innerText = "We have added your details.";
+      }else{
+        document.getElementById("successModal").style.display = "flex";
+      }
       document.getElementById("secondaryotpSection").style.display = "none";
     } else {
       console.log("✅ OTP failed:", response);
@@ -1623,7 +1658,14 @@ async function resendSecondaryLoginOtp() {
 }
 
 function closeModal() {
-  $.magnificPopup.close();
+  if (globalSuccessText.innerText.trim() === "You're all set!") {
+      document.getElementById("successModal").style.display = "flex";
+      document.getElementById("successTitle").style.display = "block";
+      document.getElementById("successMessage").innerText = "We have added your details.";
+      document.getElementById("secondaryContactForm").style.display = "none";
+  } else {
+      $.magnificPopup.close();
+  }
 }
 
 function updateUserHeaderUI() {

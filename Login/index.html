@@ -140,7 +140,7 @@
                     d="M24 41.3C33.2783 41.3 40.7999 33.7784 40.7999 24.5C40.7999 15.2216 33.2783 7.7 24 7.7C14.7216 7.7 7.19995 15.2216 7.19995 24.5C7.19995 33.7784 14.7216 41.3 24 41.3ZM31.7849 21.7849C32.605 20.9648 32.605 19.6352 31.7849 18.8151C30.9648 17.995 29.6351 17.995 28.815 18.8151L21.9 25.7301L19.1849 23.0151C18.3648 22.195 17.0351 22.195 16.215 23.0151C15.3949 23.8352 15.3949 25.1648 16.215 25.9849L20.415 30.1849C21.2351 31.005 22.5648 31.005 23.3849 30.1849L31.7849 21.7849Z"
                     fill="#16A34A"></path>
             </svg>
-            <p style="font-family: 'Poppins', sans-serif !important;"> You've logged in !</p>
+            <p id="secondaryContactSuccess" style="font-family: 'Poppins', sans-serif !important;"> You've logged in!</p>
         </div>
 
         <div class="inputWrapper">
@@ -205,10 +205,14 @@
     <!--  secondary otp done -->
 
     <!-- Success Modal -->
-     <div id="successModal" style="display: none; flex-direction: column; align-items: center; text-align: center;">
+    <div id="successModal" style="display: none; flex-direction: column; align-items: center; text-align: center;">
         <img src="https://calvary2024stg.wpenginepowered.com/wp-content/uploads/2025/07/Congratulations.png"  alt="Congratulations" style="margin-bottom: 12px;"/>
-        <!-- <h3 style="color: white; font-size: 32px; font-family: 'Poppins', sans-serif !important; font-weight: 600; line-height: 40px; padding-bottom: 0;">Congratulations! </h3> -->
-        <h4 style="color: white; font-size: 28px; font-family: 'Poppins', sans-serif !important; font-weight: 500; line-height: 36px;">You've successfully updated your information.</h4>
-     </div>
+        <h3 id="successTitle" style="display: none; color: white; font-size: 32px; font-family: 'Poppins', sans-serif !important; font-weight: 600; line-height: 40px; padding-bottom: 0;">
+            Congratulations!
+        </h3>
+        <h4 id="successMessage" style="color: white; font-size: 28px; font-family: 'Poppins', sans-serif !important; font-weight: 500; line-height: 36px;">
+            You've successfully updated your information.
+        </h4>
+    </div>
 
 </div>

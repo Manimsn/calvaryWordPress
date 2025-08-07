@@ -173,7 +173,8 @@
 }
 
 #resetCodeLink:focus,
-#secondaryLoginresetCodeLink:focus{
+#secondaryLoginresetCodeLink:focus,
+#signupResetCodeLink:focus{
 	outline: 1px solid white;
   outline-offset: 2px;
   border-radius: 15px;
