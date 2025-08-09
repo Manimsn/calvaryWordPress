@@ -69,13 +69,13 @@
             <div class="form-row">
                 <div class="inputField">
                     <label for="firstName" style="font-family: 'Poppins', sans-serif !important;">First Name*</label>
-                    <input id="firstNameInput" style="font-family: 'Poppins', sans-serif !important;" type="text" placeholder="First Name" oninput="validateSignupInput(event)" />
+                    <input id="firstNameInput" style="font-family: 'Poppins', sans-serif !important;" type="text" placeholder="First Name" oninput="validateFirstName()" />
                     <div id="inputErrorFirstName" style="font-family: 'Poppins', sans-serif !important;"></div>
                     <!-- You’ve reached the 25-character limit -->
                 </div>
                 <div class="lastinputField">
                     <label for="lastName" style="font-family: 'Poppins', sans-serif !important;">Last Name*</label>
-                    <input id="lastNameInput" style="font-family: 'Poppins', sans-serif !important;" type="text" placeholder="Last Name" oninput="validateSignupInput(event)" />
+                    <input id="lastNameInput" style="font-family: 'Poppins', sans-serif !important;" type="text" placeholder="Last Name" oninput="validateLastName()" />
                     <div id="inputErrorLastName" style="font-family: 'Poppins', sans-serif !important;"></div>
                 </div>
             </div>
@@ -83,7 +83,7 @@
             <div class="inputField">
                 <label for="signupemail" style="font-family: 'Poppins', sans-serif !important;">Email Address*</label>
                 <input id="emailInput" style="font-family: 'Poppins', sans-serif !important;" type="email" placeholder="sampleuser@yourdomain.com"
-                    oninput="validateSignupInput(event)" />
+                    oninput="validateSignupInput()" />
                 <div id="inputErrorEmail" style="font-family: 'Poppins', sans-serif !important;">
                 </div>
             </div>

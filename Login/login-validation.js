@@ -71,7 +71,7 @@ async function handleLogin() {
   const input = document.getElementById("loginInput");
   const continueBtn = document.getElementById("continueButton");
   const error = document.getElementById("inputError");
-  const value = input.value.trim();
+  let value = input.value.trim();
 
   // Double check validation before calling API
   if (!(validateEmail(value) || validatePhone(value))) {
@@ -112,6 +112,7 @@ async function handleLogin() {
           input.setAttribute("pattern", "[0-9\\-]*");
           input.setAttribute("inputmode", "numeric");
           input.setAttribute("placeholder","999-999-9999");
+          value = `${value.slice(0, 3)}-${value.slice(3, 6)}-${value.slice(6)}`;
         }
         document.getElementById("emailInput").value = value;
       }
@@ -695,17 +696,17 @@ async function resendOtp() {
           if (otpSucess) otpSucess.remove();
         }, 3000);
       }
+      signInButton.disabled = true;
 
       oldErr.style.color = "Green";
       oldErr.innerText = "Verification code sent successfully!";
       oldErr.classList.add("blink");
-
+      
       setTimeout(() => {
         oldErr.innerText = "";
         oldErr.classList.remove("blink");
       }, 3000);
 
-      signInButton.disabled = true;
     }
   } catch (err) {
     // input.style.borderColor = "#B91C1C";
@@ -896,97 +897,100 @@ jQuery(document).ready(function ($) {
 
 // ----------------------------------SING UP---------------------------
 function validateFirstName() {
+  const signUpButton = document.getElementById("signUpButton");
   const firstName = document.getElementById("firstNameInput");
   const firstNameError = document.getElementById("inputErrorFirstName");
   let input = firstName.value.replace(/[^a-zA-Z.,'’‘\- ]/g, "").slice(0, 25);
   firstName.value = input;
 
-  if (input === "") {
-    firstNameError.textContent = "";
-    return false;
-  } else if (input.length == 25) {
-    firstNameError.textContent = "*You’ve reached the 25-character limit";
-    return true;
-  } else {
-    firstNameError.textContent = "";
-    return true;
-  }
+  if (input === "") firstNameError.textContent = "";
+  else if (input.length == 25) firstNameError.textContent = "*You’ve reached the 25-character limit";
+  else firstNameError.textContent = "";
+
+  const allValid = checkSignupInputs();
+  signUpButton.disabled = !allValid;
+  signUpButton.style.cursor = allValid ? "pointer" : "not-allowed";
 }
 
 function validateLastName() {
+  const signUpButton = document.getElementById("signUpButton");
   const lastName = document.getElementById("lastNameInput");
   const lastNameError = document.getElementById("inputErrorLastName");
   let input = lastName.value.replace(/[^a-zA-Z.,'’‘\- ]/g, "").slice(0, 25);
   lastName.value = input;
 
-  if (input === "") {
-    lastNameError.textContent = "";
-    return false;
-  } else if (input.length == 25) {
-    lastNameError.textContent = "*You’ve reached the 25-character limit";
-    return true;
-  } else {
-    lastNameError.textContent = "";
-    return true;
-  }
+  if (input === "") lastNameError.textContent = "";
+  else if (input.length == 25) lastNameError.textContent = "*You’ve reached the 25-character limit";
+  else lastNameError.textContent = "";
+
+  const allValid = checkSignupInputs();
+  signUpButton.disabled = !allValid;
+  signUpButton.style.cursor = allValid ? "pointer" : "not-allowed";
 }
 
-let emailTouched = false;
-
-function validateSignupInput(event) {
+function validateSignupInput() {
   const inputElement = document.getElementById("emailInput");
   const errorDiv = document.getElementById("inputErrorEmail");
   const isEmail = inputElement.type == "email";
 
-  if (event?.target?.id === "emailInput") {
-    emailTouched = true;
-  }
-
-  const isFirstNameValid = validateFirstName();
-  const isLastNameValid = validateLastName();
   const input = isEmail ? inputElement.value.trim() : inputElement.value.replace(/[^\d]/g, "").slice(0, 10);
   const signUpButton = document.getElementById("signUpButton");
+  
+  if(!isEmail){
+    let formatted = input;
+    if (input.length > 6)
+      formatted = `${input.slice(0, 3)}-${input.slice(3, 6)}-${input.slice(6)}`;
+    else if (input.length > 3)
+      formatted = `${input.slice(0, 3)}-${input.slice(3)}`;
 
+    inputElement.value = formatted;
+  }
   if (input === "") {
-    if (emailTouched || !event) {
-      errorDiv.textContent = isEmail ? "Email is required." : "Phone number is required.";
-      errorDiv.style.color = "#B91C1C";
-      inputElement.style.borderColor = "#B91C1C";
-    }
+    errorDiv.textContent = isEmail ? "Email is required." : "Phone number is required.";
+    errorDiv.style.color = "#B91C1C";
+    inputElement.style.borderColor = "#B91C1C";
     signUpButton.disabled = true;
     signUpButton.style.cursor = "not-allowed";
     return false;
-  }
-
-  if(emailTouched && !isEmail){
-    let formatted = input;
-    if (input.length > 6) {
-      formatted = `${input.slice(0, 3)}-${input.slice(3, 6)}-${input.slice(6)}`;
-    } else if (input.length > 3) {
-      formatted = `${input.slice(0, 3)}-${input.slice(3)}`;
-    }
-    inputElement.value = formatted;
   }
 
   const isEmailValid = validateEmail(input);
   const isPhoneValid = validatePhone(input);
   const isEmailOrPhoneValid = isEmail ? isEmailValid : isPhoneValid;
 
-  const allValid = isFirstNameValid && isLastNameValid && isEmailOrPhoneValid;
-
-  if ((emailTouched || !event) && !isEmailOrPhoneValid) {
+  if (isEmailOrPhoneValid) {
+    errorDiv.textContent = "";
+    inputElement.style.borderColor = "#D1D5DB";
+  } else {
     errorDiv.textContent = isEmail ? "Please enter a valid email address." : "Please enter a valid phone number.";
     errorDiv.style.color = "#B91C1C";
     inputElement.style.borderColor = "#B91C1C";
-  } else if ((emailTouched || !event) && isEmailOrPhoneValid) {
-    errorDiv.textContent = "";
-    inputElement.style.borderColor = "#D1D5DB";
   }
 
+  const allValid = checkSignupInputs();
   signUpButton.disabled = !allValid;
   signUpButton.style.cursor = allValid ? "pointer" : "not-allowed";
 
-  return allValid;
+}
+
+function checkSignupInputs(){
+  const firstName = document.getElementById("firstNameInput");
+  const lastName = document.getElementById("lastNameInput");
+  const emailInput = document.getElementById("emailInput");
+  const isEmail = emailInput.type == "email";
+
+  const email_phone = emailInput.value.trim();
+  const firstNameValue = firstName.value.trim();
+  const lastNameValue = lastName.value.trim();
+
+  const firstNameValid = firstNameValue.length > 0;
+  const lastNameValid = lastNameValue.length > 0;
+
+  const isEmailValid = validateEmail(email_phone);
+  const isPhoneValid = validatePhone(email_phone);
+  const isEmailOrPhoneValid = isEmail ? isEmailValid : isPhoneValid;
+
+  return firstNameValid && lastNameValid && isEmailOrPhoneValid;
 }
 
 async function submitSignup(event) {
@@ -999,12 +1003,11 @@ async function submitSignup(event) {
   const errorFirstName = document.getElementById("inputErrorFirstName");
   const errorlastName = document.getElementById("inputErrorLastName");
 
-  const isValid = validateSignupInput(); // No event passed
   const email_phone = emailInput.value.trim();
   const firstNameValue = firstName.value.trim();
   const lastNameValue = lastName.value.trim();
 
-  if (!isValid) return;
+  if(!checkSignupInputs()) return;
 
   const payload = {
     code: {
@@ -1225,12 +1228,11 @@ async function resendSignUpOtp() {
   const signUpOtpBtn = document.getElementById("signupOTPButton");
   const oldErr = document.getElementById("otpSignupErrorMessage");
 
-  const isValid = validateSignupInput(); // No event passed
   const email_phone = emailInput.value.trim();
   const firstNameValue = firstName.value.trim();
   const lastNameValue = lastName.value.trim();
 
-  if (!isValid) return;
+  if (!checkSignupInputs()) return;
 
   const payload = {
     code: {
@@ -1285,10 +1287,11 @@ async function resendSignUpOtp() {
           .getElementById("signupotpResendSection")
           .appendChild(otpSucess);
 
-        setTimeout(() => {
-          if (otpSucess) otpSucess.remove();
-        }, 3000);
-      }
+          setTimeout(() => {
+            if (otpSucess) otpSucess.remove();
+          }, 3000);
+        }
+      signUpOtpBtn.disabled = true;
 
       oldErr.style.color = "Green";
       oldErr.innerText = "Verification code sent successfully!";
@@ -1298,12 +1301,6 @@ async function resendSignUpOtp() {
         oldErr.innerText = "";
         oldErr.classList.remove("blink");
       }, 3000);
-
-      signUpOtpBtn.disabled = true;
-      signUpOtpBtn.style.cursor = "not-allowed";
-      signUpOtpBtn.style.opacity = "0.6";
-      signUpOtpBtn.style.backgroundColor = "transparent";
-      signUpOtpBtn.style.color = "white";
     }
   } catch (err) {
     resetCodeLink.classList.remove("link-loading");
@@ -1643,11 +1640,12 @@ async function resendSecondaryLoginOtp() {
           .getElementById("secondaryLoginotpResendSection")
           .appendChild(otpSucess);
 
-        setTimeout(() => {
-          if (otpSucess) otpSucess.remove();
-        }, 3000);
-      }
-
+          setTimeout(() => {
+            if (otpSucess) otpSucess.remove();
+          }, 3000);
+        }
+        
+      signUpOtpBtn.disabled = true;
       oldErr.style.color = "Green";
       oldErr.innerText = "Verification code sent successfully!";
       oldErr.classList.add("blink");
@@ -1656,8 +1654,6 @@ async function resendSecondaryLoginOtp() {
         oldErr.innerText = "";
         oldErr.classList.remove("blink");
       }, 3000);
-
-      signUpOtpBtn.disabled = true;
     }
   } catch (err) {
     console.log("err", err);
