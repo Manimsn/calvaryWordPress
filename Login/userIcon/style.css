@@ -64,3 +64,17 @@
 #user-info:hover #user-dropdown-menu {
   display: block;
 }
+
+#user-info {
+  position: relative;
+}
+
+#user-info::before {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 0;
+  height: 20px; /* size of the gap */
+  width: 100%;
+  background: transparent;
+}
