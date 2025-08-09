@@ -1,0 +1,995 @@
+
+/*======================================
+Theme Name: Juxt Marketing
+Description: A Divi child theme for Juxt Marketing Clients
+Version: 1.0
+Author: Juxt Marketing
+Author URI: https://juxtmarketing.com/
+Template: Divi
+======================================*/
+
+
+/* You can add your own CSS styles here. Use !important to overwrite styles if needed. */
+
+
+@import url("hero-section.css");
+@import url("special-card-carousel.css");
+
+/* Hide vertical scrollbar */
+html {
+    scrollbar-width: none; /* Firefox */
+}
+
+html::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Edge */
+}
+
+.dsm_icon_list_child_0_tb_header:not(.tippy-popper) {
+    padding-right: 0px !important;
+    padding-left: 30px !important;
+    margin-left: 30px !important;
+}
+
+
+.intern-carousel a.et_pb_button.et_pb_more_button {
+  color: #FFFFFF !important;
+  border-width: 3px !important;
+  border-color: #FFFFFF;
+  border-radius: 100px;
+  font-size: 40px;
+  display: inline;
+  padding: 13px 24px !important;
+}
+
+/*
+.intern-carousel a.et_pb_button:hover::after {
+  background-color: #fff !important;
+}
+.intern-carousel a.et_pb_button:hover{
+  background-color: transparent !important;
+}
+
+.intern-carousel .et_pb_button:hover:after {
+  color: #6AD2F3;
+}
+*/
+
+.intern-carousel .et_pb_button_wrapper {
+  margin-top: 40px !important;
+  text-align: right;
+}
+
+.intern-carousel .et_pb_button:after {
+  margin-left: 0 !important;
+  position: relative;
+}
+
+
+/*fix tabs overlay*/
+.dsm-tab.dsm-active {
+    margin-left: -38px !important;
+}
+
+/*hide what's happening text*/
+.wrap__main.mp_wp_calvary .et_pb_image_wrap {display: none !important;}
+
+
+/*text overload*/
+h1, h2, h3, h4, h5, h6, p, body, a, i, strong {
+  font-family: 'Poppins', Helvetica, Arial, Lucida, sans-serif;
+  }
+
+/*main event finder*/
+p.__name {
+  order: 1;
+  font-weight: 700;
+}
+
+p.list__location.section__text {
+  order: 2;
+}
+
+p.list__time.section__text {
+  order: 3;
+}
+
+/* Event and group Detail CSS*/
+
+list__post.group .list__time {
+    padding-top: 20px;
+}
+
+.mp_wp_calvary-grid .list__post.gallery .list__title {
+    font-size: 36px;
+   }
+
+
+.mp_wp_single_post .container {
+  max-width: 600px;
+}
+
+.wrap__main.groups, .wrap__main.events {
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.wrap__main.groups .post__flex,
+.wrap__main.events .post__flex {
+  flex-direction: column;
+}
+
+.wrap__main.groups .post__flex .post, 
+.wrap__main.events .post__flex .post, 
+.post__flex .post__info {
+  width: 100%;
+}
+
+.wrap__main.events .section__back {
+  bottom: 120px;
+}
+
+.wrap__main.groups .section__back {
+	bottom: 150px;
+	}
+
+.wrap__main.groups .post__top .section__title,
+.wrap__main.events .post__top .section__title {
+  max-width: 100%;
+  width: 100%;
+  margin: 0 auto;
+  margin-top: 90px;
+}
+
+.wrap__main.groups .post__time,
+.wrap__main.events .post__time {
+  font: 700 3em / normal var(--Poppins);
+}
+
+.wrap__main.groups .post__info,
+.wrap__main.events .post__info {
+  display: none;
+}
+
+.wrap__main.groups .post__img.img,
+.wrap__main.events .post__img.img {
+  display: none;
+}
+
+.wrap__main.groups .section__title,
+.wrap__main.events .section__title {
+  font: 700 5.2em / normal var(--Poppins);
+  text-align: left;
+  padding: 0;
+  line-height: .8em;
+}
+
+
+.wrap__main.events .event-signup-button > *, .opportunity-signup-button {
+  color: #fff;
+  padding: 15px 40px;
+  background: #00b5ef;
+  border-radius: 9999px;
+  text-decoration: none !important;
+  margin-top: 30px;
+}
+
+  button.group-contact-button {
+    color: transparent;
+    text-shadow: none;
+    user-select: none;
+    position: relative;
+    padding: 15px;
+    background: #00b5ef;
+    border-radius: 9999px;
+    text-decoration: none !important;
+    margin-top: 30px;
+}
+button.group-contact-button:after {
+  content: 'Request to Join';
+  color: #fff;
+  position: absolute;
+  left: 0;
+  top: 0;
+  padding: 15px 40px;
+  text-align: center;
+}
+
+.mp_wp_calvary-group .mp-wp-register {
+    color: transparent;
+    text-shadow: none;
+    user-select: none;
+    position: relative;
+    padding: 15px;
+    background: #00b5ef;
+    border-radius: 9999px;
+    text-decoration: none !important;
+    margin-top: 30px;
+    border: none;
+    width: 250px;
+}
+
+.mp_wp_calvary-group .mp-wp-register:after {
+    content: 'Request to Join';
+    color: #fff;
+    position: absolute;
+    left: 0;
+    top: 0;
+    padding: 15px 40px;
+    text-align: center;
+    width: 250px;
+    transform: none;
+    background: none;
+    height: auto;
+}
+
+
+.wrap__main .section {
+    background: none;
+}
+
+button.group-signup-button {
+  display: none;
+}
+
+.bp-portal-event-field-group-header .icon {
+  display: none;
+}
+
+.bp-portal-form-container .instructions, 
+.bp-portal-forms-container .instructions {
+  font: 500 16px / normal var(--Poppins) !important;
+}
+
+.bp-portal-table-cell {
+  font: 400 16px / normal var(--Poppins);
+}
+
+.bp-portal-radio-button-horizontal {
+  font: 400 16px / normal var(--Poppins);
+}
+
+.submit-wrapper button, 
+.bp-portal-field-group .submit button {
+  padding: 15px 40px;
+  border-radius: 9999px;
+  border: 0px solid #000;
+  color: #fff;
+  background: #00b5ef;
+}
+
+
+
+
+/*prayer engine font*/
+#prayerengine h1, #prayerengine h2, #prayerengine h3, #prayerengine h4, #prayerengine h5, #prayerengine h6, #prayerengine p, #prayerengine form, #prayerengine ul, #prayerengine ol, #prayerengine li, #prayerengine ol li, #prayerengine ul li, #prayerengine blockquote, #prayerengine input, #prayerengine input[type="submit"], #prayerengine textarea, #prayerengine select, #prayerengine label, #prayerengine table, #prayerengine table tr, #prayerengine table tr td.label, #prayerengine table tr td.prayercell, #prayerengine table tr td.inputcell, #prayerengine table tr td.twittercell, #prayerengine table tr td.optioncell {
+  font-family: 'Poppins', Helvetica, Arial, Lucida, sans-serif !important;
+}
+
+
+/*fix word breaking*/
+h1, h2, h3, h4, h5, body, p {
+  word-break: keep-all !important; 
+  overflow-wrap: normal !important;  
+  white-space: normal !important;  
+}
+
+/*Fix horizontal scroll issue */
+.et-tb #page-container, .et-tb-has-header #page-container {
+  overflow-x: hidden !important;
+  }
+
+  body {
+    overflow-x: hidden !important; /* Hide scrollbars */
+   
+  }
+  
+  html, body {
+/*     overflow-x: hidden !important;
+    width: 100vw !important; */
+    max-width: 100vw !important;
+    position: relative;
+}
+
+
+/*removing thumbnails from sliders*/
+
+.swiper.dsm_image_gallery_thumbs.swiper-container-initialized.swiper-container-horizontal.swiper-container-pointer-events.swiper-container-thumbs {
+  display: none;
+}
+
+/*adjusting the button padding on the sliders that contain the pastors*/
+
+.altauth2-section.tall {
+  padding: 50px 30px !important;
+}
+
+#epanel-mainmenu a {
+  background: #4c5866;
+}
+
+
+/*extraspace*/
+#extraspace {
+  color: #11111100 !important;
+}
+
+/*our vision tab page*/
+a.et_pb_button.et_pb_more_button.our-vision:hover {
+  background: #111111 !important;
+}
+
+/*end*/
+
+/* footer CSS */
+.et_builder_inner_content.et_pb_gutters3 {
+  position: unset;
+}
+
+/* header CSS */
+@media (max-width: 980px) {
+  #header-section .dsm_icon_list_0_tb_header .dsm_icon_list_items.dsm_icon_list_layout_horizontal {
+    text-align: right !important;
+  }
+
+  #header-section .et_pb_column {
+    margin-bottom: 0 !important;
+  }
+
+  #popup-menu .account-list {
+    column-count: 2 !important;
+  }
+
+/*   .et_mobile_nav_menu {
+    display: none !important; 
+  } */
+}
+
+#header-section .et_pb_row {
+  padding-bottom: 20px !Important;
+}
+
+@media (min-width: 768px) {
+  #popup-menu .second-column-list {
+    column-count: 2;
+  }
+}
+
+#popup-menu .second-column-list li {
+  padding-bottom: 20px;
+}
+
+#popup-menu li a:hover {
+  color: #000 !important;
+}
+
+#popup-menu .account-list {
+  column-count: 3;
+}
+
+#et-boc .area-outer-wrap .da-close {
+  font-size: 40px !important;
+  opacity: 1;
+  color: #fff !important;
+  background-color: transparent !important;
+  margin: 30px 30px 0 0 !important;
+  border: 3px solid #fff;
+  border-radius: 100px;
+  padding: 15px;
+}
+
+#et-boc .area-outer-wrap .da-close:hover {
+  background-color: #fff !important;
+  border: 3px solid #fff !important;
+  color: #09B8F1 !important;
+}
+
+#et-boc .area-outer-wrap .da-close:hover {
+  transform: none !important;
+}
+
+#popup-menu button.et_pb_menu__icon.et_pb_menu__search-button,
+#header-section span.dsm_icon_list_icon {
+  -webkit-transform: scaleX(-1);
+  -moz-transform: scaleX(-1);
+  -o-transform: scaleX(-1);
+  transform: scaleX(-1);
+}
+
+/* end of header CSS */
+
+/* Home CSS */
+
+
+@media (min-width: 980px) and (max-width: 1151px) {
+
+
+
+  .homepage-carousel .swiper-button-prev.dsm_card_carousel_arrow {
+    margin-left: 20px;
+  }
+
+  .homepage-carousel .swiper-button-next.dsm_card_carousel_arrow {
+    margin-right: 20px;
+  }
+
+
+  .homepage-carousel .swiper-button-prev:before,
+  .homepage-carousel .swiper-button-next:before {
+    font-size: 40px;
+
+  }
+}
+
+
+/* slider arrow buttons CSS */
+.carousel a.et_pb_more_button:after {
+  position: relative !important;
+  color: #fff;
+  border: 3px solid #fff;
+  border-radius: 100px;
+  padding: 21px 25px;
+  margin-left: 0 !important;
+}
+
+.carousel.second a.et_pb_more_button:after {
+  color: #000;
+  border: 3px solid #000;
+}
+
+.carousel.second a.et_pb_more_button:hover:after {
+  color: #fff !important;
+}
+
+.carousel a.et_pb_more_button:hover:after {
+  background-color: #6ad2f3 !important;
+  border: 3px solid #6ad2f3;
+}
+
+.carousel .et_pb_button:hover,
+.carousel .et_pb_module .et_pb_button:hover {
+  border: none !important;
+  padding: unset !important;
+}
+
+.carousel a.et_pb_button.et_pb_more_button {
+  border: none;
+  font-size: 36px;
+  padding: 0 !important;
+  position: absolute;
+  right: 30px;
+  bottom: 30px;
+}
+
+.step-row .et_pb_button:after {
+  margin-left: 0 !important;
+}
+
+.home .carousel .dsm_card_wrapper {
+  position: relative;
+  padding-top: 30px !important;
+}
+
+.next-step .et_pb_button_module_wrapper{
+  margin-top: auto !important;
+}
+
+
+
+/* I honestly cannot understand why this is here.  It breaks the layout on every card carousel on the site.
+make it SPECIFIC if you need it for just one card carousel. 
+*/
+/*@media (max-width: 1440px) and (min-width: 1025px) {
+	.dsm_card_carousel_child_description:not(.no-special-width .dsm_card_carousel_child_description) {
+    width: 75% !important;
+} 
+}*/
+@media (max-width: 1440px) {
+  .carousel a.et_pb_more_button:after {
+    padding: 13px 15px !important;
+  }
+
+  .carousel a.et_pb_button.et_pb_more_button {
+    right: 15px !important;
+    bottom: 50px !important;
+  }
+
+  .three-buttons a.et_pb_button {
+    min-width: 200px !important;
+  }
+}
+
+@media (max-width: 1366px) {
+  .three-buttons a.et_pb_button {
+    min-width: 180px !important;
+  }
+}
+
+@media (max-width: 1385px) {
+  .carousel a.et_pb_button.et_pb_more_button {
+    position: relative;
+    margin: 15px 0 15px 10px;
+    font-size: 30px;
+  }
+
+  .carousel a.et_pb_button.et_pb_more_button {
+    bottom: 0 !important;
+  }
+}
+
+@media (max-width: 767px) {
+
+carousel .swiper-button-next.dsm_card_carousel_arrow {
+    margin-top: 60px;
+}
+
+  .carousel a.et_pb_button.et_pb_more_button {
+    margin: 0px 0 15px 10px;
+  }
+}
+
+/* end */
+
+@media (max-width: 980px) {
+  .three-buttons a.et_pb_button {
+  /*  width: 100% !important;*/
+    margin-bottom: 20px !important;
+  }
+
+  .three-buttons .et_pb_button_module_wrapper {
+   display: block !important;
+   margin-right: auto;
+   margin-rigth: auto;
+  }
+}
+
+@media (min-width: 981px) {
+
+  .step-row .et_pb_column_11,
+  .step-row .et_pb_column_12,
+  .step-row .et_pb_column_13 {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  @media only screen and (min-width: 980px) and (max-width: 1237px) {
+    .step-row {
+      flex-wrap: wrap;
+      flex-direction: row !important;
+    }
+
+    .step-row .et_pb_column {
+      width: calc(33% - 30px) !important;
+    }
+
+    .step-row>.image-column {
+      width: 100% !important;
+    }
+  }
+
+
+  @media only screen and (min-width: 1237px) and (max-width: 1381px) {
+    body .step-row h3 {
+      font-size: 40px !important;
+    }
+  }
+
+  @media only screen and (min-width: 1381px) and (max-width: 1505px) {
+    body .step-row h3 {
+      font-size: 50px !important;
+    }
+  }
+
+  /*Take your next step section CSS*/
+  .step-row .next-step {
+    margin: 20px;
+  }
+
+  .three-buttons a.et_pb_button {
+    min-width: 260px;
+  }
+
+  /*end*/
+
+  .home .carousel .swiper-slide {
+    width: 500px;
+  }
+}
+
+@media (max-width: 767px) {
+
+  .et_pb_gutters1 .et_pb_column.next-step,
+  .et_pb_gutters1.et_pb_row .et_pb_column.next-step {
+    margin-bottom: 5% !important;
+  }
+
+  .home .dsm_card_carousel_child_description p {
+    margin-bottom: 20px;
+  }
+
+  .step-row .next-description p {
+    margin-top: 20px !important;
+  }
+}
+
+.three-buttons .et_pb_button_module_wrapper {
+  display: inline-block;
+  text-align: center;
+  padding: 0 10px;
+}
+
+/* Slider Css*/
+.divi8_image_carousel_item_0 .carousel_content p {
+  font-family: 'Poppins', Helvetica, Arial, Lucida, sans-serif !important;
+  width: 45% !important;
+}
+
+/*end*/
+
+.home .step-row span.et_pb_icon_wrap:hover span.et-pb-icon {
+  color: #6ad2f3;
+}
+
+.home .et_pb_button_0:after {
+  transition: all 100ms ease 0ms !important;
+}
+
+body #page-container .et_pb_section .arrow-icon:hover:after,
+body body #page-container .et_pb_section .three-buttons .et_pb_button:hover:after {
+  padding-left: .3em !important;
+  margin-left: 10px !important;
+}
+
+/* end of Home CSS */
+
+/* Groups page CSS */
+
+.tab-row .dsm-active {
+  margin-right: -50px;
+  z-index: 9999999;
+}
+/*
+.tab-row .dsm_advanced_tabs_0 .dsm-tab {
+  margin-right: -50px !important;
+}
+*/
+.tab-row .dsm-tab.dsm_advanced_tabs_child_0 {
+  border-top-left-radius: 100px;
+  border-bottom-left-radius: 100px;
+  padding-right: 65px !important;
+}
+
+.dsm_advanced_tabs_0 .dsm-tab.dsm-active {
+  padding-right: 40px !important;
+}
+
+.tab-row .dsm-tab.dsm_advanced_tabs_child_1 {
+  border-top-right-radius: 100px;
+  border-bottom-right-radius: 100px;
+  padding-left: 65px !important;
+}
+
+.resources-carousel-row a.et_pb_button.et_pb_more_button {
+  color: #FFFFFF !important;
+  border-width: 3px !important;
+  border-color: #FFFFFF;
+  border-radius: 100px;
+  font-size: 40px;
+  display: inline;
+  padding: 13px 24px !important;
+}
+
+.resources-carousel-row a.et_pb_button:hover::after {
+  background-color: #fff !important;
+}
+.resources-carousel-row a.et_pb_button:hover{
+  background-color: transparent !important;
+}
+
+.blurb-slider .swiper-button-next:hover,
+.blurb-slider .swiper-button-prev:hover {
+  background-color: #6ad2f3;
+}
+
+.blurb-slider .swiper-button-prev:hover::before,
+.blurb-slider .swiper-button-next:hover::before {
+  color: #fff !important;
+}
+
+.dsm_advanced_tabs_1 .dsm-tab.dsm-active {
+  padding-left: 40px !important;
+}
+
+/*
+.tab-row .et_pb_button:hover {
+  background-color: #fff !important;
+}
+*/
+
+.tab-row .dsm-content-wrapper {
+  border: none !important;
+  padding-top: 70px !important;
+}
+
+/*
+.tab-row .et_pb_button_0:hover:after,
+.tab-row .et_pb_button_1:hover:after {
+  margin-left: 0.8em !important;
+}
+  */
+
+.resources-carousel-row .dsm_card_wrapper {
+  padding: 40px !important;
+}
+
+.resources-carousel-row .et_pb_button_wrapper {
+  margin-top: 40px !important;
+  text-align: right;
+}
+
+.resources-carousel-row .et_pb_button:after {
+  margin-left: 0 !important;
+  position: relative;
+}
+
+.resources-carousel-row .et_pb_button:hover:after {
+  color: #6AD2F3;
+}
+
+@media (min-width: 1024px) {
+
+  .blurb-slider .swiper-slide-active {
+    width: 60% !important;
+  }
+
+  .blurb-slider .swiper-slide.swiper-slide-next .dsm_card_wrapper {
+    display: none;
+  }
+
+  .blurb-slider .swiper-slide.swiper-slide-next .et_pb_module_inner {
+    display: block !important;
+  }
+
+  .blurb-slider .swiper-slide.swiper-slide-next img.dsm_card_carousel_image_stretch {
+    margin-left: 10%;
+  }
+
+  .blurb-slider .swiper-wrapper {
+    align-items: center;
+  }
+
+  /*.swiper-slide.swiper-slide-duplicate-prev .dsm_card_carousel_image_stretch {
+    margin-left: -50% !important;
+  }
+*/
+  .blurb-slider .swiper-button-next {
+    left: 59%;
+  }
+
+  .blurb-slider .swiper-slide.swiper-slide-next {
+    width: 25% !important;
+  }
+
+  .blurb-slider .swiper-slide.swiper-slide-next .dsm_card_carousel_image_stretch {
+    padding-right: 50px;
+  }
+}
+
+@media (max-width: 1440px) and (min-width: 981px) {
+  .et_pb_row_7.et_pb_row.blurb-slider {
+    margin-left: 7% !important;
+  }
+
+  .blurb-slider .swiper-button-next {
+    left: 55%;
+  }
+}
+
+@media (max-width: 980px) {
+  .blurb-slider .et_pb_module_inner {
+    display: block !important;
+  }
+
+  .swiper-button-prev.dsm_card_carousel_arrow,
+  .swiper-button-next.dsm_card_carousel_arrow {
+    position: relative;
+  }
+
+  .swiper-button-prev.dsm_card_carousel_arrow {
+    left: 0 !important;
+  }
+
+  .swiper-button-next.dsm_card_carousel_arrow {
+    right: 0 !important;
+    margin-left: 15px;
+  }
+
+  .resources-carousel-row .swiper-slide {
+    width: 450px !important;
+  }
+
+  .resources-carousel-row a.et_pb_button.et_pb_more_button {
+    font-size: 28px !important;
+  }
+
+  .resources-carousel-row .et_pb_button_wrapper {
+    margin-top: 20px !important;
+  }
+/*
+  .tab-row .dsm-content-wrapper {
+    padding-top: 20px !important;
+    padding-left: 0 !important;
+  }
+
+  .dsm_advanced_tabs_0 .dsm-tab.dsm-active {
+    padding-right: 25px !important;
+  }*/
+/*
+  .tab-row .dsm_advanced_tabs_0 .dsm-tab {
+    margin-right: -55px !important;
+  }
+
+*/
+  .dsm_advanced_tabs_0 .dsm-tab.dsm-active {
+    padding-left: 30px !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .resources-carousel-row .swiper-slide {
+    width: 345px !important;
+  }
+
+  .dsm_advanced_tabs_0 .dsm-tab.dsm-active {
+    padding-right: 25px !important;
+  }
+
+  .dsm_card_carousel .swiper-button-next:before,
+  .dsm_card_carousel .swiper-button-prev:before,
+  .swiper-container-rtl .swiper-button-prev:before {
+    font-size: 20px !important;
+  }
+
+  .resources-carousel-row .dsm_card_wrapper {
+    padding: 25px !important;
+  }
+}
+
+
+@media (max-width: 1600px) and (min-width: 980px) {
+  .resources-carousel-row .swiper-slide {
+    width: 33.3% !important;
+  }
+}
+
+@media (max-width: 1620px) and (min-width: 1300px) {
+  .resources-carousel-row .swiper-slide h4 {
+    font-size: 50px;
+  }
+}
+
+/* end */
+
+/* Campus page CSS */
+
+.campus-section .swiper-pagination {
+  display: none !important;
+}
+
+.campus-section .et_pb_toggle_open {
+  padding-top: 50px !important;
+  border-radius: 45px !important;
+  border-color: #000 !important;
+}
+
+.campus-section a.et_pb_button {
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  display: inline !important;
+}
+
+@media (max-width: 980px) {
+  .campus-section .et_pb_button_wrapper {
+    margin-top: 20px !important;
+    margin-bottom: 10px;
+  }
+}
+
+.event__block {
+  max-width: 820px;
+  width: 100% !important;
+  margin-right: 20px !important;
+}
+
+@media(max-width: 991px) {
+  .event__block {
+    margin-right: unset !important;
+    max-width: unset;
+    margin-bottom: 48px
+  }
+}
+
+.event__title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.event__title h1 {
+  padding-bottom: unset !important;
+}
+
+@media(max-width: 991px) {
+  .event__title {
+    justify-content: flex-start;
+  }
+}
+
+.event__top {
+  display: flex;
+  align-items: center;
+  padding: 0;
+  margin-bottom: 37px;
+}
+
+@media (max-width:991px) {
+  .event__top {
+    padding: 0 20px;
+    width: 100%;
+    max-width: unset;
+    margin-bottom: 20px;
+  }
+
+  .event__top>* {
+    margin-bottom: unset;
+  }
+}
+
+.event__img {
+  margin-bottom: 24px !important;
+}
+
+@media (max-width: 768px) {
+  .event__title {
+    text-align: center;
+    justify-content: center;
+  }
+
+  .event__title h1 {
+    font-size: 24px;
+  }
+
+  .event__button {
+    display: flex !important;
+    justify-content: center;
+    width: max-content;
+    margin: 0 auto;
+  }
+
+  .event__button::after {
+    left: unset;
+    right: 16.5px;
+  }
+
+  .event__location {
+    margin-bottom: 4px !important;
+  }
+
+  .event__img {
+    margin-bottom: 10px !important;
+  }
+}
+
+/* end */
+
+/* various fiddly bits */
+
+/* make the toggle items fade their background instead of popping in and out */
+.et_pb_toggle_open,
+.et_pb_toggle_close {
+  transition: background-color 0.5s ease;
+}
+
+/* end fiddly bits */
