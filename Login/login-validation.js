@@ -31,7 +31,7 @@ function validateInput() {
     inputElement.style.borderColor = "#D1D5DB"; // Reset to normal border
     return;
   }
-  
+
   if (validateEmail(input) || validatePhone(input)) {
     continueBtn.disabled = false;
     errorDiv.textContent = "";
@@ -39,7 +39,7 @@ function validateInput() {
   } else {
     continueBtn.disabled = true;
     errorDiv.textContent =
-    "Please enter a valid email address or 10-digit phone number.";
+      "Please enter a valid email address or 10-digit phone number.";
     errorDiv.style.color = "#B91C1C";
     inputElement.style.borderColor = "#B91C1C"; // Add red border
   }
@@ -105,13 +105,14 @@ async function handleLogin() {
         document.getElementById("loginForm").style.display = "none";
         document.getElementById("signupSection").style.display = "flex";
         if (!value.includes("@")) {
-          document.querySelector("label[for='signupemail']").innerHTML = "Phone Number*";
+          document.querySelector("label[for='signupemail']").innerHTML =
+            "Phone Number*";
           const input = document.getElementById("emailInput");
           input.classList.add("no-spinner");
           input.type = "tel";
           input.setAttribute("pattern", "[0-9\\-]*");
           input.setAttribute("inputmode", "numeric");
-          input.setAttribute("placeholder","999-999-9999");
+          input.setAttribute("placeholder", "999-999-9999");
           value = `${value.slice(0, 3)}-${value.slice(3, 6)}-${value.slice(6)}`;
         }
         document.getElementById("emailInput").value = value;
@@ -330,6 +331,7 @@ async function verifyOtp() {
         document.getElementById("otpSection").style.display = "none";
         document.getElementById("secondaryContactForm").style.display = "flex";
         globalSuccessText.innerText = "You've logged in!";
+        console.log("closing OTP modal");
 
         const isEmail = data.SecondaryContact == "Email_null";
         const contactType = isEmail ? "email address" : "phone number";
@@ -344,6 +346,7 @@ async function verifyOtp() {
           document.getElementById("secondaryContactInputPhone").style.display =
             "flex";
       } else {
+        document.getElementById("otpSection").style.display = "none";
         $.magnificPopup.close();
       }
     } else {
@@ -701,12 +704,11 @@ async function resendOtp() {
       oldErr.style.color = "Green";
       oldErr.innerText = "Verification code sent successfully!";
       oldErr.classList.add("blink");
-      
+
       setTimeout(() => {
         oldErr.innerText = "";
         oldErr.classList.remove("blink");
       }, 3000);
-
     }
   } catch (err) {
     // input.style.borderColor = "#B91C1C";
@@ -750,7 +752,8 @@ function resetLoginModalState() {
   document.getElementById("inputErrorEmail").textContent = "";
   const signupBtn = document.getElementById("signUpButton");
   const signupInput = document.getElementById("emailInput");
-  document.querySelector("label[for='signupemail']").innerHTML = "Email Address*";
+  document.querySelector("label[for='signupemail']").innerHTML =
+    "Email Address*";
 
   //signup OTP section
   const signupotpInputs = document.querySelectorAll(".signupotpInputBox");
@@ -814,7 +817,7 @@ function resetLoginModalState() {
     signupOTPButton.classList.remove("button-loading");
   }
 
-  if(signupInput){
+  if (signupInput) {
     signupInput.type = "email";
     signupInput.classList.remove("no-spinner");
     signupInput.removeAttribute("pattern");
@@ -904,7 +907,8 @@ function validateFirstName() {
   firstName.value = input;
 
   if (input === "") firstNameError.textContent = "";
-  else if (input.length == 25) firstNameError.textContent = "*You’ve reached the 25-character limit";
+  else if (input.length == 25)
+    firstNameError.textContent = "*You’ve reached the 25-character limit";
   else firstNameError.textContent = "";
 
   const allValid = checkSignupInputs();
@@ -920,7 +924,8 @@ function validateLastName() {
   lastName.value = input;
 
   if (input === "") lastNameError.textContent = "";
-  else if (input.length == 25) lastNameError.textContent = "*You’ve reached the 25-character limit";
+  else if (input.length == 25)
+    lastNameError.textContent = "*You’ve reached the 25-character limit";
   else lastNameError.textContent = "";
 
   const allValid = checkSignupInputs();
@@ -933,10 +938,12 @@ function validateSignupInput() {
   const errorDiv = document.getElementById("inputErrorEmail");
   const isEmail = inputElement.type == "email";
 
-  const input = isEmail ? inputElement.value.trim() : inputElement.value.replace(/[^\d]/g, "").slice(0, 10);
+  const input = isEmail
+    ? inputElement.value.trim()
+    : inputElement.value.replace(/[^\d]/g, "").slice(0, 10);
   const signUpButton = document.getElementById("signUpButton");
-  
-  if(!isEmail){
+
+  if (!isEmail) {
     let formatted = input;
     if (input.length > 6)
       formatted = `${input.slice(0, 3)}-${input.slice(3, 6)}-${input.slice(6)}`;
@@ -946,7 +953,9 @@ function validateSignupInput() {
     inputElement.value = formatted;
   }
   if (input === "") {
-    errorDiv.textContent = isEmail ? "Email is required." : "Phone number is required.";
+    errorDiv.textContent = isEmail
+      ? "Email is required."
+      : "Phone number is required.";
     errorDiv.style.color = "#B91C1C";
     inputElement.style.borderColor = "#B91C1C";
     signUpButton.disabled = true;
@@ -962,7 +971,9 @@ function validateSignupInput() {
     errorDiv.textContent = "";
     inputElement.style.borderColor = "#D1D5DB";
   } else {
-    errorDiv.textContent = isEmail ? "Please enter a valid email address." : "Please enter a valid phone number.";
+    errorDiv.textContent = isEmail
+      ? "Please enter a valid email address."
+      : "Please enter a valid phone number.";
     errorDiv.style.color = "#B91C1C";
     inputElement.style.borderColor = "#B91C1C";
   }
@@ -970,10 +981,9 @@ function validateSignupInput() {
   const allValid = checkSignupInputs();
   signUpButton.disabled = !allValid;
   signUpButton.style.cursor = allValid ? "pointer" : "not-allowed";
-
 }
 
-function checkSignupInputs(){
+function checkSignupInputs() {
   const firstName = document.getElementById("firstNameInput");
   const lastName = document.getElementById("lastNameInput");
   const emailInput = document.getElementById("emailInput");
@@ -1007,7 +1017,7 @@ async function submitSignup(event) {
   const firstNameValue = firstName.value.trim();
   const lastNameValue = lastName.value.trim();
 
-  if(!checkSignupInputs()) return;
+  if (!checkSignupInputs()) return;
 
   const payload = {
     code: {
@@ -1287,10 +1297,10 @@ async function resendSignUpOtp() {
           .getElementById("signupotpResendSection")
           .appendChild(otpSucess);
 
-          setTimeout(() => {
-            if (otpSucess) otpSucess.remove();
-          }, 3000);
-        }
+        setTimeout(() => {
+          if (otpSucess) otpSucess.remove();
+        }, 3000);
+      }
       signUpOtpBtn.disabled = true;
 
       oldErr.style.color = "Green";
@@ -1514,11 +1524,12 @@ async function secodaryLoginverifyOtp() {
       secondaryLoginOtpBtn.innerText = "VERIFY";
       //NEEDTOWORK - CONGRATS MODAL
       // closeModal();
-      if(globalSuccessText.innerText.trim() === "You're all set!"){
+      if (globalSuccessText.innerText.trim() === "You're all set!") {
         document.getElementById("successModal").style.display = "flex";
         document.getElementById("successTitle").style.display = "block";
-        document.getElementById("successMessage").innerText = "We have added your details.";
-      }else{
+        document.getElementById("successMessage").innerText =
+          "We have added your details.";
+      } else {
         document.getElementById("successModal").style.display = "flex";
       }
       document.getElementById("secondaryotpSection").style.display = "none";
@@ -1640,11 +1651,11 @@ async function resendSecondaryLoginOtp() {
           .getElementById("secondaryLoginotpResendSection")
           .appendChild(otpSucess);
 
-          setTimeout(() => {
-            if (otpSucess) otpSucess.remove();
-          }, 3000);
-        }
-        
+        setTimeout(() => {
+          if (otpSucess) otpSucess.remove();
+        }, 3000);
+      }
+
       signUpOtpBtn.disabled = true;
       oldErr.style.color = "Green";
       oldErr.innerText = "Verification code sent successfully!";
@@ -1665,12 +1676,13 @@ async function resendSecondaryLoginOtp() {
 
 function closeModal() {
   if (globalSuccessText.innerText.trim() === "You're all set!") {
-      document.getElementById("successModal").style.display = "flex";
-      document.getElementById("successTitle").style.display = "block";
-      document.getElementById("successMessage").innerText = "We have added your details.";
-      document.getElementById("secondaryContactForm").style.display = "none";
+    document.getElementById("successModal").style.display = "flex";
+    document.getElementById("successTitle").style.display = "block";
+    document.getElementById("successMessage").innerText =
+      "We have added your details.";
+    document.getElementById("secondaryContactForm").style.display = "none";
   } else {
-      $.magnificPopup.close();
+    $.magnificPopup.close();
   }
 }
 
@@ -1711,3 +1723,19 @@ function updateUserHeaderUI() {
 }
 
 document.addEventListener("DOMContentLoaded", updateUserHeaderUI);
+
+function handleLogout() {
+  const loginButton = document.getElementById("loginButton");
+  const userInfo = document.getElementById("user-info");
+  document.getElementById("otpSection").style.display = "none";
+
+  // Remove token from local storage
+  localStorage.removeItem("mpp-widgets_AuthToken");
+
+  // Update UI
+  if (loginButton) loginButton.style.display = "inline-block";
+  if (userInfo) userInfo.style.display = "none";
+}
+
+// Example: Attach to logout button click
+document.getElementById("logout-btn")?.addEventListener("click", handleLogout);
