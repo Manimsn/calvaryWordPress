@@ -32,11 +32,6 @@
 }
 
 /* Menu custom Manish 10-08-2025*/
-.et-menu-nav li.mega-menu > ul {
-  width: 42%;
-  left: 80% !important;
-}
-
 
 .et_pb_menu .et-menu-nav > ul ul {
   padding: 20px 40px;
@@ -51,5 +46,10 @@
   .et_pb_menu .et-menu > li {
     padding-left: 30px;
     padding-right: 30px;
+  }
+
+  .et-menu-nav li.mega-menu > ul {
+    width: 42%;
+    left: 80% !important;
   }
 }
