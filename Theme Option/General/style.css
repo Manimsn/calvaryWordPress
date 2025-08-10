@@ -1,19 +1,19 @@
 /* Menu custom Manish 10-08-2025*/
-.et-menu-nav li.mega-menu>ul>li {
-    width: 50%;
+.et-menu-nav li.mega-menu > ul > li {
+  width: 50%;
 }
 
-.et-menu-nav li.mega-menu>ul {
-    width: 70%;	
-    left: 80% !important;
+.et-menu-nav li.mega-menu > ul {
+  width: 70%;
+  left: 80% !important;
 }
 
-.et_pb_menu .et-menu-nav>ul ul {
-    padding: 20px 20px;
+.et_pb_menu .et-menu-nav > ul ul {
+  padding: 20px 20px;
 }
 
-.et_pb_menu .et_pb_menu__menu>nav>ul>li>ul {
-    top: calc(180% - 1px);
+.et_pb_menu .et_pb_menu__menu > nav > ul > li > ul {
+  top: calc(180% - 1px);
 }
 
 /* make sure parent is positioned so ::after can be placed */
@@ -27,33 +27,26 @@
   position: absolute;
   left: 0;
   right: 0;
-  top: 100%;            /* start immediately after parent */
-  height: 30px;         /*  li {
-        padding-left: 30px;
-        padding-right: 30px;
-    }
-	
-	/* Menu custom Manish 10-08-2025*/
-.et-menu-nav li.mega-menu>ul {
-    width: 42%;
-    left: 80% !important;
+  top: 100%; /* start immediately after parent */
+  height: 30px;
 }
 
-
-.et_pb_menu .et-menu-nav>ul ul {
-    padding: 20px 40px;
+/* Menu custom Manish 10-08-2025*/
+.et-menu-nav li.mega-menu > ul {
+  width: 42%;
+  left: 80% !important;
 }
-	/* Menu custom Manish 10-08-2025*/
+
+.et_pb_menu .et-menu > li {
+  padding-left: 30px;
+  padding-right: 30px;
 }
 
-/* .et_pb_menu.et_pb_menu--with-logo .et_pb_menu_inner_container {
-  display: flex !important;
-  justify-content: space-between !important;
-  align-items: center;
-} */
+.et_pb_menu .et-menu-nav > ul ul {
+  padding: 20px 40px;
+}
+/* Menu custom Manish 10-08-2025*/
 
 .et_pb_menu .et_pb_menu__search-container {
-	display: none;
+  display: none;
 }
-
-
