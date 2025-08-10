@@ -1,0 +1,85 @@
+<script src="https://my.calvaryftl.org/widgets/Content/at.js"></script>
+
+<script>
+    (function ($) {
+        $(document).ready(function () {
+            $('.et-show-more-toggle').on('click', function (e) {
+                e.preventDefault();
+
+                // Slide toggle for the hidden content in the second row
+                $('.et-show-more-content').slideToggle(300);
+
+                // Toggle button text between "View More" and "View Less"
+                $(this).toggleClass('et-show-more-toggle_active icon-switch');
+                if ($(this).hasClass('et-show-more-toggle_active')) {
+                    $(this).text('see less'); // Change to 'View Less'
+                } else {
+                    $(this).text('see more'); // Change back to 'View More'
+                }
+            });
+        });
+    })(jQuery);
+</script>
+<!--<script src="https://altauth.calvary2024dev.wpenginepowered.com/app/altauth.js"></script> MCG -->
+
+<!--<script src="https://widgets.blackpulp.com/resources/calvaryftl/loader.js"></script> MCG -->
+
+
+<script>
+    jQuery(function ($) {
+        // Cache selectors for efficiency
+        var $document = $(document);
+        var updateMoreLinkText = function () {
+            // Define custom text in one place for easy updates
+            var customText = 'View Page';
+            $(".et_pb_posts .more-link, .et_pb_blog_grid .more-link").text(customText);
+        };
+
+        // Initial update on document ready
+        updateMoreLinkText();
+
+        // Use event delegation for handling AJAX-loaded content
+        $document.on('ajaxSuccess', function () {
+            updateMoreLinkText();
+        });
+
+    });
+</script>
+
+<!-- Include Luxon -->
+<script src="https://cdn.jsdelivr.net/npm/luxon@3/build/global/luxon.min.js"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const saturdayContainer = document.querySelector("#saturday-schedule-container");
+        const sundayContainer = document.querySelector("#sunday-schedule-container");
+        if (!saturdayContainer || !sundayContainer) return;
+
+        const { DateTime } = luxon;
+
+        // Get current time in Eastern Time
+        const now = DateTime.now().setZone("America/New_York");
+
+        // Get current weekday: 6 = Saturday, 7 = Sunday
+        const day = now.weekday;
+
+        // Define time windows
+        const saturdayStart = now.set({ hour: 17, minute: 45 });
+        const saturdayEnd = now.set({ hour: 19, minute: 15 });
+        const sundayStart = now.set({ hour: 8, minute: 45 });
+        const sundayEnd = now.set({ hour: 12, minute: 15 });
+
+        // Determine visibility
+        const showSaturday = day === 6 && now >= saturdayStart && now <= saturdayEnd;
+        const showSunday = day === 7 && now >= sundayStart && now <= sundayEnd;
+
+        saturdayContainer.style.display = showSaturday ? "block" : "none";
+        sundayContainer.style.display = showSunday ? "block" : "none";
+
+        // Debug logs
+        console.log("Current ET Time:", now.toString());
+        console.log("Today is:", day === 5 ? "Saturday" : day === 7 ? "Sunday" : "Other");
+        console.log("Show Saturday:", showSaturday);
+        console.log("Show Sunday:", showSunday);
+    });
+</script>
