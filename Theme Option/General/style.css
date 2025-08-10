@@ -37,10 +37,6 @@
   left: 80% !important;
 }
 
-.et_pb_menu .et-menu > li {
-  padding-left: 30px;
-  padding-right: 30px;
-}
 
 .et_pb_menu .et-menu-nav > ul ul {
   padding: 20px 40px;
@@ -49,4 +45,11 @@
 
 .et_pb_menu .et_pb_menu__search-container {
   display: none;
+}
+
+@media screen and (min-width: 1281px) {
+  .et_pb_menu .et-menu > li {
+    padding-left: 30px;
+    padding-right: 30px;
+  }
 }
