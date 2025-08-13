@@ -115,8 +115,10 @@ async function handleLogin() {
           input.setAttribute("placeholder", "999-999-9999");
           const formattedPattern = /^\d{3}-\d{3}-\d{4}$/;
           if (!formattedPattern.test(value)) {
-          value = `${value.slice(0, 3)}-${value.slice(3, 6)}-${value.slice(6)}`;
-        }
+            value = `${value.slice(0, 3)}-${value.slice(3, 6)}-${value.slice(
+              6
+            )}`;
+          }
         }
         document.getElementById("emailInput").value = value;
       }
@@ -873,9 +875,9 @@ function unlockScroll() {
 }
 
 function showSuccessModal(boolCheck = false) {
-  const style = document.createElement('style');
-        style.id = 'remove-zindex-style';
-        style.innerHTML = `
+  const style = document.createElement("style");
+  style.id = "remove-zindex-style";
+  style.innerHTML = `
           .et_pb_row,
           .et_pb_column {
             z-index: auto !important;
@@ -884,35 +886,42 @@ function showSuccessModal(boolCheck = false) {
         `;
   if (
     globalSuccessText.innerText.trim() === "You're all set!" &&
-    (document.getElementById("secondaryotpSection").style.display === "flex" || document.getElementById("secondaryContactForm").style.display === "flex")
+    (document.getElementById("secondaryotpSection").style.display === "flex" ||
+      document.getElementById("secondaryContactForm").style.display === "flex")
   ) {
     setTimeout(() => {
       document.head.appendChild(style);
       document.getElementById("successModal").style.display = "flex";
       document.getElementById("successTitle").style.display = "block";
-      document.getElementById("successMessage").innerText = "We have added your details.";
-      lockScroll()
-    },500)
+      document.getElementById("successMessage").innerText =
+        "We have added your details.";
+      lockScroll();
+    }, 500);
     return true;
-  } else if (globalSuccessText.innerText.trim() === "You've logged in!" && boolCheck == true){
+  } else if (
+    globalSuccessText.innerText.trim() === "You've logged in!" &&
+    boolCheck == true
+  ) {
     document.head.appendChild(style);
     document.getElementById("successModal").style.display = "flex";
-    lockScroll()
+    lockScroll();
   }
   return false;
 }
 
 // ESC key listener
 document.addEventListener("keydown", function (e) {
-  if (e.key === "Escape" &&  document.getElementById("successModal").style.display != "flex") {
+  if (
+    e.key === "Escape" &&
+    document.getElementById("successModal").style.display != "flex"
+  ) {
     console.log("✅ ESC key pressed");
-     unlockScroll();
-      if (!showSuccessModal()) {
-        resetLoginModalState();
-      }
+    unlockScroll();
+    if (!showSuccessModal()) {
+      resetLoginModalState();
+    }
   }
 });
-
 
 // DIVI modal closed via overlay or close button
 jQuery(document).ready(function ($) {
@@ -921,8 +930,8 @@ jQuery(document).ready(function ($) {
     // Enable scrolling
     unlockScroll();
     if (!showSuccessModal()) {
-        resetLoginModalState();
-      }
+      resetLoginModalState();
+    }
   });
 
   $(document).on("mfpOpen", function () {
@@ -1578,7 +1587,7 @@ async function secodaryLoginverifyOtp() {
       $.magnificPopup.close();
       resetLoginModalState();
       showSuccessModal(true);
-      lockScroll()
+      lockScroll();
     } else {
       console.log("✅ OTP failed:", response);
       secondaryLoginotpInputs.forEach(
@@ -1725,10 +1734,34 @@ function closeModal() {
     setTimeout(() => {
       document.getElementById("successModal").style.display = "flex";
       document.getElementById("successTitle").style.display = "block";
-      document.getElementById("successMessage").innerText = "We have added your details.";
-    },500)
-  } 
+      document.getElementById("successMessage").innerText =
+        "We have added your details.";
+    }, 500);
+  }
   $.magnificPopup.close();
+}
+
+function hideMobileLoginBtn() {
+  document.querySelectorAll("#menu-item-42971").forEach((el) => {
+    el.style.setProperty("display", "none", "important");
+  });
+  document.querySelectorAll("#menu-item-43017").forEach((el) => {
+    el.style.setProperty("display", "block", "important");
+  });
+  document.querySelectorAll("#menu-item-43016").forEach((el) => {
+    el.style.setProperty("display", "block", "important");
+  });
+}
+function showMobileLoginBtn() {
+  document.querySelectorAll("#menu-item-42971").forEach((el) => {
+    el.style.setProperty("display", "block", "important");
+  });
+  document.querySelectorAll("#menu-item-43017").forEach((el) => {
+    el.style.setProperty("display", "none", "important");
+  });
+  document.querySelectorAll("#menu-item-43016").forEach((el) => {
+    el.style.setProperty("display", "none", "important");
+  });
 }
 
 function updateUserHeaderUI() {
@@ -1737,6 +1770,9 @@ function updateUserHeaderUI() {
   const userInfo = document.getElementById("user-info");
   const userAvatar = document.getElementById("user-avatar");
   const userNameSpan = document.getElementById("user-name");
+  const mblLoginBtn = document.getElementById("menu-item-42971");
+  const myAccountBtn = document.getElementById("menu-item-43017");
+  const logoutBtn = document.getElementById("menu-item-43016");
 
   if (token) {
     try {
@@ -1756,6 +1792,9 @@ function updateUserHeaderUI() {
 
       // Update UI
       if (loginButton) loginButton.style.display = "none";
+      // Hide mobile login
+      hideMobileLoginBtn();
+
       if (userInfo) {
         userInfo.style.display = "flex";
         userAvatar.textContent = initials;
@@ -1779,26 +1818,42 @@ function handleLogout() {
   // Update UI
   if (loginButton) loginButton.style.display = "inline-block";
   if (userInfo) userInfo.style.display = "none";
-  
+  showMobileLoginBtn();
 }
 
 // Example: Attach to logout button click
 document.getElementById("logout-btn")?.addEventListener("click", handleLogout);
 
+// Catch clicks on any current/future Logout menu item
+document.addEventListener(
+  "click",
+  function (e) {
+    const logoutClick = e.target.closest(
+      "#menu-item-43016, #menu-item-43016 a"
+    );
+    if (!logoutClick) return;
+    e.preventDefault(); // stop "#" navigation
+    handleLogout();
+  },
+  true // capture phase helps if Divi stops propagation
+);
+
 function closeSuccessModal() {
-    document.getElementById("successModal").style.display = "none";
-    unlockScroll();
-    const existingStyle = document.getElementById('remove-zindex-style');
-    if (existingStyle) {
-    existingStyle.remove(); 
-    }
+  document.getElementById("successModal").style.display = "none";
+  unlockScroll();
+  const existingStyle = document.getElementById("remove-zindex-style");
+  if (existingStyle) {
+    existingStyle.remove();
+  }
 }
 
-document.querySelector(".modal-overlay").addEventListener("click", function (e) {
-  if (e.target === this) {
-    closeSuccessModal();
-  }
-});
+document
+  .querySelector(".modal-overlay")
+  .addEventListener("click", function (e) {
+    if (e.target === this) {
+      closeSuccessModal();
+    }
+  });
 
 document.addEventListener("keydown", function (e) {
   const modal = document.getElementById("successModal");
