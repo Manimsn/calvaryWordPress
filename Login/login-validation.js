@@ -113,7 +113,10 @@ async function handleLogin() {
           input.setAttribute("pattern", "[0-9\\-]*");
           input.setAttribute("inputmode", "numeric");
           input.setAttribute("placeholder", "999-999-9999");
+          const formattedPattern = /^\d{3}-\d{3}-\d{4}$/;
+          if (!formattedPattern.test(value)) {
           value = `${value.slice(0, 3)}-${value.slice(3, 6)}-${value.slice(6)}`;
+        }
         }
         document.getElementById("emailInput").value = value;
       }
@@ -834,7 +837,6 @@ function resetLoginModalState() {
     document.getElementById("signupotpSection").style.display = "none";
     document.getElementById("secondaryContactForm").style.display = "none";
     document.getElementById("secondaryotpSection").style.display = "none";
-    document.getElementById("successModal").style.display = "none";
   }, 900); // 1000 milliseconds = 1 second
 }
 
@@ -870,14 +872,57 @@ function unlockScroll() {
   document.removeEventListener("touchmove", preventTouchMove);
 }
 
+function showSuccessModal(boolCheck = false) {
+  const style = document.createElement('style');
+        style.id = 'remove-zindex-style';
+        style.innerHTML = `
+          .et_pb_row,
+          .et_pb_column {
+            z-index: auto !important;
+            position: static !important;
+          }
+        `;
+  if (
+    globalSuccessText.innerText.trim() === "You're all set!" &&
+    (document.getElementById("secondaryotpSection").style.display === "flex" || document.getElementById("secondaryContactForm").style.display === "flex")
+  ) {
+    setTimeout(() => {
+      document.head.appendChild(style);
+      document.getElementById("successModal").style.display = "flex";
+      document.getElementById("successTitle").style.display = "block";
+      document.getElementById("successMessage").innerText = "We have added your details.";
+      lockScroll()
+    },500)
+    return true;
+  } else if (globalSuccessText.innerText.trim() === "You've logged in!" && boolCheck == true){
+    document.head.appendChild(style);
+    document.getElementById("successModal").style.display = "flex";
+    lockScroll()
+  }
+  return false;
+}
+
+// ESC key listener
+document.addEventListener("keydown", function (e) {
+  if (e.key === "Escape" &&  document.getElementById("successModal").style.display != "flex") {
+    console.log("✅ ESC key pressed");
+     unlockScroll();
+      if (!showSuccessModal()) {
+        resetLoginModalState();
+      }
+  }
+});
+
+
 // DIVI modal closed via overlay or close button
 jQuery(document).ready(function ($) {
   $(document).on("mfpClose", function () {
     console.log("✅ Modal closed (by close button or outside click)");
     // Enable scrolling
     unlockScroll();
-
-    resetLoginModalState();
+    if (!showSuccessModal()) {
+        resetLoginModalState();
+      }
   });
 
   $(document).on("mfpOpen", function () {
@@ -1375,6 +1420,11 @@ async function verifySingupOtp() {
       // Save JWT Token
       localStorage.setItem("mpp-widgets_AuthToken", data.JwtToken);
 
+      // Immediately update header UI
+      if (typeof updateUserHeaderUI === "function") {
+        updateUserHeaderUI();
+      }
+
       // Proceed next - show phone field if SecondaryContact is null
       // alert("SecondaryContact: " + data.SecondaryContact);
       if (data.SecondaryContact.includes("null")) {
@@ -1408,7 +1458,8 @@ async function verifySingupOtp() {
         $.magnificPopup.close();
 
         // Show success message or redirect
-        alert("Sign up successful! You are now logged in.");
+        showSuccessModal(true);
+        resetLoginModalState();
       }
     } else {
       console.log("✅ OTP failed:", response);
@@ -1524,15 +1575,10 @@ async function secodaryLoginverifyOtp() {
       secondaryLoginOtpBtn.innerText = "VERIFY";
       //NEEDTOWORK - CONGRATS MODAL
       // closeModal();
-      if (globalSuccessText.innerText.trim() === "You're all set!") {
-        document.getElementById("successModal").style.display = "flex";
-        document.getElementById("successTitle").style.display = "block";
-        document.getElementById("successMessage").innerText =
-          "We have added your details.";
-      } else {
-        document.getElementById("successModal").style.display = "flex";
-      }
-      document.getElementById("secondaryotpSection").style.display = "none";
+      $.magnificPopup.close();
+      resetLoginModalState();
+      showSuccessModal(true);
+      lockScroll()
     } else {
       console.log("✅ OTP failed:", response);
       secondaryLoginotpInputs.forEach(
@@ -1676,14 +1722,13 @@ async function resendSecondaryLoginOtp() {
 
 function closeModal() {
   if (globalSuccessText.innerText.trim() === "You're all set!") {
-    document.getElementById("successModal").style.display = "flex";
-    document.getElementById("successTitle").style.display = "block";
-    document.getElementById("successMessage").innerText =
-      "We have added your details.";
-    document.getElementById("secondaryContactForm").style.display = "none";
-  } else {
-    $.magnificPopup.close();
-  }
+    setTimeout(() => {
+      document.getElementById("successModal").style.display = "flex";
+      document.getElementById("successTitle").style.display = "block";
+      document.getElementById("successMessage").innerText = "We have added your details.";
+    },500)
+  } 
+  $.magnificPopup.close();
 }
 
 function updateUserHeaderUI() {
@@ -1714,7 +1759,6 @@ function updateUserHeaderUI() {
       if (userInfo) {
         userInfo.style.display = "flex";
         userAvatar.textContent = initials;
-        userNameSpan.textContent = fullName;
       }
     } catch (error) {
       console.error("Invalid JWT token", error);
@@ -1735,7 +1779,30 @@ function handleLogout() {
   // Update UI
   if (loginButton) loginButton.style.display = "inline-block";
   if (userInfo) userInfo.style.display = "none";
+  
 }
 
 // Example: Attach to logout button click
 document.getElementById("logout-btn")?.addEventListener("click", handleLogout);
+
+function closeSuccessModal() {
+    document.getElementById("successModal").style.display = "none";
+    unlockScroll();
+    const existingStyle = document.getElementById('remove-zindex-style');
+    if (existingStyle) {
+    existingStyle.remove(); 
+    }
+}
+
+document.querySelector(".modal-overlay").addEventListener("click", function (e) {
+  if (e.target === this) {
+    closeSuccessModal();
+  }
+});
+
+document.addEventListener("keydown", function (e) {
+  const modal = document.getElementById("successModal");
+  if (e.key === "Escape" && modal.style.display === "flex") {
+    closeSuccessModal();
+  }
+});
