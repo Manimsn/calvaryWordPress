@@ -1807,7 +1807,7 @@ function userifyDiviMobileHamburger(initials) {
     // Avoid double-application
     if (bar.dataset.userified === "1") {
       const existingAvatar = bar.parentElement?.querySelector(
-        "#user-info #user-avatar"
+        "#user-info #user-avatar-mbl"
       );
       if (existingAvatar) existingAvatar.textContent = initials || "";
       return;
@@ -1840,7 +1840,7 @@ function userifyDiviMobileHamburger(initials) {
     overlay.style.pointerEvents = "none"; // clicks fall through to the span
 
     const avatar = document.createElement("div");
-    avatar.id = "user-avatar";
+    avatar.id = "user-avatar-mbl";
     avatar.textContent = initials || "";
 
     const dropdownIcon = document.createElement("span");
