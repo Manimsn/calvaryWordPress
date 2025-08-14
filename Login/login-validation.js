@@ -1764,6 +1764,98 @@ function showMobileLoginBtn() {
   });
 }
 
+// function replaceMobileMenuIconWithUser(initials) {
+//   function applyReplacement() {
+//     const hamburger = document.querySelector(
+//       ".et_mobile_nav_menu .mobile_menu_bar"
+//     );
+//     if (hamburger && !hamburger.dataset.replaced) {
+//       const userInfo = document.createElement("div");
+//       userInfo.id = "user-info";
+//       userInfo.innerHTML = `<div id="user-avatar">${initials || ""}</div>`;
+
+//       // Keep Divi's toggle
+//       userInfo.addEventListener("click", function (e) {
+//         e.preventDefault();
+//         hamburger.click();
+//       });
+
+//       hamburger.replaceWith(userInfo);
+//       userInfo.dataset.replaced = "true"; // Mark so we don't double replace
+//     }
+//   }
+
+//   // Run once on load
+//   applyReplacement();
+
+//   // Watch for DOM changes (Divi can rebuild menu)
+//   const observer = new MutationObserver(applyReplacement);
+//   observer.observe(document.body, {
+//     childList: true,
+//     subtree: true,
+//   });
+// }
+
+function userifyDiviMobileHamburger(initials) {
+  // Target ALL mobile menu bars in case there are multiple instances
+  const bars = document.querySelectorAll(
+    ".et_mobile_nav_menu .mobile_menu_bar"
+  );
+  if (!bars.length) return;
+
+  bars.forEach((bar) => {
+    // Avoid double-application
+    if (bar.dataset.userified === "1") {
+      const existingAvatar = bar.parentElement?.querySelector(
+        "#user-info #user-avatar"
+      );
+      if (existingAvatar) existingAvatar.textContent = initials || "";
+      return;
+    }
+
+    // Create a wrapper *around* the existing span (do NOT remove/replace the span)
+    const wrapper = document.createElement("div");
+    wrapper.style.position = "relative";
+    // Preserve layout (block vs inline) based on current computed style of the span
+    wrapper.style.display =
+      getComputedStyle(bar).display === "block" ? "block" : "inline-block";
+
+    // Insert wrapper before the span, then move the span inside the wrapper
+    bar.parentNode.insertBefore(wrapper, bar);
+    wrapper.appendChild(bar);
+
+    // Keep the span clickable but hide its visual hamburger lines
+    bar.style.opacity = "0";
+    bar.style.pointerEvents = "auto"; // ensure clicks still register on the span
+    bar.style.zIndex = "1";
+
+    // Overlay your avatar on top of the span
+    const overlay = document.createElement("div");
+    overlay.id = "user-info";
+    overlay.style.position = "absolute";
+    overlay.style.inset = "0";
+    overlay.style.display = "flex";
+    overlay.style.alignItems = "center";
+    overlay.style.justifyContent = "center";
+    overlay.style.pointerEvents = "none"; // clicks fall through to the span
+
+    const avatar = document.createElement("div");
+    avatar.id = "user-avatar";
+    avatar.textContent = initials || "";
+
+    const dropdownIcon = document.createElement("span");
+    dropdownIcon.id = "dropdown-icon";
+    dropdownIcon.textContent = "▼";
+
+    overlay.appendChild(avatar);
+    overlay.appendChild(dropdownIcon);
+    wrapper.appendChild(overlay);
+
+    // Mark as done
+    bar.dataset.userified = "1";
+  });
+}
+
 function updateUserHeaderUI() {
   const token = localStorage.getItem("mpp-widgets_AuthToken");
   const loginButton = document.getElementById("loginButton");
@@ -1799,6 +1891,9 @@ function updateUserHeaderUI() {
         userInfo.style.display = "flex";
         userAvatar.textContent = initials;
       }
+
+      // 🔹 Make the mobile hamburger show the avatar but keep Divi's menu toggle
+      userifyDiviMobileHamburger(initials);
     } catch (error) {
       console.error("Invalid JWT token", error);
     }
