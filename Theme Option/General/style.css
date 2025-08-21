@@ -1,9 +1,39 @@
+/* Generic override for any Divi header menu instance */
+.et_pb_menu.et_pb_menu .menu-item.dt-open > .mobile-toggle,
+.et_pb_menu.et_pb_menu .menu-item.current-menu-ancestor > .mobile-toggle,
+.et_pb_menu.et_pb_menu .menu-item.current-menu-parent > .mobile-toggle,
+.et_pb_menu.et_pb_menu .menu-item.current-menu-item > .mobile-toggle {
+  color: #000 !important;
+}
+
+/* When the parent menu is open */
+.et_pb_menu .menu-item.dt-open > .mobile-toggle {
+  color: #000 !important; /* makes icon black */
+}
+
+/* When the current page is inside this menu (ancestor active) */
+.et_pb_menu .menu-item.current-menu-ancestor > .mobile-toggle,
+.et_pb_menu .menu-item.current-menu-parent > .mobile-toggle {
+  color: #000 !important;
+}
+
+/* If the actual parent item itself is the active page */
+.et_pb_menu .menu-item.current-menu-item > .mobile-toggle {
+  color: #000 !important;
+}
+
+#menu-item-43017, /* My Account */
+#menu-item-43016 {
+  /* Logout */
+  display: none;
+}
+
 #mobile_menu2 {
   background: linear-gradient(
-    90deg,
-    #36c5f2 67.98%,
-    #00b5ef 100%,
-    #afebfd 10%
+    to bottom right,
+    #00b5ef 0%,
+    #36c5f2 68%,
+    #afebfd 100%
   ) !important;
   border-radius: 10px;
 }
@@ -122,10 +152,8 @@ ul.et_mobile_menu li.menu-item-has-children .mobile-toggle::after,
   position: relative;
   font-family: "ETModules";
   content: "\33";
-  color: #00d263;
-  background: #f0f3f6;
   border-radius: 50%;
-  padding: 3px;
+  font-size: 20px;
 }
 
 /*submenu toggle icon when open*/
@@ -160,7 +188,7 @@ ul.et_mobile_menu li.menu-item-has-children.dt-open > .mobile-toggle::after,
 .mobile_menu_bar {
   position: relative;
   display: block;
-  bottom: 10px;
+  /*   bottom: 10px; */
   line-height: 0;
 }
 
@@ -199,10 +227,9 @@ ul.et_mobile_menu li.menu-item-has-children.dt-open > .mobile-toggle::after,
 .et_pb_menu .menu-item-has-children::after {
   content: "";
   position: absolute;
-  left: 0;
-  right: 0;
   top: 100%; /* start immediately after parent */
   height: 30px;
+  width: 80px;
 }
 
 /* Menu custom Manish 10-08-2025*/
@@ -216,6 +243,57 @@ ul.et_mobile_menu li.menu-item-has-children.dt-open > .mobile-toggle::after,
   display: none;
 }
 
+/* Menu hover state */
+.et-menu a:hover {
+  color: #00b5ef !important;
+  opacity: 1 !important;
+}
+
+.et-menu a:active {
+  color: #00b5ef !important;
+}
+
+.custom-menu .et-menu-nav > ul > li.current-menu-item > a {
+  color: #00b5ef !important;
+}
+
+.custom-menu .et-menu-nav > ul > li.current-menu-parent > a {
+  color: #00b5ef !important;
+}
+
+.et-menu-nav li.mega-menu > ul > li > a:first-child:hover {
+  color: black !important;
+}
+
+#menu-main-menu.et-menu > li > ul.sub-menu > li > a[aria-current="page"] {
+  color: black !important;
+}
+
+.et-menu-nav li.mega-menu > ul > li > a {
+  border-bottom: 0 !important;
+}
+
+.sub-menu {
+  border-top: 0 !important;
+}
+
+.et_pb_menu_0_tb_header.et_pb_menu .nav li ul.sub-menu a {
+  font-weight: 600 !important;
+}
+
+#mobile_menu2.et_mobile_menu > li > a[aria-current="page"] {
+  color: black !important;
+}
+
+#mobile_menu2.et_mobile_menu > li > ul.sub-menu > li > a[aria-current="page"] {
+  color: black !important;
+}
+
+ul#menu-mobile-main-menu.et-menu {
+  display: none;
+}
+
+/* Desktop-specific */
 @media screen and (min-width: 1281px) {
   .et_pb_menu .et-menu > li {
     padding-left: 30px;
@@ -225,5 +303,23 @@ ul.et_mobile_menu li.menu-item-has-children.dt-open > .mobile-toggle::after,
   .et-menu-nav li.mega-menu > ul {
     width: 42%;
     left: 80% !important;
+  }
+}
+
+/* Tablet */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .et_mobile_menu {
+    max-width: 250px !important;
+    right: 15px;
+    left: auto;
+  }
+}
+
+/* Mobile */
+@media (max-width: 767px) {
+  .et_mobile_menu {
+    max-width: 250px !important;
+    left: auto !important;
+    right: 12px !important;
   }
 }
