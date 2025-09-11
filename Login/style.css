@@ -172,10 +172,7 @@
   box-sizing: border-box;
 }
 
-#et_pb_button_0_tb_header:focus{  
-  border-radius: 20px;
-  outline: 2px solid white;
-}
+
 
 #firstNameInput:focus,
 #lastNameInput:focus,
