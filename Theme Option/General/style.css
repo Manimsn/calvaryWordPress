@@ -1,3 +1,8 @@
+body, h1, h2, h3, h4, h5, h6, p, a, div {
+  font-family: 'Poppins', sans-serif !important;
+}
+
+
 /* Baptism Certificate CSS */
 /* Custom styles for the baptism certificate buttons */
 .baptism-buttons-container {
@@ -255,7 +260,7 @@ ul.et_mobile_menu li.menu-item-has-children.dt-open > .mobile-toggle::after,
 
 .et-menu-nav li.mega-menu > ul {
   width: 70%;
-  left: 80% !important;
+  left: auto !important;
 }
 
 .et_pb_menu .et-menu-nav > ul ul {
@@ -280,11 +285,6 @@ ul.et_mobile_menu li.menu-item-has-children.dt-open > .mobile-toggle::after,
   width: 80px;
 }
 
-/* Menu custom Manish 10-08-2025*/
-
-.et_pb_menu .et-menu-nav > ul ul {
-  padding: 20px 40px;
-}
 /* Menu custom Manish 10-08-2025*/
 
 .et_pb_menu .et_pb_menu__search-container {
@@ -350,7 +350,7 @@ ul#menu-mobile-main-menu.et-menu {
 
   .et-menu-nav li.mega-menu > ul {
     width: 42%;
-    left: 80% !important;
+    left: auto !important;
   }
 }
 
@@ -370,4 +370,8 @@ ul#menu-mobile-main-menu.et-menu {
     left: auto !important;
     right: 12px !important;
   }
+}
+
+.et-menu a{
+	transition: none !important;
 }
