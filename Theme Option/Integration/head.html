@@ -122,3 +122,47 @@
         console.log("Show Sunday:", showSunday);
     });
 </script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        let isDragging = false;
+
+        // Select all popups (or adjust this to a specific one)
+        const popups = document.querySelectorAll('.dsm-popup');
+
+        if (popups.length === 0) return;
+
+        popups.forEach(popup => {
+            // When user starts dragging inside the popup
+            popup.addEventListener('mousedown', () => {
+                isDragging = true;
+            });
+        });
+
+        // When mouse is released, stop dragging after short delay
+        document.addEventListener('mouseup', () => {
+            setTimeout(() => {
+                isDragging = false;
+            }, 100);
+        });
+
+        // Prevent ONLY outside clicks during drag
+        document.addEventListener('click', function (e) {
+            if (isDragging) {
+                // Check if the click is outside all popups
+                let clickedInsidePopup = false;
+                popups.forEach(popup => {
+                    if (popup.contains(e.target)) {
+                        clickedInsidePopup = true;
+                    }
+                });
+
+                // If clicked outside while dragging, stop it
+                if (!clickedInsidePopup) {
+                    e.stopImmediatePropagation();
+                    e.preventDefault();
+                }
+            }
+        }, true); // Capture phase
+    });
+</script>
