@@ -1,4 +1,20 @@
-<!-- jQuery To Collapse The Divi Mobile Menu Submenus -->
+<script>
+    setTimeout(function () {
+        jQuery(document).ready(function () {
+            jQuery('li.menu-item-has-children').click(function () {
+                if (jQuery('li.menu-item-has-children').hasClass('dt-open')) {
+                    jQuery('li.menu-item-has-children').removeClass('dt-open');
+                    jQuery('li.menu-item-has-children .sub-menu').removeClass('visible');
+                    jQuery(this).addClass('dt-open');
+                    jQuery(this).find('.sub-menu').addClass('visible');
+                }
+            });
+        });
+    }, 500);
+</script>
+
+
+<!-- jQuery To Collapse The Divi Mobile Menu Submenus  -->
 <script>
     jQuery(function ($) {
         $(document).ready(function () {
@@ -19,8 +35,8 @@
         });
     }); 
 </script>
+<!-- jQuery To Collapse The Divi Mobile Menu Submenus  -->
 
-<!-- Adobe Target -->
 <script src="https://my.calvaryftl.org/widgets/Content/at.js"></script>
 
 <script>
