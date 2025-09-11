@@ -1,3 +1,51 @@
+/* Baptism Certificate CSS */
+/* Custom styles for the baptism certificate buttons */
+.baptism-buttons-container {
+  width: 60%;
+  text-align: center;
+  margin-bottom: 36px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.baptism-buttons-container .btn {
+  display: inline-block;
+  background-color: #4ab6f5;
+  color: white;
+  padding: 20px 20px;
+  border-radius: 40px;
+  font-size: 20px;
+  font-family: "Poppins", sans-serif;
+  text-decoration: none;
+}
+
+.baptism-iframe {
+  width: 60%;
+  height: 450px;
+  margin-bottom: 30px;
+  overflow: hidden;
+  border: none;
+}
+
+/* Tablet & Mobile */
+@media (max-width: 1024px) {
+  .baptism-buttons-container {
+    width: 100%;
+    flex-direction: column; /* optional if you want them stacked */
+  }
+
+  .baptism-buttons-container .btn {
+    padding: 10px 10px;
+    font-size: 14px;
+  }
+
+  .baptism-iframe {
+    width: 100%;
+  }
+}
+/* -------------------------------------- */
+
 /* Generic override for any Divi header menu instance */
 .et_pb_menu.et_pb_menu .menu-item.dt-open > .mobile-toggle,
 .et_pb_menu.et_pb_menu .menu-item.current-menu-ancestor > .mobile-toggle,
