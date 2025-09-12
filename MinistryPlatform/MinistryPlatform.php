@@ -46,6 +46,10 @@ add_action('wp_ajax_nopriv_mpapi_get_campuses', ['MinistryPlatform\MP_API_SHORTC
 add_action('wp_ajax_mpapi_search_events_ajax', ['MinistryPlatform\MP_API_SHORTCODES', 'mpapi_search_events_ajax']);
 add_action('wp_ajax_nopriv_mpapi_search_events_ajax', ['MinistryPlatform\MP_API_SHORTCODES', 'mpapi_search_events_ajax']);
 
+add_action('wp_ajax_hashTagEvents', ['MinistryPlatform\MP_API_SHORTCODES', 'hashTagEvents']);
+add_shortcode('hashTagEvents', ['MinistryPlatform\MP_API_SHORTCODES', 'hashTagEvents']); // Not used directly
+add_shortcode('hashTagEventsCheck', ['MinistryPlatform\MP_API_SHORTCODES', 'hashTagEventsCheck']); // Not used directly
+
 
 class MP_API_SHORTCODES
 {
@@ -328,16 +332,51 @@ class MP_API_SHORTCODES
                     $iframe = '<iframe 
                     src="https://calvary2024stg.wpenginepowered.com/certificate/en.php?name=' . $fullName . '&year=' . $year . '&month=' . $month . '&date=' . $displayDay . $suffix . '" 
                     frameborder="0" 
-                    style="overflow:hidden;height:450px;width:60%;margin-bottom:30px;">
+                    class="baptism-iframe"
+                    >
                 </iframe>';
 
-                    $printButtons = '<div style="text-align:center; margin-bottom: 36px;">
-               
-                <a 
-                style="display:inline-block;background-color:#4ab6f5;color:white;padding:20px 20px;border-radius:40px;font-size:20px;font-family:\'Poppins\', sans-serif;text-decoration:none;margin-right:10px;"
-                target="_blank" class="btn"  href="' . site_url('/certificate/es.php') . '?name=' . $fullName . '&date=' . urlencode($spanishDate) . '">Imprimir Certificado de Bautismo</a>
-           </div>';
-                    ;
+                    //             $printButtons = '<div style="text-align:center; margin-bottom: 36px;">
+
+                    //         <a 
+                    //         style="display:inline-block;background-color:#4ab6f5;color:white;padding:20px 20px;border-radius:40px;font-size:20px;font-family:\'Poppins\', sans-serif;text-decoration:none;margin-right:10px;"
+                    //         target="_blank" class="btn"  href="' . site_url('/certificate/en.php') . '?name=' . $fullName . '&date=' . urlencode($spanishDate) . '">Print Baptism Certificate</a>
+                    //    </div>
+                    //         <a 
+                    //         style="display:inline-block;background-color:#4ab6f5;color:white;padding:20px 20px;border-radius:40px;font-size:20px;font-family:\'Poppins\', sans-serif;text-decoration:none;margin-right:10px;"
+                    //         target="_blank" class="btn"  href="' . site_url('/certificate/es.php') . '?name=' . $fullName . '&date=' . urlencode($spanishDate) . '">Imprimir Certificado de Bautismo</a>
+                    //    </div>';
+                    $printButtons = '
+<div class="baptism-buttons-container">
+    <a 
+        
+        target="_blank" class="btn"  
+        href="' . site_url('/certificate/en.php') . '?name=' . $fullName . '&date=' . urlencode($spanishDate) . '">
+        Print Baptism Certificate
+    </a>
+
+    <a 
+        
+        target="_blank" class="btn"  
+        href="' . site_url('/certificate/es.php') . '?name=' . $fullName . '&date=' . urlencode($spanishDate) . '">
+        Imprimir Certificado de Bautismo
+    </a>
+</div>';
+                    // <div style="width:60%;text-align:center; margin-bottom:36px; display:flex; justify-content:center; gap:10px;">
+//     <a 
+//         style="display:inline-block;background-color:#4ab6f5;color:white;padding:20px 20px;border-radius:40px;font-size:20px;font-family:\'Poppins\', sans-serif;text-decoration:none;"
+//         target="_blank" class="btn"  
+//         href="' . site_url('/certificate/en.php') . '?name=' . $fullName . '&date=' . urlencode($spanishDate) . '">
+//         Print Baptism Certificate
+//     </a>
+
+                    //     <a 
+//         style="display:inline-block;background-color:#4ab6f5;color:white;padding:20px 20px;border-radius:40px;font-size:20px;font-family:\'Poppins\', sans-serif;text-decoration:none;"
+//         target="_blank" class="btn"  
+//         href="' . site_url('/certificate/es.php') . '?name=' . $fullName . '&date=' . urlencode($spanishDate) . '">
+//         Imprimir Certificado de Bautismo
+//     </a>
+// </div>';
 
                     // $output .= $iframe;
                     $output .= $iframe . $printButtons;
@@ -696,11 +735,366 @@ class MP_API_SHORTCODES
         wp_die();
     }
 
+    public static function hashTagEventsCheck($atts = [], $content = null)
+    {
+        $atts = shortcode_atts([
+            'hashtag' => ''
+        ], $atts);
 
 
 
+        $hashtag = sanitize_text_field($atts['hashtag']);
+        error_log('Hashtag searched: ' . $hashtag);
+        if (empty($hashtag)) {
+            return '<p>No hashtag provided.</p>';
+        }
+
+        $mp = new MP();
+
+        if ($mp->authenticate()) {
+            try {
+                $events = $mp->table('Events')
+                    ->select('
+                    Event_ID,
+                    Event_Title,
+                    Event_End_Date,
+                    Meeting_Instructions,    
+                    Event_Start_Date,
+                    Congregation_ID_Table.Congregation_ID,
+                    Congregation_ID_Table.Congregation_Name,
+                    Program_ID_Table.Program_ID,
+                    Program_ID_Table.Program_Name,
+                    Program_ID_Table.Ministry_ID,
+                    Visibility_Level_ID_Table.Visibility_Level_ID
+                ')
+
+                    ->filter("(Events.Event_Start_Date between getdate() and dateadd(day, 60, getdate())) AND Visibility_Level_ID_Table.[Visibility_Level_ID] = 4 AND Events.[_Approved] = 1 AND Hashtag = '{$hashtag}')")
+                    // ->filter("(Events.Event_Start_Date between getdate() and dateadd(day, 60, getdate())) AND Visibility_Level_ID_Table.[Visibility_Level_ID] = 4 AND Events.[_Approved] = 1 AND Hashtag LIKE '%{$hashtag}%'")                    
+                    ->orderBy('Event_Start_Date')
+                    ->get();
+
+                if (empty($events)) {
+                    // return '<p>Nothing hashtag events found.</p>';
+                    return '<p>Nothing hashtag events found: ' . esc_html($hashtag) . " " . esc_html($hashtag) . '</p>';
+                }
+
+                $output = '<ul class="mp-hashtag-events">';
+                foreach ($events as $event) {
+                    $title = esc_html($event['Event_Title'] ?? '');
+                    $Location = esc_html($event['Congregation_ID_Table.Congregation_Name'] ?? '');
+                    $Hashtag = esc_html($event['Hashtag'] ?? '');
+                    $date = esc_html($event['Event_Start_Date'] ?? '');
+                    $output .= "<li><strong>{$title}</strong> - <strong>{$Location}</strong> - {$Hashtag} - {$date}</li>";
+                }
+                $output .= '</ul>';
+
+                return $output;
+            } catch (Exception $e) {
+                return '<p>Error fetching events.</p>';
+            }
+        } else {
+            return '<p>Unable to authenticate with Ministry Platform.</p>';
+        }
+    }
 
 
+
+    // public static function hashTagEvents($atts = [], $content = null)
+    // {
+    //     $atts = shortcode_atts([
+    //         'hashtag' => ''
+    //     ], $atts);
+
+
+
+    //     $hashtag = sanitize_text_field($atts['hashtag']);
+    //     error_log('Hashtag searched: ' . $hashtag);
+    //     if (empty($hashtag)) {
+    //         return '<p>No hashtag provided.</p>';
+    //     }
+
+    //     $mp = new MP();
+
+    //     if ($mp->authenticate()) {
+    //         try {
+    //             $events = $mp->table('Events')
+    //                 ->select("*,
+    //                 Congregation_ID_Table.Congregation_ID,
+    //                 Congregation_ID_Table.Congregation_Name")
+    //                 // ->filter("(Visibility_Level_ID_Table.[Visibility_Level_ID] = 4 AND Events.[_Approved] = 1 AND Hashtag = '{$hashtag}')")
+    //                 ->filter("(Events.Event_Start_Date >= '2025-09-12' AND Visibility_Level_ID_Table.[Visibility_Level_ID] = 4 AND Events.Cancelled = 0 AND Events.[_Approved] = 1 AND  Hashtag = '{$hashtag}')")
+    //                 ->orderBy('Event_Start_Date desc')
+    //                 ->get();
+
+    //             if (empty($events)) {
+    //                 // return '<p>Nothing hashtag events found.</p>';
+    //                 return '<p>Nothing hashtag events found ffff: ' . esc_html($hashtag) . " " . $atts['hashtag'] . '</p>';
+    //             }
+
+    //             echo "<script>console.log('Event:', " . json_encode($events) . ");</script>";
+
+    //             $output = '<div class="mp-hashtag-events-grid">';
+    //             foreach ($events as $event) {
+    //                 $startRaw = $event['Event_Start_Date'] ?? '';
+    //                 $endRaw = $event['Event_End_Date'] ?? '';
+    //                 $start = $startRaw ? date('D, M j, Y g:i A', strtotime($startRaw)) : '';
+    //                 $end = $endRaw ? date('g:i A', strtotime($endRaw)) : '';
+    //                 $dateDisplay = $start && $end ? "{$start} - {$end}" : $start;
+
+    //                 $eventId = $event['Event_ID'] ?? '';
+
+    //                 $baseUrl = get_site_url();
+    //                 $url = "{$baseUrl}/events?id={$eventId}";
+
+    //                 $title = esc_html($event['Event_Title'] ?? '');
+    //                 $hashtag = esc_html($event['Hashtag'] ?? '');
+    //                 $location = esc_html($event['Congregation_Name'] ?? '');
+    //                 $MeetInstruction = esc_html($event['Meeting_Instructions'] ?? '');
+    //                 $desc = esc_html($event['Description'] ?? '');
+    //                 $output .= "
+    //                 <a href='{$url}' class='mp-event-card-link' style='text-decoration:none;color:inherit;'>
+    //     <div class='mp-event-card'>
+    //         <h3>{$title}ccc</h3>
+
+    //         <p><strong>Date:</strong> {$dateDisplay}</p>
+    //         <p><strong>Location:</strong> {$location}</p>
+
+    //         <p class='mp-event-desc' title='{$desc}'><strong>Description:</strong> {$desc}</p>
+    //     </div>
+    //     </a>
+    // ";
+    //             }
+    //             $output .= '</div>';
+
+    //             return $output;
+    //         } catch (Exception $e) {
+    //             return '<p>Error fetching events.</p>';
+    //         }
+    //     } else {
+    //         return '<p>Unable to authenticate with Ministry Platform.</p>';
+    //     }
+    // }
+
+
+
+    // --------------------
+
+    public static function hashTagEvents($atts = [], $content = null)
+    {
+        $atts = shortcode_atts([
+            'hashtag' => ''
+        ], $atts);
+
+        $hashtag = sanitize_text_field($atts['hashtag']);
+        error_log('Hashtag searched: ' . $hashtag);
+        if (empty($hashtag)) {
+            return '<p>No hashtag provided.</p>';
+        }
+
+        $mp = new MP();
+
+        if ($mp->authenticate()) {
+            try {
+                $events = $mp->table('Events')
+                    ->select("*, Congregation_ID_Table.Congregation_ID, Congregation_ID_Table.Congregation_Name")
+                    ->filter("(Events.Event_Start_Date >= '2025-09-12' AND Visibility_Level_ID_Table.[Visibility_Level_ID] = 4 AND Events.Cancelled = 0 AND Events.[_Approved] = 1 AND Hashtag = '{$hashtag}')")
+                    ->orderBy('Event_Start_Date desc')
+                    ->get();
+
+                if (empty($events)) {
+                    return '<p>No hashtag events found: ' . esc_html($hashtag) . '</p>';
+                }
+
+                $output = '<style>
+
+                .mp-hashtag-events-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  justify-content: center;
+}
+.mp-event-card-basic {
+  width: 400px;
+  min-width: 0;
+  display: flex;
+  flex-direction: row;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  min-height: 120px;
+  margin-bottom: 24px;
+  overflow: hidden;
+}
+.mp-event-card-left {
+  flex: 1 1 0;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+.mp-event-title {
+  margin: 0 0 8px 0;
+  color: #565656;
+  font-size: 1.6em;
+  font-weight: 700;
+}
+.mp-event-location {
+  margin: 4px 0;
+  font-size: 1.3em;
+  font-weight: 600;
+  color: #565656;
+}
+.mp-event-date {
+  margin: 4px 0;
+  font-size: 1em;
+}
+.mp-event-desc {
+  margin: 8px 0 0 0;
+  color: #444;
+}
+.mp-event-card-right {
+  position: relative;
+  width: 80px;
+  background: #fff;
+  min-width: 80px;
+  
+}
+.mp-event-date-circle,
+.mp-event-arrow-circle {
+  position: absolute;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #2a5d9f;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+.mp-event-date-circle {
+position: absolute;
+  top: 12px;
+  right: 12px;
+  flex-direction: column;
+  font-weight: 600;
+  font-size: 1em;
+}
+.mp-event-arrow-circle {
+position: absolute;
+  bottom: 12px;
+  right: 12px;
+}
+.mp-event-month {
+  font-size: 1em;
+  line-height: 1.1em;
+}
+.mp-event-day {
+  font-size: 1.3em;
+  line-height: 1.1em;
+  font-weight: bold;
+}
+.mp-event-arrow-circle svg {
+  width: 40px;
+  height: 40px;
+  display: block;
+}
+@media (max-width: 900px) {
+  .mp-event-card-basic {
+    width: 90vw;
+  }
+}
+@media (max-width: 700px) {
+  .mp-event-card-basic {
+    flex-direction: row;
+    flex-wrap: wrap;
+    width: 98vw;
+    align-items: flex-start;
+  }
+  .mp-event-card-left {
+    max-width: calc(100vw - 100px);
+    flex: 1 1 0;
+  }
+ .mp-event-card-right {
+    width: 80px;
+    min-width: 80px;
+    padding: 12px 0;
+    position: relative;
+    height: 100%;  
+    min-height: 0;  
+}
+}
+
+</style>';
+
+                $output .= '<div class="mp-hashtag-events-grid">';
+                foreach ($events as $event) {
+                    $startRaw = $event['Event_Start_Date'] ?? '';
+                    $endRaw = $event['Event_End_Date'] ?? '';
+                    $start = $startRaw ? date('D, M j, Y g:i A', strtotime($startRaw)) : '';
+                    $end = $endRaw ? date('g:i A', strtotime($endRaw)) : '';
+                    $dateDisplay = $start && $end ? "{$start} - {$end}" : $start;
+
+                    $eventId = $event['Event_ID'] ?? '';
+                    $baseUrl = get_site_url();
+                    $url = "{$baseUrl}/events?id={$eventId}";
+
+                    $title = esc_html($event['Event_Title'] ?? '');
+                    $location = esc_html($event['Congregation_Name'] ?? $event['Congregation_ID_Table.Congregation_Name'] ?? '');
+                    $desc = esc_html($event['Description'] ?? '');
+
+                    $startDateObj = $startRaw ? new \DateTime($startRaw) : null;
+                    $endDateObj = $endRaw ? new \DateTime($endRaw) : null;
+                    $startMonth = $startDateObj ? $startDateObj->format('M') : '';
+                    $startDay = $startDateObj ? $startDateObj->format('j') : '';
+
+                    $dateDisplay = '';
+                    $timeDisplay = '';
+
+                    if ($startDateObj && $endDateObj) {
+                        $dateDisplay = $startDateObj->format('D, M j, Y') . ' - ' . $endDateObj->format('D, M j');
+                        $timeDisplay = $startDateObj->format('g:i A') . ' - ' . $endDateObj->format('g:i A');
+                    } elseif ($startDateObj) {
+                        $dateDisplay = $startDateObj->format('D, M j, Y');
+                        $timeDisplay = $startDateObj->format('g:i A');
+                    }
+
+                    $output .= "
+<div class='mp-event-card-basic'>
+  <div class='mp-event-card-left'>
+    <h3 class='mp-event-title'>{$title}</h3>
+    <p class='mp-event-location'> {$location}</p>
+    <p class='mp-event-date'> {$dateDisplay}</p>
+    <p class='mp-event-date'> {$timeDisplay}</p>
+    <p class='mp-event-desc' title='{$desc}'> {$desc}</p>
+  </div>
+  <div class='mp-event-card-right'>
+    <div class='mp-event-date-circle'>
+      <span class='mp-event-month'>{$startMonth}</span>
+      <span class='mp-event-day'>{$startDay}</span>
+    </div>
+    <a href='{$url}' class='mp-event-arrow-circle' title='View Event'>
+      <svg width='40' height='40' viewBox='0 0 40 40' fill='none' xmlns='http://www.w3.org/2000/svg'>
+        <circle cx='20' cy='20' r='20' fill='#2a5d9f'/>
+        <path d='M15 20H25M25 20L21 16M25 20L21 24' stroke='white' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/>
+      </svg>
+    </a>
+  </div>
+</div>
+";
+                }
+                $output .= '</div>';
+
+                return $output;
+            } catch (Exception $e) {
+                return '<p>Error fetching events.</p>';
+            }
+        } else {
+            return '<p>Unable to authenticate with Ministry Platform.</p>';
+        }
+    }
 
 }
+
 
