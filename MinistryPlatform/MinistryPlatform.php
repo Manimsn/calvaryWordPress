@@ -966,8 +966,9 @@ class MP_API_SHORTCODES
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background: #2a5d9f;
-  color: #fff;
+  background: #fff;
+  color: #4ab6f5; /* light blue text */
+  border: 2px solid #4ab6f5; /* light blue border */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -999,6 +1000,7 @@ position: absolute;
   width: 40px;
   height: 40px;
   display: block;
+   fill: #4ab6f5;
 }
 @media (max-width: 900px) {
   .mp-event-card-basic {
@@ -1043,6 +1045,7 @@ position: absolute;
                     $title = esc_html($event['Event_Title'] ?? '');
                     $location = esc_html($event['Congregation_Name'] ?? $event['Congregation_ID_Table.Congregation_Name'] ?? '');
                     $desc = esc_html($event['Description'] ?? '');
+                    $descShort = strlen($desc) > 200 ? mb_substr($desc, 0, 200) . '...' : $desc;
 
                     $startDateObj = $startRaw ? new \DateTime($startRaw) : null;
                     $endDateObj = $endRaw ? new \DateTime($endRaw) : null;
@@ -1067,7 +1070,7 @@ position: absolute;
     <p class='mp-event-location'> {$location}</p>
     <p class='mp-event-date'> {$dateDisplay}</p>
     <p class='mp-event-date'> {$timeDisplay}</p>
-    <p class='mp-event-desc' title='{$desc}'> {$desc}</p>
+    <p class='mp-event-desc' title='{$desc}'> {$descShort}</p>
   </div>
   <div class='mp-event-card-right'>
     <div class='mp-event-date-circle'>
@@ -1075,10 +1078,12 @@ position: absolute;
       <span class='mp-event-day'>{$startDay}</span>
     </div>
     <a href='{$url}' class='mp-event-arrow-circle' title='View Event'>
+    
+
       <svg width='40' height='40' viewBox='0 0 40 40' fill='none' xmlns='http://www.w3.org/2000/svg'>
-        <circle cx='20' cy='20' r='20' fill='#2a5d9f'/>
-        <path d='M15 20H25M25 20L21 16M25 20L21 24' stroke='white' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/>
-      </svg>
+  
+  <path d='M13 20H27M27 20L22.5 15.5M27 20L22.5 24.5' stroke='#4ab6f5' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/>
+</svg>
     </a>
   </div>
 </div>
