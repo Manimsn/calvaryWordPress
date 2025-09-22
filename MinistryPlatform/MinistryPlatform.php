@@ -939,7 +939,7 @@ class MP_API_SHORTCODES
   font-size: 1.6em;
   font-weight: 700;
   height: 60px;
-    padding: 0;
+  padding: 0;
 }
 .mp-event-location {
   margin: 4px 0;
