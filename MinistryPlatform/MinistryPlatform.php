@@ -257,8 +257,8 @@ class MP_API_SHORTCODES
 
             $user = $mp->table('dp_Users')
                 ->select('Contact_ID') // fetch only specific fields
-                // ->filter("User_Name = '$name'")   // filter by email address (where $name holds the email)
-                ->filter("User_Name = 'mikeg@calvaryftl.org'")   // filter by email address (where $name holds the email)
+                ->filter("User_Name = '$name'")   // filter by email address (where $name holds the email)
+                // ->filter("User_Name = 'mikeg@calvaryftl.org'")   // filter by email address (where $name holds the email)
                 ->get();
 
             $Contact_ID = $user[0]['Contact_ID'];
@@ -934,20 +934,27 @@ class MP_API_SHORTCODES
   align-items: flex-start;
 }
 .mp-event-title {
-  margin: 0 0 8px 0;
+  margin: 0 0 0px 0;
   color: #565656;
   font-size: 1.6em;
   font-weight: 700;
+  height: 60px;
+  padding: 0;
 }
 .mp-event-location {
   margin: 4px 0;
   font-size: 1.3em;
   font-weight: 600;
-  color: #565656;
+  color: #fff;
+  background: #4ab6f5;
+  border-radius: 20px;
+  display: inline-block;
+  padding: 10px 20px;
 }
 .mp-event-date {
   margin: 4px 0;
   font-size: 1em;
+  padding: 0px;
 }
 .mp-event-desc {
   margin: 8px 0 0 0;
@@ -981,6 +988,8 @@ position: absolute;
   flex-direction: column;
   font-weight: 600;
   font-size: 1em;
+  background: #4ab6f5;
+  color: white;
 }
 .mp-event-arrow-circle {
 position: absolute;
@@ -1049,27 +1058,35 @@ position: absolute;
 
                     $startDateObj = $startRaw ? new \DateTime($startRaw) : null;
                     $endDateObj = $endRaw ? new \DateTime($endRaw) : null;
-                    $startMonth = $startDateObj ? $startDateObj->format('M') : '';
+                    $startMonth = $startDateObj ? strtoupper($startDateObj->format('M')) : '';
                     $startDay = $startDateObj ? $startDateObj->format('j') : '';
 
                     $dateDisplay = '';
                     $timeDisplay = '';
 
                     if ($startDateObj && $endDateObj) {
-                        $dateDisplay = $startDateObj->format('D, M j, Y') . ' - ' . $endDateObj->format('D, M j');
-                        $timeDisplay = $startDateObj->format('g:i A') . ' - ' . $endDateObj->format('g:i A');
+                        // $dateDisplay = $startDateObj->format('D, M j, Y') . ' - ' . $endDateObj->format('D, M j');
+                        // $timeDisplay = $startDateObj->format('g:i A') . ' - ' . $endDateObj->format('g:i A');
+
+                        // Check if start and end dates are on the same day
+                        if ($startDateObj->format('Y-m-d') === $endDateObj->format('Y-m-d')) {
+                            $dateDisplay = $startDateObj->format('D, M j');
+                            $timeDisplay = $startDateObj->format('g:i A') . ' - ' . $endDateObj->format('g:i A');
+                        } else {
+                            $dateDisplay = $startDateObj->format('D, M j, Y') . ' - ' . $endDateObj->format('D, M j');
+                            $timeDisplay = $startDateObj->format('g:i A') . ' - ' . $endDateObj->format('g:i A');
+                        }
                     } elseif ($startDateObj) {
                         $dateDisplay = $startDateObj->format('D, M j, Y');
                         $timeDisplay = $startDateObj->format('g:i A');
                     }
-
+                    // <p class='mp-event-date'> {$timeDisplay}</p>
                     $output .= "
 <div class='mp-event-card-basic'>
   <div class='mp-event-card-left'>
     <h3 class='mp-event-title'>{$title}</h3>
     <p class='mp-event-location'> {$location}</p>
-    <p class='mp-event-date'> {$dateDisplay}</p>
-    <p class='mp-event-date'> {$timeDisplay}</p>
+    <p class='mp-event-date'> {$dateDisplay} | {$timeDisplay}</p>    
     <p class='mp-event-desc' title='{$desc}'> {$descShort}</p>
   </div>
   <div class='mp-event-card-right'>
