@@ -939,15 +939,15 @@ class MP_API_SHORTCODES
   font-size: 1.6em;
   font-weight: 700;
   height: 60px;
-  padding: 0;
+    padding: 0;
 }
 .mp-event-location {
   margin: 4px 0;
-  font-size: 1.3em;
+  font-size: 16px;
   font-weight: 600;
   color: #fff;
   background: #4ab6f5;
-  border-radius: 20px;
+  border-radius: 25px;
   display: inline-block;
   padding: 10px 20px;
 }
@@ -955,6 +955,7 @@ class MP_API_SHORTCODES
   margin: 4px 0;
   font-size: 1em;
   padding: 0px;
+  color: #444;
 }
 .mp-event-desc {
   margin: 8px 0 0 0;
@@ -1054,12 +1055,13 @@ position: absolute;
                     $title = esc_html($event['Event_Title'] ?? '');
                     $location = esc_html($event['Congregation_Name'] ?? $event['Congregation_ID_Table.Congregation_Name'] ?? '');
                     $desc = esc_html($event['Description'] ?? '');
-                    $descShort = strlen($desc) > 200 ? mb_substr($desc, 0, 200) . '...' : $desc;
+                    $descShort = strlen($desc) > 100 ? mb_substr($desc, 0, 100) . '...' : $desc;
 
                     $startDateObj = $startRaw ? new \DateTime($startRaw) : null;
                     $endDateObj = $endRaw ? new \DateTime($endRaw) : null;
                     $startMonth = $startDateObj ? strtoupper($startDateObj->format('M')) : '';
                     $startDay = $startDateObj ? $startDateObj->format('j') : '';
+
 
                     $dateDisplay = '';
                     $timeDisplay = '';
@@ -1086,7 +1088,8 @@ position: absolute;
   <div class='mp-event-card-left'>
     <h3 class='mp-event-title'>{$title}</h3>
     <p class='mp-event-location'> {$location}</p>
-    <p class='mp-event-date'> {$dateDisplay} | {$timeDisplay}</p>    
+    <p class='mp-event-date'> {$dateDisplay} | {$timeDisplay}</p>
+    
     <p class='mp-event-desc' title='{$desc}'> {$descShort}</p>
   </div>
   <div class='mp-event-card-right'>
