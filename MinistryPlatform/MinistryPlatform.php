@@ -49,6 +49,8 @@ add_action('wp_ajax_nopriv_mpapi_search_events_ajax', ['MinistryPlatform\MP_API_
 add_action('wp_ajax_hashTagEvents', ['MinistryPlatform\MP_API_SHORTCODES', 'hashTagEvents']);
 add_shortcode('hashTagEvents', ['MinistryPlatform\MP_API_SHORTCODES', 'hashTagEvents']); // Not used directly
 add_shortcode('hashTagEventsCheck', ['MinistryPlatform\MP_API_SHORTCODES', 'hashTagEventsCheck']); // Not used directly
+add_shortcode('campusFilterEvents', ['MinistryPlatform\MP_API_SHORTCODES', 'campusFilterEvents']); // Not used directly
+add_shortcode('newHashTagEvents', ['MinistryPlatform\MP_API_SHORTCODES', 'newHashTagEvents']); // Not used directly
 
 
 class MP_API_SHORTCODES
@@ -1110,6 +1112,401 @@ position: absolute;
 ";
                 }
                 $output .= '</div>';
+
+                return $output;
+            } catch (Exception $e) {
+                return '<p>Error fetching events.</p>';
+            }
+        } else {
+            return '<p>Unable to authenticate with Ministry Platform.</p>';
+        }
+    }
+
+    public static function newHashTagEvents($atts = [], $content = null)
+    {
+        $atts = shortcode_atts([
+            'hashtag' => '',
+            'filter_by' => 'hashtag' // Default to 'hashtag', can also be 'congregation_id'
+        ], $atts);
+
+        $hashtag = sanitize_text_field($atts['hashtag']);
+        $filter_by = sanitize_text_field($atts['filter_by']);
+        
+        error_log('Hashtag searched: ' . $hashtag);
+        error_log('Filter by: ' . $filter_by);
+        
+        if (empty($hashtag)) {
+            return '<p>No hashtag provided.</p>';
+        }
+
+        $mp = new MP();
+
+        if ($mp->authenticate()) {
+            try {
+                // Build the filter condition based on filter_by parameter
+                $filter_condition = '';
+                if ($filter_by === 'congregation_id') {
+                    $filter_condition = "Congregation_ID = '{$hashtag}'";
+                } else {
+                    // Default to hashtag filtering
+                    $filter_condition = "Hashtag = '{$hashtag}'";
+                }
+                
+                $events = $mp->table('Events')
+                    ->select("*, Congregation_ID_Table.Congregation_ID, Congregation_ID_Table.Congregation_Name")
+                    ->filter("(Events.Event_Start_Date >= getDate() AND Visibility_Level_ID_Table.[Visibility_Level_ID] = 4 AND Events.Cancelled = 0 AND Events.[_Approved] = 1 AND {$filter_condition})")
+                    ->orderBy('Event_Start_Date')
+                    ->get();
+
+                echo "<script>console.log('newHashTagEvents filter_condition att:', " . json_encode($atts) . ");</script>";
+                echo "<script>console.log('newHashTagEvents Event:', " . json_encode($events) . ");</script>";
+
+                if (empty($events)) {
+                    return '<p>No hashtag events found: ' . esc_html($hashtag) . '</p>';
+                }
+
+                $output = '<style>
+     
+        .container {
+            max-width: 1400px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            justify-content: center;
+            align-content: start;
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 0;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            min-height: 250px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Card Top Section */
+        .card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 15px 5px 15px;
+            min-height: 60px;
+            height: 80px;
+        }
+
+        /* Left side of top section - just for date */
+        .card-left {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            flex-shrink: 0;
+            height: 100%;
+            justify-content: center;
+        }
+
+        /* Date Circle */
+        .date-circle {
+            background: #4ab6f5;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.8rem;
+            text-align: center;
+        }
+
+        .date-month {
+            font-size: 0.65rem;
+            line-height: 1;
+        }
+
+        .date-day {
+            font-size: 0.9rem;
+            line-height: 1;
+        }
+
+        /* Right side of top section - takes more space */
+        .card-right {
+            flex: 1;
+            margin-left: 15px;
+            height: 100%;
+            display: flex;
+            align-items: center;
+        }
+
+        /* Location Pill - now separate section */
+        .card-location {
+            padding: 10px 15px 10px 15px;
+        }
+
+        .location-pill {
+            background: #4ab6f5;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .location-icon {
+            width: 12px;
+            height: 12px;
+            background: white;
+            border-radius: 50%;
+            position: relative;
+        }
+
+        .location-icon::before {
+            
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 8px;
+        }
+
+        .card-title {
+            font-size: 1.6em;
+            font-weight: bold;
+            color: #333;
+            line-height: 1.3;
+            position: relative;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .card-title:hover::after {
+            content: attr(data-full-title);
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: #333;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            white-space: normal;
+            z-index: 1000;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            max-width: 200px;
+            word-wrap: break-word;
+        }
+
+        /* Card Bottom Section */
+        .card-bottom {
+            padding: 10px 15px;
+            border-top: 1px solid white;
+            background: white;
+        }
+
+        /* Date and Time section */
+        .card-datetime {
+            color: #333;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+
+        /* Bottom content section with left and right */
+        .card-bottom-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-description {
+            flex: 1;
+            color: #333;
+            line-height: 1.4;
+            font-size: 0.9rem;
+        }
+
+        .card-description.truncated {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* Arrow button */
+        .card-arrow {
+            width: 50px;
+            height: 50px;
+            border: 2px solid #333;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+            text-decoration: none;
+        }
+
+        .card-arrow:hover {
+            background: #333;
+            color: white;
+        }
+
+        .card-arrow svg path {
+            stroke: #333;
+            transition: stroke 0.3s ease;
+        }
+
+        .card-arrow:hover svg path {
+            stroke: white;
+        }
+
+        /* Large tablets and smaller - 2 cards per row */
+        @media (max-width: 1024px) {
+            .card-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+        }
+
+        /* Small tablets - 2 cards per row */
+        @media (max-width: 768px) {
+            .card-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+        }
+
+        /* Mobile styles - 1 card per row */
+        @media (max-width: 480px) {
+            .card-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
+            .card-top {
+                padding: 12px 12px 5px 12px;
+            }
+            
+            .card-location {
+                padding: 0 12px 8px 12px;
+            }
+            
+            .card-bottom {
+                padding: 12px;
+            }
+        }
+
+        /* Ensure grid stays left-aligned when not full */
+        .card-grid {
+            justify-items: stretch;
+        }
+</style>';
+
+                $output .= '<div class="container"><div class="card-grid">';
+                foreach ($events as $event) {
+                    $startRaw = $event['Event_Start_Date'] ?? '';
+                    $endRaw = $event['Event_End_Date'] ?? '';
+
+                    $eventId = $event['Event_ID'] ?? '';
+                    $baseUrl = get_site_url();
+                    $url = "{$baseUrl}/events?id={$eventId}";
+
+                    $title = esc_html($event['Event_Title'] ?? '');
+                    $location = esc_html($event['Congregation_Name'] ?? $event['Congregation_ID_Table.Congregation_Name'] ?? '');
+                    $desc = esc_html($event['Description'] ?? '');
+
+                    // Title will be truncated by CSS to 2 lines
+                    $titleTruncated = $title;
+
+                    // Truncate description to 100 characters
+                    $descTruncated = strlen($desc) > 100 ? substr($desc, 0, 100) . '...' : $desc;
+
+                    $startDateObj = $startRaw ? new \DateTime($startRaw) : null;
+                    $endDateObj = $endRaw ? new \DateTime($endRaw) : null;
+                    $startMonth = $startDateObj ? strtoupper($startDateObj->format('M')) : '';
+                    $startDay = $startDateObj ? $startDateObj->format('j') : '';
+
+                    $dateDisplay = '';
+                    $timeDisplay = '';
+
+                    if ($startDateObj && $endDateObj) {
+                        if ($startDateObj->format('Y-m-d') === $endDateObj->format('Y-m-d')) {
+                            $dateDisplay = $startDateObj->format('D, M j');
+                            $timeDisplay = $startDateObj->format('g:i A') . ' - ' . $endDateObj->format('g:i A');
+                        } else {
+                            $dateDisplay = $startDateObj->format('D, M j, Y') . ' - ' . $endDateObj->format('D, M j');
+                            $timeDisplay = $startDateObj->format('g:i A') . ' - ' . $endDateObj->format('g:i A');
+                        }
+                    } elseif ($startDateObj) {
+                        $dateDisplay = $startDateObj->format('D, M j, Y');
+                        $timeDisplay = $startDateObj->format('g:i A');
+                    }
+
+                    $output .= "
+<div class='card'>
+    <div class='card-top'>
+        <div class='card-left'>
+            <div class='date-circle'>
+                <div class='date-month'>{$startMonth}</div>
+                <div class='date-day'>{$startDay}</div>
+            </div>
+        </div>
+        <div class='card-right'>
+            <div class='card-title' >
+                {$titleTruncated}
+            </div>
+        </div>
+    </div>
+    <div class='card-location'>
+        <div class='location-pill'>
+            
+            {$location}
+        </div>
+    </div>
+    <div class='card-bottom'>
+        <div class='card-datetime'>
+            {$dateDisplay} | {$timeDisplay}
+        </div>
+        <div class='card-bottom-content'>
+            <div class='card-description' data-full-description='{$desc}'>
+                {$descTruncated}
+            </div>
+            <a href='{$url}' class='card-arrow' title='View Event'>
+                <svg width='40' height='40' viewBox='0 0 40 40' fill='none' xmlns='http://www.w3.org/2000/svg'>
+                    <path d='M13 20H27M27 20L22.5 15.5M27 20L22.5 24.5' stroke='#333' stroke-width='3' stroke-linecap='round' stroke-linejoin='round' />
+                </svg>
+            </a>
+        </div>
+    </div>
+</div>
+";
+                }
+                $output .= '</div></div>';
 
                 return $output;
             } catch (Exception $e) {
