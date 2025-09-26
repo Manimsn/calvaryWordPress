@@ -1131,10 +1131,10 @@ position: absolute;
 
         $hashtag = sanitize_text_field($atts['hashtag']);
         $filter_by = sanitize_text_field($atts['filter_by']);
-        
+
         error_log('Hashtag searched: ' . $hashtag);
         error_log('Filter by: ' . $filter_by);
-        
+
         if (empty($hashtag)) {
             return '<p>No hashtag provided.</p>';
         }
@@ -1151,7 +1151,7 @@ position: absolute;
                     // Default to hashtag filtering
                     $filter_condition = "Hashtag = '{$hashtag}'";
                 }
-                
+
                 $events = $mp->table('Events')
                     ->select("*, Congregation_ID_Table.Congregation_ID, Congregation_ID_Table.Congregation_Name")
                     ->filter("(Events.Event_Start_Date >= getDate() AND Visibility_Level_ID_Table.[Visibility_Level_ID] = 4 AND Events.Cancelled = 0 AND Events.[_Approved] = 1 AND {$filter_condition})")
@@ -1171,7 +1171,8 @@ position: absolute;
             max-width: 1400px;
             width: 100%;
             margin: 0 auto;
-            padding: 20px;
+            padding: 20px;            
+            font-family: Poppins, sans-serif;
         }
 
         .card-grid {
@@ -1229,7 +1230,8 @@ position: absolute;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            justify-content: center;            
+            font-family: Poppins, sans-serif;
             font-weight: bold;
             font-size: 0.8rem;
             text-align: center;
@@ -1263,7 +1265,8 @@ position: absolute;
             background: #4ab6f5;
             color: white;
             padding: 5px 12px;
-            border-radius: 20px;
+            border-radius: 20px;            
+            font-family: Poppins, sans-serif;
             font-size: 0.8rem;
             display: inline-flex;
             align-items: center;
@@ -1288,6 +1291,7 @@ position: absolute;
         }
 
         .card-title {
+            font-family: Poppins, sans-serif;
             font-size: 1.6em;
             font-weight: bold;
             color: #333;
@@ -1326,6 +1330,7 @@ position: absolute;
 
         /* Date and Time section */
         .card-datetime {
+            font-family: Poppins, sans-serif;
             color: #333;
             font-size: 0.85rem;
             font-weight: 500;
@@ -1342,6 +1347,7 @@ position: absolute;
 
         .card-description {
             flex: 1;
+            font-family: Poppins, sans-serif;
             color: #333;
             line-height: 1.4;
             font-size: 0.9rem;
