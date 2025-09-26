@@ -1146,14 +1146,14 @@ position: absolute;
                 // Build the filter condition based on filter_by parameter
                 $filter_condition = '';
                 if ($filter_by === 'congregation_id') {
-                    $filter_condition = "Congregation_ID = '{$hashtag}'";
+                    $filter_condition = "Congregation_ID_Table.Is_Campus = 1 AND Congregation_ID_Table.Congregation_ID = '{$hashtag}'";
                 } else {
                     // Default to hashtag filtering
                     $filter_condition = "Hashtag = '{$hashtag}'";
                 }
 
                 $events = $mp->table('Events')
-                    ->select("*, Congregation_ID_Table.Congregation_ID, Congregation_ID_Table.Congregation_Name")
+                    ->select("*, Congregation_ID_Table.Congregation_ID, Congregation_ID_Table.Congregation_Name, Congregation_ID_Table.Is_Campus")
                     ->filter("(Events.Event_Start_Date >= getDate() AND Visibility_Level_ID_Table.[Visibility_Level_ID] = 4 AND Events.Cancelled = 0 AND Events.[_Approved] = 1 AND {$filter_condition})")
                     ->orderBy('Event_Start_Date')
                     ->get();
