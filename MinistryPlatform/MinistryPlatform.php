@@ -1524,7 +1524,7 @@ position: absolute;
         }
     }
 
-     public static function newSwiperEvents($atts)
+    public static function newSwiperEvents($atts)
     {
         $atts = shortcode_atts([
             'hashtag' => '',
@@ -1578,11 +1578,75 @@ position: absolute;
                     margin: 0 auto;
                     padding: 20px;
                     font-family: "Poppins", sans-serif;
+                    position: relative;
+                }
+
+                .swiper-navigation {
+                    position: absolute;
+                    top: -40px;
+                    right: 20px;
+                    display: flex;
+                    gap: 10px;
+                    z-index: 10;
+                }
+
+                .swiper-button-prev,
+                .swiper-button-next {
+                    position: static !important;
+                    width: 40px !important;
+                    height: 40px !important;
+                    margin: 0 !important;
+                    background: white;
+                    border: 2px solid #4ab6f5;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                }
+
+                .swiper-button-prev:after,
+                .swiper-button-next:after {
+                    content: none !important;
+                }
+
+                .swiper-button-prev:hover,
+                .swiper-button-next:hover {
+                    background: #4ab6f5;
+                    transform: scale(1.1);
+                }
+
+                .swiper-button-prev svg,
+                .swiper-button-next svg {
+                    width: 20px;
+                    height: 20px;
+                    transition: all 0.3s ease;
+                }
+
+                .swiper-button-prev:hover svg path,
+                .swiper-button-next:hover svg path {
+                    stroke: white;
+                }
+
+                .swiper-button-disabled {
+                    opacity: 0.3;
+                    cursor: not-allowed;
+                }
+
+                .swiper-button-disabled:hover {
+                    background: white;
+                    transform: none;
+                }
+
+                .swiper-button-disabled:hover svg path {
+                    stroke: #4ab6f5;
                 }
 
                 .swiper {
                     width: 100%;
-                    height: 400px;
+                    
                     padding: 20px 0;
                 }
 
@@ -1592,37 +1656,43 @@ position: absolute;
                     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
                     padding: 0;
                     overflow: hidden;
-                    transition: transform 0.3s ease, box-shadow 0.3s ease;
+                    transition: box-shadow 0.3s ease;
                     height: auto;
                 }
 
-              
+                .swiper-slide:hover {
+                    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.2);
+                }
+
                 .event-card {
-                    display: flex;
-                    flex-direction: column;
-                    height: 100%;
-                    min-height: 350px;
+                    background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 0;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            min-height: 250px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
                 }
 
-                /* Card Top Section */
-                .card-top {
-                    display: flex;
-                    align-items: center;
-                    padding: 15px;
-                    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-                    height: 60px;
-                    min-height: 60px;
+                .horiz-card-top {
+                     display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 15px 5px 15px;
+            min-height: 60px;
+            height: 80px;
                 }
 
-                /* Date Circle */
-                .card-left {
+                .horiz-card-left {
                     display: flex;
                     align-items: center;
                     height: 100%;
                     flex-shrink: 0;
                 }
 
-                .date-circle {
+                .horiz-date-circle {
                     width: 50px;
                     height: 50px;
                     background: #4ab6f5;
@@ -1638,22 +1708,21 @@ position: absolute;
                     margin-right: 15px;
                 }
 
-                .date-month {
+                .horiz-date-month {
                     font-size: 10px;
                     line-height: 1;
                     font-family: "Poppins", sans-serif;
                     font-weight: bold;
                 }
 
-                .date-day {
+                .horiz-date-day {
                     font-size: 14px;
                     line-height: 1;
                     font-family: "Poppins", sans-serif;
                     font-weight: bold;
                 }
 
-                /* Card Title */
-                .card-right {
+                .horiz-card-right {
                     flex: 1;
                     display: flex;
                     align-items: center;
@@ -1661,7 +1730,7 @@ position: absolute;
                     padding-left: 10px;
                 }
 
-                .card-title {
+                .horiz-card-title {
                     font-size: 16px;
                     font-weight: bold;
                     color: #333;
@@ -1675,12 +1744,11 @@ position: absolute;
                     font-family: "Poppins", sans-serif;
                 }
 
-                /* Location Pill */
-                .card-location {
+                .horiz-card-location {
                     padding: 0 15px 10px 15px;
                 }
 
-                .location-pill {
+                .horiz-location-pill {
                     display: inline-flex;
                     align-items: center;
                     background: #4ab6f5;
@@ -1692,26 +1760,21 @@ position: absolute;
                     font-weight: 500;
                 }
 
-                .location-icon {
+                .horiz-location-icon {
                     margin-right: 5px;
                 }
 
-                .location-icon::before {
+                .horiz-location-icon::before {
                     content: "📍";
                 }
 
-                /* Card Bottom Section */
-                .card-bottom {
-                    flex: 1;
-                    padding: 15px;
-                    border-top: 1px solid #eee;
-                    background: #fafafa;
-                    display: flex;
-                    flex-direction: column;
-                    justify-content: space-between;
+                .horiz-card-bottom {
+                    padding: 10px 15px;
+            border-top: 1px solid white;
+            background: white;
                 }
 
-                .card-datetime {
+                .horiz-card-datetime {
                     font-size: 14px;
                     color: #333;
                     margin-bottom: 10px;
@@ -1719,14 +1782,14 @@ position: absolute;
                     font-weight: 500;
                 }
 
-                .card-bottom-content {
+                .horiz-card-bottom-content {
                     display: flex;
-                    justify-content: space-between;
-                    align-items: flex-start;
-                    gap: 10px;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
                 }
 
-                .card-description {
+                .horiz-card-description {
                     flex: 1;
                     font-size: 14px;
                     color: #333;
@@ -1739,29 +1802,35 @@ position: absolute;
                     font-family: "Poppins", sans-serif;
                 }
 
-                .card-arrow {
-                    width: 32px;
-                    height: 32px;
-                    border: 2px solid #333;
-                    border-radius: 50%;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    background: white;
-                    color: #333;
-                    cursor: pointer;
-                    transition: all 0.3s ease;
-                    font-size: 14px;
-                    text-decoration: none;
-                    flex-shrink: 0;
+                .horiz-card-arrow {
+                     width: 50px;
+            height: 50px;
+            border: 2px solid #333;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+            text-decoration: none;
                 }
 
-                .card-arrow:hover {
+                .horiz-card-arrow:hover {
                     background: #333;
-                    color: white;
+                    color: white !important;
                 }
 
-                /* Swiper Pagination */
+                .horiz-card-arrow svg path {
+            stroke: #333;
+            transition: stroke 0.3s ease;
+        }
+
+        .horiz-card-arrow:hover svg path {
+            stroke: white;
+        }
+
                 .swiper-pagination {
                     bottom: 0 !important;
                 }
@@ -1774,98 +1843,92 @@ position: absolute;
                 .swiper-pagination-bullet-active {
                     opacity: 1;
                 }
-
-                /* Responsive */
-                @media (max-width: 1024px) {
-                    .swiper {
-                        height: 380px;
-                    }
-                    
-                    .event-card {
-                        min-height: 320px;
-                    }
-                }
-
-                @media (max-width: 768px) {
-                    .swiper-events-container {
-                        padding: 10px;
-                    }
-                    
-                    .swiper {
-                        height: 360px;
-                    }
-                    
-                    .event-card {
-                        min-height: 300px;
-                    }
-
-                    .card-title {
-                        font-size: 14px;
-                    }
-                }
-
-                @media (max-width: 480px) {
-                    .swiper {
-                        height: 340px;
-                    }
-                    
-                    .event-card {
-                        min-height: 280px;
-                    }
-                }
                 </style>
 
-                <!-- Link Swiper CSS -->
                 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
 
                 <div class="swiper-events-container">
+                    <div class="swiper-navigation">
+                        <div class="swiper-button-prev">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M15 18L9 12L15 6" stroke="#4ab6f5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                        <div class="swiper-button-next">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M9 18L15 12L9 6" stroke="#4ab6f5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                    </div>
+                    
                     <div class="swiper mySwiper">
                         <div class="swiper-wrapper">';
 
                 foreach ($events as $event) {
                     $eventId = $event['Event_ID'];
                     $title = $event['Event_Title'];
-                    $startDate = new \DateTime($event['Event_Start_Date']);
-                    $endDate = new \DateTime($event['Event_End_Date']);
-                    $location = $event['Location_Name'] ?: 'TBA';
-                    $description = $event['Description'] ?: 'No description available.';
 
-                    // Format date and time
-                    $dayName = $startDate->format('D');
-                    $monthName = $startDate->format('M');
-                    $day = $startDate->format('j');
-                    $startTime = $startDate->format('g:i A');
-                    $endTime = $endDate->format('g:i A');
+                    $startRaw = $event['Event_Start_Date'] ?? '';
+                    $endRaw = $event['Event_End_Date'] ?? '';
 
-                    $dateTimeString = "{$dayName}, {$monthName} {$day} | {$startTime} - {$endTime}";
+
+                    $location = esc_html($event['Congregation_Name'] ?? $event['Congregation_ID_Table.Congregation_Name'] ?? '');
+                    $desc = esc_html($event['Description'] ?? '');
+
+                    $descTruncated = strlen($desc) > 100 ? substr($desc, 0, 100) . '...' : $desc;
+
+                    $startDateObj = $startRaw ? new \DateTime($startRaw) : null;
+                    $endDateObj = $endRaw ? new \DateTime($endRaw) : null;
+                    $startMonth = $startDateObj ? strtoupper($startDateObj->format('M')) : '';
+                    $startDay = $startDateObj ? $startDateObj->format('j') : '';
+
+                    $dateDisplay = '';
+                    $timeDisplay = '';
+
+                    if ($startDateObj && $endDateObj) {
+                        if ($startDateObj->format('Y-m-d') === $endDateObj->format('Y-m-d')) {
+                            $dateDisplay = $startDateObj->format('D, M j');
+                            $timeDisplay = $startDateObj->format('g:i A') . ' - ' . $endDateObj->format('g:i A');
+                        } else {
+                            $dateDisplay = $startDateObj->format('D, M j, Y') . ' - ' . $endDateObj->format('D, M j');
+                            $timeDisplay = $startDateObj->format('g:i A') . ' - ' . $endDateObj->format('g:i A');
+                        }
+                    } elseif ($startDateObj) {
+                        $dateDisplay = $startDateObj->format('D, M j, Y');
+                        $timeDisplay = $startDateObj->format('g:i A');
+                    }
 
                     $output .= "
                         <div class='swiper-slide'>
                             <div class='event-card'>
-                                <div class='card-top'>
-                                    <div class='card-left'>
-                                        <div class='date-circle'>
-                                            <div class='date-month'>{$monthName}</div>
-                                            <div class='date-day'>{$day}</div>
+                                <div class='horiz-card-top'>
+                                    <div class='horiz-card-left'>
+                                        <div class='horiz-date-circle'>
+                                            <div class='horiz-date-month'>{$startMonth}</div>
+                                            <div class='horiz-date-day'>{$startDay}</div>
                                         </div>
                                     </div>
-                                    <div class='card-right'>
-                                        <h3 class='card-title' data-full-title='{$title}'>{$title}</h3>
+                                    <div class='horiz-card-right'>
+                                        <h3 class='card-title'>{$title}</h3>
                                     </div>
                                 </div>
                                 
-                                <div class='card-location'>
-                                    <div class='location-pill'>
-                                        <span class='location-icon'></span>
+                                <div class='horiz-card-location'>
+                                    <div class='horiz-location-pill'>
+                                        
                                         {$location}
                                     </div>
                                 </div>
 
-                                <div class='card-bottom'>
-                                    <div class='card-datetime'>{$dateTimeString}</div>
-                                    <div class='card-bottom-content'>
-                                        <p class='card-description'>{$description}</p>
-                                        <a href='/events?id={$eventId}' class='card-arrow'>→</a>
+                                <div class='horiz-card-bottom'>
+                                    <div class='horiz-card-datetime'>{$dateDisplay} | {$timeDisplay}</div>
+                                    <div class='horiz-card-bottom-content'>
+                                        <p class='horiz-card-description'>{$descTruncated}</p>
+                                        <a href='/events?id={$eventId}' class='horiz-card-arrow' title='View Event'>
+                                        <svg width='40' height='40' viewBox='0 0 40 40' fill='none' xmlns='http://www.w3.org/2000/svg'>
+                    <path d='M13 20H27M27 20L22.5 15.5M27 20L22.5 24.5' stroke='#333' stroke-width='3' stroke-linecap='round' stroke-linejoin='round' />
+                </svg>
+                </a>
                                     </div>
                                 </div>
                             </div>
