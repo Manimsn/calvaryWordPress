@@ -52,6 +52,7 @@ add_shortcode('hashTagEventsCheck', ['MinistryPlatform\MP_API_SHORTCODES', 'hash
 add_shortcode('campusFilterEvents', ['MinistryPlatform\MP_API_SHORTCODES', 'campusFilterEvents']); // Not used directly
 add_shortcode('newHashTagEvents', ['MinistryPlatform\MP_API_SHORTCODES', 'newHashTagEvents']); // Not used directly
 
+add_shortcode('newSwiperEvents', ['MinistryPlatform\MP_API_SHORTCODES', 'newSwiperEvents']);
 
 class MP_API_SHORTCODES
 {
@@ -1520,6 +1521,414 @@ position: absolute;
             }
         } else {
             return '<p>Unable to authenticate with Ministry Platform.</p>';
+        }
+    }
+
+     public static function newSwiperEvents($atts)
+    {
+        $atts = shortcode_atts([
+            'hashtag' => '',
+            'filter_by' => 'hashtag' // Default to 'hashtag', can also be 'congregation_id'
+        ], $atts);
+
+        $hashtag = sanitize_text_field($atts['hashtag']);
+        $filter_by = sanitize_text_field($atts['filter_by']);
+
+        error_log('Swiper Hashtag searched: ' . $hashtag);
+        error_log('Swiper Filter by: ' . $filter_by);
+
+
+
+        if (empty($hashtag)) {
+            return '<p>No hashtag provided.</p>';
+        }
+
+        $mp = new MP();
+
+        if ($mp->authenticate()) {
+            try {
+                // Build the filter condition based on filter_by parameter
+                $filter_condition = '';
+                if ($filter_by === 'congregation_id') {
+                    $filter_condition = "Congregation_ID_Table.Is_Campus = 1 AND Congregation_ID_Table.Congregation_ID = '{$hashtag}'";
+                } else {
+                    $filter_condition = "Hashtag = '{$hashtag}'";
+                }
+
+                $events = $mp->table('Events')
+                    ->select("*, Congregation_ID_Table.Congregation_ID, Congregation_ID_Table.Congregation_Name, Congregation_ID_Table.Is_Campus")
+                    ->filter("(Events.Event_Start_Date >= getDate() AND Visibility_Level_ID_Table.[Visibility_Level_ID] = 4 AND Events.Cancelled = 0 AND Events.[_Approved] = 1 AND {$filter_condition})")
+                    ->orderBy('Event_Start_Date')
+                    ->get();
+
+                echo "<script>console.log('newSwiperEvents filter_condition  center att:', " . json_encode($atts) . ");</script>";
+                echo "<script>console.log('newSwiperEvents Event:', " . json_encode($events) . ");</script>";
+
+                if (empty($events)) {
+                    return '<p>No events found for this hashtag.</p>';
+                }
+
+                $output = '
+                <style>
+                @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
+
+                .swiper-events-container {
+                    width: 100%;
+                    max-width: 100%;
+                    margin: 0 auto;
+                    padding: 20px;
+                    font-family: "Poppins", sans-serif;
+                }
+
+                .swiper {
+                    width: 100%;
+                    height: 400px;
+                    padding: 20px 0;
+                }
+
+                .swiper-slide {
+                    background: white;
+                    border-radius: 15px;
+                    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+                    padding: 0;
+                    overflow: hidden;
+                    transition: transform 0.3s ease, box-shadow 0.3s ease;
+                    height: auto;
+                }
+
+              
+                .event-card {
+                    display: flex;
+                    flex-direction: column;
+                    height: 100%;
+                    min-height: 350px;
+                }
+
+                /* Card Top Section */
+                .card-top {
+                    display: flex;
+                    align-items: center;
+                    padding: 15px;
+                    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+                    height: 60px;
+                    min-height: 60px;
+                }
+
+                /* Date Circle */
+                .card-left {
+                    display: flex;
+                    align-items: center;
+                    height: 100%;
+                    flex-shrink: 0;
+                }
+
+                .date-circle {
+                    width: 50px;
+                    height: 50px;
+                    background: #4ab6f5;
+                    color: white;
+                    border-radius: 50%;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    font-family: "Poppins", sans-serif;
+                    font-weight: bold;
+                    text-align: center;
+                    margin-right: 15px;
+                }
+
+                .date-month {
+                    font-size: 10px;
+                    line-height: 1;
+                    font-family: "Poppins", sans-serif;
+                    font-weight: bold;
+                }
+
+                .date-day {
+                    font-size: 14px;
+                    line-height: 1;
+                    font-family: "Poppins", sans-serif;
+                    font-weight: bold;
+                }
+
+                /* Card Title */
+                .card-right {
+                    flex: 1;
+                    display: flex;
+                    align-items: center;
+                    height: 100%;
+                    padding-left: 10px;
+                }
+
+                .card-title {
+                    font-size: 16px;
+                    font-weight: bold;
+                    color: #333;
+                    line-height: 1.3;
+                    position: relative;
+                    display: -webkit-box;
+                    -webkit-line-clamp: 2;
+                    line-clamp: 2;
+                    -webkit-box-orient: vertical;
+                    overflow: hidden;
+                    font-family: "Poppins", sans-serif;
+                }
+
+                /* Location Pill */
+                .card-location {
+                    padding: 0 15px 10px 15px;
+                }
+
+                .location-pill {
+                    display: inline-flex;
+                    align-items: center;
+                    background: #4ab6f5;
+                    color: white;
+                    padding: 5px 10px;
+                    border-radius: 20px;
+                    font-size: 12px;
+                    font-family: "Poppins", sans-serif;
+                    font-weight: 500;
+                }
+
+                .location-icon {
+                    margin-right: 5px;
+                }
+
+                .location-icon::before {
+                    content: "📍";
+                }
+
+                /* Card Bottom Section */
+                .card-bottom {
+                    flex: 1;
+                    padding: 15px;
+                    border-top: 1px solid #eee;
+                    background: #fafafa;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: space-between;
+                }
+
+                .card-datetime {
+                    font-size: 14px;
+                    color: #333;
+                    margin-bottom: 10px;
+                    font-family: "Poppins", sans-serif;
+                    font-weight: 500;
+                }
+
+                .card-bottom-content {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: flex-start;
+                    gap: 10px;
+                }
+
+                .card-description {
+                    flex: 1;
+                    font-size: 14px;
+                    color: #333;
+                    line-height: 1.4;
+                    display: -webkit-box;
+                    -webkit-line-clamp: 3;
+                    line-clamp: 3;
+                    -webkit-box-orient: vertical;
+                    overflow: hidden;
+                    font-family: "Poppins", sans-serif;
+                }
+
+                .card-arrow {
+                    width: 32px;
+                    height: 32px;
+                    border: 2px solid #333;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    background: white;
+                    color: #333;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                    font-size: 14px;
+                    text-decoration: none;
+                    flex-shrink: 0;
+                }
+
+                .card-arrow:hover {
+                    background: #333;
+                    color: white;
+                }
+
+                /* Swiper Pagination */
+                .swiper-pagination {
+                    bottom: 0 !important;
+                }
+
+                .swiper-pagination-bullet {
+                    background: #4ab6f5;
+                    opacity: 0.5;
+                }
+
+                .swiper-pagination-bullet-active {
+                    opacity: 1;
+                }
+
+                /* Responsive */
+                @media (max-width: 1024px) {
+                    .swiper {
+                        height: 380px;
+                    }
+                    
+                    .event-card {
+                        min-height: 320px;
+                    }
+                }
+
+                @media (max-width: 768px) {
+                    .swiper-events-container {
+                        padding: 10px;
+                    }
+                    
+                    .swiper {
+                        height: 360px;
+                    }
+                    
+                    .event-card {
+                        min-height: 300px;
+                    }
+
+                    .card-title {
+                        font-size: 14px;
+                    }
+                }
+
+                @media (max-width: 480px) {
+                    .swiper {
+                        height: 340px;
+                    }
+                    
+                    .event-card {
+                        min-height: 280px;
+                    }
+                }
+                </style>
+
+                <!-- Link Swiper CSS -->
+                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+
+                <div class="swiper-events-container">
+                    <div class="swiper mySwiper">
+                        <div class="swiper-wrapper">';
+
+                foreach ($events as $event) {
+                    $eventId = $event['Event_ID'];
+                    $title = $event['Event_Title'];
+                    $startDate = new \DateTime($event['Event_Start_Date']);
+                    $endDate = new \DateTime($event['Event_End_Date']);
+                    $location = $event['Location_Name'] ?: 'TBA';
+                    $description = $event['Description'] ?: 'No description available.';
+
+                    // Format date and time
+                    $dayName = $startDate->format('D');
+                    $monthName = $startDate->format('M');
+                    $day = $startDate->format('j');
+                    $startTime = $startDate->format('g:i A');
+                    $endTime = $endDate->format('g:i A');
+
+                    $dateTimeString = "{$dayName}, {$monthName} {$day} | {$startTime} - {$endTime}";
+
+                    $output .= "
+                        <div class='swiper-slide'>
+                            <div class='event-card'>
+                                <div class='card-top'>
+                                    <div class='card-left'>
+                                        <div class='date-circle'>
+                                            <div class='date-month'>{$monthName}</div>
+                                            <div class='date-day'>{$day}</div>
+                                        </div>
+                                    </div>
+                                    <div class='card-right'>
+                                        <h3 class='card-title' data-full-title='{$title}'>{$title}</h3>
+                                    </div>
+                                </div>
+                                
+                                <div class='card-location'>
+                                    <div class='location-pill'>
+                                        <span class='location-icon'></span>
+                                        {$location}
+                                    </div>
+                                </div>
+
+                                <div class='card-bottom'>
+                                    <div class='card-datetime'>{$dateTimeString}</div>
+                                    <div class='card-bottom-content'>
+                                        <p class='card-description'>{$description}</p>
+                                        <a href='/events?id={$eventId}' class='card-arrow'>→</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>";
+                }
+
+                $output .= '
+                        </div>
+                        <div class="swiper-pagination"></div>
+                    </div>
+                </div>
+
+                <!-- Swiper JS -->
+                <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+                <!-- Initialize Swiper -->
+                <script>
+                document.addEventListener("DOMContentLoaded", function() {
+                    var swiper = new Swiper(".mySwiper", {
+                        slidesPerView: 1,
+      centeredSlides: true,
+      slidesPerGroupSkip: 1,
+                        spaceBetween: 20,
+                        loop: false,
+                        scrollbar: {
+        el: ".swiper-scrollbar",
+      },
+      navigation: {
+        nextEl: ".swiper-button-next",
+        prevEl: ".swiper-button-prev",
+      },
+      
+                        breakpoints: {
+                            480: {
+                                slidesPerView: 1,
+                                spaceBetween: 15,
+                            },
+                            768: {
+                                slidesPerView: 2,
+                                spaceBetween: 20,
+                            },
+                            1024: {
+                                slidesPerView: 3,
+                                spaceBetween: 25,
+                            },
+                            1200: {
+                                slidesPerView: 4,
+                                spaceBetween: 30,
+                            }
+                        },
+                        
+                    });
+                });
+                </script>';
+
+                return $output;
+
+            } catch (Exception $e) {
+                error_log('Error in newSwiperEvents: ' . $e->getMessage());
+                return '<p>Error loading events.</p>';
+            }
+        } else {
+            return '<p>Authentication failed.</p>';
         }
     }
 
