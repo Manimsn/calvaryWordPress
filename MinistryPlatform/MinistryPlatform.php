@@ -1040,6 +1040,302 @@ position: absolute;
             return '<p>Unable to authenticate with Ministry Platform.</p>';
         }
     }
+    public static function campusFilterEvents($atts = [], $content = null)
+    {
+
+        $atts = shortcode_atts([
+            'hashtag' => ''
+        ], $atts);
+
+        $hashtag = sanitize_text_field($atts['hashtag']);
+        error_log('Hashtag searched: ' . $hashtag);
+        if (empty($hashtag)) {
+            return '<p>No hashtag provided.</p>';
+        }
+
+        $mp = new MP();
+
+        if ($mp->authenticate()) {
+            try {
+                $events = $mp->table('Events')
+                    ->select("*, Congregation_ID_Table.Congregation_ID, Congregation_ID_Table.Congregation_Name")
+                    ->filter("(Events.Event_Start_Date >= getDate() AND Visibility_Level_ID_Table.[Visibility_Level_ID] = 4 AND Events.Cancelled = 0 AND Events.[_Approved] = 1 AND Congregation_ID_Table.Congregation_ID = '{$hashtag}')")
+                    ->orderBy('Event_Start_Date')
+                    ->get();
+
+                echo "<script>console.log('campusFilterEvents atts:', " . json_encode($atts) . ");</script>";
+                echo "<script>console.log('campusFilterEvents Event:', " . json_encode($events) . ");</script>";
+
+                if (empty($events)) {
+                    return '<p>No hashtag events found: ' . esc_html($hashtag) . '</p>';
+                }
+
+
+
+                $output = '<style>
+
+                .mp-hashtag-events-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+    justify-content: flex-start;
+  max-width: 1760px;
+  margin: 0 auto;
+}
+
+/* Responsive adjustments for different screen sizes */
+@media (min-width: 1400px) {
+  .mp-hashtag-events-grid {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 1399px) {
+  .mp-hashtag-events-grid {
+    justify-content: center;
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 900px) {
+  .mp-hashtag-events-grid {
+    justify-content: center;
+    padding: 0 10px;
+  }
+  .mp-event-card-basic {
+    width: 90vw;
+  }
+}
+
+@media (max-width: 700px) {
+  .mp-hashtag-events-grid {
+    justify-content: center;
+  }
+  .mp-event-card-basic {
+    flex-direction: row;
+    flex-wrap: wrap;
+    width: 98vw;
+    align-items: flex-start;
+  }
+  .mp-event-card-left {
+    max-width: calc(100vw - 100px);
+    flex: 1 1 0;
+  }
+  .mp-event-card-right {
+    width: 80px;
+    min-width: 80px;
+    padding: 12px 0;
+    position: relative;
+    height: 100%;  
+    min-height: 0;  
+  }
+}
+.mp-event-card-basic {
+  width: 400px;
+  min-width: 0;
+  display: flex;
+  flex-direction: row;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  min-height: 120px;
+  margin-bottom: 24px;
+  overflow: hidden;
+}
+.mp-event-card-left {
+  flex: 1 1 0;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+.mp-event-title {
+  margin: 0 0 0px 0;
+  color: #565656;
+  font-size: 1.6em;
+  font-weight: 700;
+  height: 60px;
+    padding: 0;
+}
+.mp-event-location {
+  margin: 4px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+  background: #4ab6f5;
+  border-radius: 25px;
+  display: inline-block;
+  padding: 10px 20px;
+}
+.mp-event-date {
+  margin: 4px 0;
+  font-size: 1em;
+  padding: 0px;
+  color: #444;
+}
+.mp-event-desc {
+  margin: 8px 0 0 0;
+  color: #444;
+}
+.mp-event-card-right {
+  position: relative;
+  width: 80px;
+  background: #fff;
+  min-width: 80px;
+  
+}
+.mp-event-date-circle,
+.mp-event-arrow-circle {
+  position: absolute;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #fff;
+  color: #4ab6f5; /* light blue text */
+  border: 2px solid #4ab6f5; /* light blue border */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+.mp-event-date-circle {
+position: absolute;
+  top: 12px;
+  right: 12px;
+  flex-direction: column;
+  font-weight: 600;
+  font-size: 1em;
+  background: #4ab6f5;
+  color: white;
+}
+.mp-event-arrow-circle {
+position: absolute;
+  bottom: 12px;
+  right: 12px;
+}
+.mp-event-month {
+  font-size: 1em;
+  line-height: 1.1em;
+}
+.mp-event-day {
+  font-size: 1.3em;
+  line-height: 1.1em;
+  font-weight: bold;
+}
+.mp-event-arrow-circle svg {
+  width: 40px;
+  height: 40px;
+  display: block;
+   fill: #4ab6f5;
+}
+@media (max-width: 900px) {
+  .mp-event-card-basic {
+    width: 90vw;
+  }
+}
+@media (max-width: 700px) {
+  .mp-event-card-basic {
+    flex-direction: row;
+    flex-wrap: wrap;
+    width: 98vw;
+    align-items: flex-start;
+  }
+  .mp-event-card-left {
+    max-width: calc(100vw - 100px);
+    flex: 1 1 0;
+  }
+ .mp-event-card-right {
+    width: 80px;
+    min-width: 80px;
+    padding: 12px 0;
+    position: relative;
+    height: 100%;  
+    min-height: 0;  
+}
+}
+
+</style>';
+
+                $output .= '<div class="mp-hashtag-events-grid">';
+                foreach ($events as $event) {
+                    $startRaw = $event['Event_Start_Date'] ?? '';
+                    $endRaw = $event['Event_End_Date'] ?? '';
+                    $start = $startRaw ? date('D, M j, Y g:i A', strtotime($startRaw)) : '';
+                    $end = $endRaw ? date('g:i A', strtotime($endRaw)) : '';
+                    $dateDisplay = $start && $end ? "{$start} - {$end}" : $start;
+
+                    $eventId = $event['Event_ID'] ?? '';
+                    $baseUrl = get_site_url();
+                    $url = "{$baseUrl}/events?id={$eventId}";
+
+                    $title = esc_html($event['Event_Title'] ?? '');
+                    $location = esc_html($event['Congregation_Name'] ?? $event['Congregation_ID_Table.Congregation_Name'] ?? '');
+                    $desc = esc_html($event['Description'] ?? '');
+                    $descShort = strlen($desc) > 100 ? mb_substr($desc, 0, 100) . '...' : $desc;
+
+                    $startDateObj = $startRaw ? new \DateTime($startRaw) : null;
+                    $endDateObj = $endRaw ? new \DateTime($endRaw) : null;
+                    $startMonth = $startDateObj ? strtoupper($startDateObj->format('M')) : '';
+                    $startDay = $startDateObj ? $startDateObj->format('j') : '';
+
+
+                    $dateDisplay = '';
+                    $timeDisplay = '';
+
+                    if ($startDateObj && $endDateObj) {
+                        // $dateDisplay = $startDateObj->format('D, M j, Y') . ' - ' . $endDateObj->format('D, M j');
+                        // $timeDisplay = $startDateObj->format('g:i A') . ' - ' . $endDateObj->format('g:i A');
+
+                        // Check if start and end dates are on the same day
+                        if ($startDateObj->format('Y-m-d') === $endDateObj->format('Y-m-d')) {
+                            $dateDisplay = $startDateObj->format('D, M j');
+                            $timeDisplay = $startDateObj->format('g:i A') . ' - ' . $endDateObj->format('g:i A');
+                        } else {
+                            $dateDisplay = $startDateObj->format('D, M j, Y') . ' - ' . $endDateObj->format('D, M j');
+                            $timeDisplay = $startDateObj->format('g:i A') . ' - ' . $endDateObj->format('g:i A');
+                        }
+                    } elseif ($startDateObj) {
+                        $dateDisplay = $startDateObj->format('D, M j, Y');
+                        $timeDisplay = $startDateObj->format('g:i A');
+                    }
+                    // <p class='mp-event-date'> {$timeDisplay}</p>
+                    $output .= "
+<div class='mp-event-card-basic'>
+  <div class='mp-event-card-left'>
+    <h3 class='mp-event-title'>{$title}</h3>
+    <p class='mp-event-location'> {$location}</p>
+    <p class='mp-event-date'> {$dateDisplay} | {$timeDisplay}</p>
+    
+    <p class='mp-event-desc' title='{$desc}'> {$descShort}</p>
+  </div>
+  <div class='mp-event-card-right'>
+    <div class='mp-event-date-circle'>
+      <span class='mp-event-month'>{$startMonth}</span>
+      <span class='mp-event-day'>{$startDay}</span>
+    </div>
+    <a href='{$url}' class='mp-event-arrow-circle' title='View Event'>
+    
+
+      <svg width='40' height='40' viewBox='0 0 40 40' fill='none' xmlns='http://www.w3.org/2000/svg'>
+  
+  <path d='M13 20H27M27 20L22.5 15.5M27 20L22.5 24.5' stroke='#4ab6f5' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/>
+</svg>
+    </a>
+  </div>
+</div>
+";
+                }
+                $output .= '</div>';
+
+                return $output;
+            } catch (Exception $e) {
+                return '<p>Error fetching events.</p>';
+            }
+        } else {
+            return '<p>Unable to authenticate with Ministry Platform.</p>';
+        }
+    }
 
     public static function newHashTagEvents($atts = [], $content = null)
     {
@@ -1072,7 +1368,7 @@ position: absolute;
                 }
 
                 $events = $mp->table('Events')
-                    ->select("*, Congregation_ID_Table.Congregation_ID, Congregation_ID_Table.Congregation_Name, Congregation_ID_Table.Is_Campus")
+                    ->select("*, Congregation_ID_Table.Congregation_ID, Congregation_ID_Table.Congregation_Name")
                     ->filter("(Events.Event_Start_Date >= getDate() AND Visibility_Level_ID_Table.[Visibility_Level_ID] = 4 AND Events.Cancelled = 0 AND Events.[_Approved] = 1 AND {$filter_condition})")
                     ->orderBy('Event_Start_Date')
                     ->get();
