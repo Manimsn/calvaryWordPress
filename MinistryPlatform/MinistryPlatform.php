@@ -1775,8 +1775,8 @@ position: absolute;
                     ->orderBy('Event_Start_Date')
                     ->get();
 
-                echo "<script>console.log('newSwiperEvents filter_condition  center att:', " . json_encode($atts) . ");</script>";
-                echo "<script>console.log('newSwiperEvents Event:', " . json_encode($events) . ");</script>";
+                echo "<script>console.log('newSwiperEvents filter_condition test att:', " . json_encode($atts) . ");</script>";
+                echo "<script>console.log('newSwiperEvents Event-pas:', " . json_encode($events) . ");</script>";
 
                 if (empty($events)) {
                     return '<p>No events found for this hashtag.</p>';
@@ -1790,7 +1790,7 @@ position: absolute;
                     width: 100%;
                     max-width: 100%;
                     margin: 0 auto;
-                    padding: 20px;
+                    padding: 20px 0px 20px 20px;
                     font-family: "Poppins", sans-serif;
                     position: relative;
                 }
@@ -1859,8 +1859,7 @@ position: absolute;
                 }
 
                 .swiper {
-                    width: 100%;
-                    
+                    width: 100%;                    
                     padding: 20px 0;
                 }
 
@@ -2057,6 +2056,11 @@ position: absolute;
                 .swiper-pagination-bullet-active {
                     opacity: 1;
                 }
+
+                @media (max-width: 480px) {
+                   
+                    
+                }
                 </style>
 
                 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
@@ -2162,34 +2166,28 @@ position: absolute;
                 <script>
                 document.addEventListener("DOMContentLoaded", function() {
                     var swiper = new Swiper(".mySwiper", {
-                        slidesPerView: 1,
-      centeredSlides: true,
-      slidesPerGroupSkip: 1,
-                        spaceBetween: 20,
-                        loop: false,
-                        scrollbar: {
-        el: ".swiper-scrollbar",
-      },
-      navigation: {
-        nextEl: ".swiper-button-next",
-        prevEl: ".swiper-button-prev",
-      },
-      
+                        slidesPerView: 1.2,      
+                        spaceBetween: 20,   
+                        mousewheel: true,                         
+                        navigation: {
+                          nextEl: ".swiper-button-next",
+                          prevEl: ".swiper-button-prev",
+                        },      
                         breakpoints: {
                             480: {
-                                slidesPerView: 1,
+                                slidesPerView: 1.5,
                                 spaceBetween: 15,
                             },
                             768: {
-                                slidesPerView: 2,
+                                slidesPerView: 2.2,
                                 spaceBetween: 20,
                             },
                             1024: {
-                                slidesPerView: 3,
+                                slidesPerView: 3.2,
                                 spaceBetween: 25,
                             },
                             1200: {
-                                slidesPerView: 4,
+                                slidesPerView: 3.3,
                                 spaceBetween: 30,
                             }
                         },
