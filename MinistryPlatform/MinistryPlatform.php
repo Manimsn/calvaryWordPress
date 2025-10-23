@@ -58,6 +58,9 @@ add_shortcode('newSwiperEvents', ['MinistryPlatform\MP_API_SHORTCODES', 'newSwip
 add_shortcode('mpapi_replace_event_description', ['MinistryPlatform\MP_API_SHORTCODES', 'mpapi_replace_event_description_sc']);
 
 add_shortcode('mpapi_list_groups', ['MinistryPlatform\MP_API_SHORTCODES', 'mpapi_list_groups_sc']);
+
+add_action('wp_ajax_mpapi_search_groups_finder_ajax', ['MinistryPlatform\MP_API_SHORTCODES', 'mpapi_search_groups_finder_ajax']);
+add_action('wp_ajax_nopriv_mpapi_search_groups_finder_ajax', ['MinistryPlatform\MP_API_SHORTCODES', 'mpapi_search_groups_finder_ajax']);
 class MP_API_SHORTCODES
 {
     /**
@@ -540,50 +543,7 @@ class MP_API_SHORTCODES
         return ob_get_clean();
     }
 
-    // public static function mpapi_search_groups_ajax()
-    // {
-    //     // Get the user input from AJAX POST
-    //     $searchTerm = isset($_POST['search']) ? sanitize_text_field($_POST['search']) : '';
-    //     echo "<script>console.log('MP Login - Email: " . esc_js($searchTerm) . "');</script>";
-
-    //     if (empty($searchTerm)) {
-    //         echo 'Please enter a search term.';
-    //         wp_die();
-    //     }
-
-    //     $mp = new MP();
-
-    //     if ($mp->authenticate()) {
-    //         $escapedSearch = addslashes($searchTerm);
-    //         $filter = "Groups.Group_Name LIKE '%{$escapedSearch}%'";
-
-    //         try {
-    //             $groups = $mp->table('Groups')
-    //                 ->select("Group_ID, Group_Name")
-    //                 ->filter($filter)
-    //                 ->orderBy('Group_Name')
-    //                 ->get();
-    //         } catch (Exception $e) {
-    //             echo 'Error fetching groups: ' . esc_html($e->getMessage());
-    //             wp_die();
-    //         }
-
-    //         if (!empty($groups)) {
-    //             echo '<h3>Search Results:</h3><ul>';
-    //             foreach ($groups as $group) {
-    //                 echo '<li>' . esc_html($group['Group_Name']) . '</li>';
-    //             }
-    //             echo '</ul>';
-    //         } else {
-    //             echo '<p>No groups found for your search.</p>';
-    //         }
-    //     } else {
-    //         echo '<p>Ministry Platform authentication failed.</p>';
-    //     }
-
-    //     wp_die(); // ✅ Always end AJAX calls properly
-    // }
-
+    
     public static function mpapi_search_groups_ajax()
     {
         $searchTerm = isset($_POST['search']) ? sanitize_text_field($_POST['search']) : '';
@@ -2310,7 +2270,7 @@ position: absolute;
         }
     }
 
-    public static function mpapi_list_groups_sc($atts = [], $content = null)
+public static function mpapi_list_groups_sc($atts = [], $content = null)
     {
         $atts = shortcode_atts([
             'limit' => 50,
@@ -2335,6 +2295,8 @@ position: absolute;
                     ->select("*")
                     ->filter($filter)
                     ->get();
+
+                echo "<script>console.log('GROUP FINDER:', " . json_encode($groups) . ");</script>";
 
                 if (empty($groups)) {
                     $output .= '<p>No groups found.</p>';
@@ -2373,9 +2335,77 @@ position: absolute;
                 </svg>
             </div>
         </div>
-    </div>';
+    </div>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const searchInput = document.getElementById("group-search");
+        const resultsDiv = document.getElementById("groups-results");
+        
+        searchInput.addEventListener("input", function() {
+            const searchTerm = this.value.trim();
+            
+            fetch("' . admin_url('admin-ajax.php') . '", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                },
+                body: "action=mpapi_search_groups_finder_ajax&search=" + encodeURIComponent(searchTerm)
+            })
+            .then(response => response.text())
+            .then(data => {
+                resultsDiv.innerHTML = data;
+            });
+        });
+    });
+    </script>';
 
         return $output;
+    }
+    public static function mpapi_search_groups_finder_ajax()
+    {
+        $search_term = isset($_POST['search']) ? sanitize_text_field($_POST['search']) : '';
+
+        $mp = new MP();
+
+        if ($mp->authenticate()) {
+            try {
+                $filter = "Groups.Group_Type_ID = 1 AND Groups.Available_Online = 1 AND (Groups.End_Date IS NULL OR Groups.End_Date > GETDATE())";
+
+                if (!empty($search_term)) {
+                    $filter .= " AND Groups.Group_Name LIKE '%" . $search_term . "%'";
+                }
+
+                $groups = $mp->table('Groups')
+                    ->select("*")
+                    ->filter($filter)
+                    ->get();
+
+                echo "<script>console.log('AJAX GROUP FINDER:', " . json_encode($groups) . ");</script>";
+
+                if (empty($groups)) {
+                    echo '<p>No groups found.</p>';
+                } else {
+                    echo '<div class="groups-list">';
+                    foreach ($groups as $group) {
+                        $groupId = $group['Group_ID'];
+                        $title = esc_html($group['Group_Name'] ?? '');
+                        echo "<div class='group-item'>";
+                        echo "<h3>{$title}</h3>";
+                        echo "<hr>";
+                        echo "</div>";
+                    }
+                    echo '</div>';
+                }
+
+            } catch (Exception $e) {
+                echo '<p>Error: ' . esc_html($e->getMessage()) . '</p>';
+            }
+        } else {
+            echo '<p>Authentication failed.</p>';
+        }
+
+        wp_die();
     }
 }
 
