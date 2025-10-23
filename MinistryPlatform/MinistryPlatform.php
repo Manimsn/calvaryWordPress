@@ -61,6 +61,10 @@ add_shortcode('mpapi_list_groups', ['MinistryPlatform\MP_API_SHORTCODES', 'mpapi
 
 add_action('wp_ajax_mpapi_search_groups_finder_ajax', ['MinistryPlatform\MP_API_SHORTCODES', 'mpapi_search_groups_finder_ajax']);
 add_action('wp_ajax_nopriv_mpapi_search_groups_finder_ajax', ['MinistryPlatform\MP_API_SHORTCODES', 'mpapi_search_groups_finder_ajax']);
+
+add_action('wp_ajax_mpapi_get_congregations', ['MinistryPlatform\MP_API_SHORTCODES', 'mpapi_get_congregations']);
+add_action('wp_ajax_nopriv_mpapi_get_congregations', ['MinistryPlatform\MP_API_SHORTCODES', 'mpapi_get_congregations']);
+
 class MP_API_SHORTCODES
 {
     /**
@@ -543,7 +547,7 @@ class MP_API_SHORTCODES
         return ob_get_clean();
     }
 
-    
+
     public static function mpapi_search_groups_ajax()
     {
         $searchTerm = isset($_POST['search']) ? sanitize_text_field($_POST['search']) : '';
@@ -2270,6 +2274,7 @@ position: absolute;
         }
     }
 
+
     public static function mpapi_list_groups_sc($atts = [], $content = null)
     {
         $atts = shortcode_atts([
@@ -2305,12 +2310,10 @@ position: absolute;
                     foreach ($groups as $group) {
                         $groupId = $group['Group_ID'];
                         $title = esc_html($group['Group_Name'] ?? '');
-                        $congregationId = esc_html($group['Congregation_ID'] ?? '');
                         $congregationName = esc_html($group['Congregation_Name'] ?? '');
                         $output .= "<div class='group-item'>";
                         $output .= "<h3>{$title}</h3>";
-                        $output .= "<p>Congregation ID: {$congregationId}</p>";
-                        $output .= "<p>Congregation Name: {$congregationName}</p>";
+                        $output .= "<p>{$congregationName}</p>";
                         $output .= "<hr>";
                         $output .= "</div>";
                     }
@@ -2328,9 +2331,9 @@ position: absolute;
             </div>
         </div>
         
-        <!-- Right side - Search Box -->
+        <!-- Right side - Search & Filter -->
         <div style="flex: 25%;">
-            <div style="position: relative;">
+            <div style="position: relative; margin-bottom: 15px;">
                 <input type="text" id="group-search" placeholder="Search groups..." 
                        style="width: 100%; padding: 12px 40px 12px 15px; border: 1px solid #ddd; border-radius: 25px;">
                 <svg style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; color: #666; pointer-events: none;" 
@@ -2338,37 +2341,104 @@ position: absolute;
                     <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path>
                 </svg>
             </div>
+            
+            <div style="margin-bottom: 15px;">
+                <select id="congregation-filter" style="width: 100%; padding: 12px 15px; border: 1px solid #ddd; border-radius: 25px; background: white;">
+                    <option value="">All Congregations</option>
+                </select>
+            </div>
         </div>
     </div>
 
     <script>
     document.addEventListener("DOMContentLoaded", function() {
         const searchInput = document.getElementById("group-search");
+        const congregationSelect = document.getElementById("congregation-filter");
         const resultsDiv = document.getElementById("groups-results");
         
+        // Load congregations into dropdown
+        loadCongregations();
+        
+        // Search functionality
         searchInput.addEventListener("input", function() {
-            const searchTerm = this.value.trim();
+            performSearch();
+        });
+        
+        // Filter by congregation
+        congregationSelect.addEventListener("change", function() {
+            performSearch();
+        });
+        
+        function loadCongregations() {
+            fetch("' . admin_url('admin-ajax.php') . '", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                },
+                body: "action=mpapi_get_congregations"
+            })
+            .then(response => response.json())
+            .then(data => {
+                congregationSelect.innerHTML = "<option value=\"\">All Congregations</option>";
+                data.forEach(function(congregation) {
+                    const option = document.createElement("option");
+                    option.value = congregation.Congregation_ID;
+                    option.textContent = congregation.Congregation_Name;
+                    congregationSelect.appendChild(option);
+                });
+            });
+        }
+        
+        function performSearch() {
+            const searchTerm = searchInput.value.trim();
+            const congregationId = congregationSelect.value;
             
             fetch("' . admin_url('admin-ajax.php') . '", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/x-www-form-urlencoded",
                 },
-                body: "action=mpapi_search_groups_finder_ajax&search=" + encodeURIComponent(searchTerm)
+                body: "action=mpapi_search_groups_finder_ajax&search=" + encodeURIComponent(searchTerm) + "&congregation_id=" + encodeURIComponent(congregationId)
             })
             .then(response => response.text())
             .then(data => {
                 resultsDiv.innerHTML = data;
             });
-        });
+        }
     });
     </script>';
 
         return $output;
     }
+
+
+    public static function mpapi_get_congregations()
+    {
+        $mp = new MP();
+
+        if ($mp->authenticate()) {
+            try {
+                $congregations = $mp->table('Congregations')
+                    ->select("Congregation_ID, Congregation_Name")
+                    ->filter('Available_Online = 1')
+                    ->orderBy('Congregation_Name')
+                    ->get();
+
+                echo json_encode($congregations);
+            } catch (Exception $e) {
+                echo json_encode([]);
+            }
+        } else {
+            echo json_encode([]);
+        }
+
+        wp_die();
+    }
+
     public static function mpapi_search_groups_finder_ajax()
     {
         $search_term = isset($_POST['search']) ? sanitize_text_field($_POST['search']) : '';
+        $congregation_id = isset($_POST['congregation_id']) ? sanitize_text_field($_POST['congregation_id']) : '';
 
         $mp = new MP();
 
@@ -2380,12 +2450,14 @@ position: absolute;
                     $filter .= " AND Groups.Group_Name LIKE '%" . $search_term . "%'";
                 }
 
+                if (!empty($congregation_id)) {
+                    $filter .= " AND Groups.Congregation_ID = " . intval($congregation_id);
+                }
+
                 $groups = $mp->table('Groups')
                     ->select("*,Congregation_ID_Table.Congregation_ID, Congregation_ID_Table.Congregation_Name")
                     ->filter($filter)
                     ->get();
-
-                echo "<script>console.log('AJAX GROUP FINDER:', " . json_encode($groups) . ");</script>";
 
                 if (empty($groups)) {
                     echo '<p>No groups found.</p>';
@@ -2394,12 +2466,10 @@ position: absolute;
                     foreach ($groups as $group) {
                         $groupId = $group['Group_ID'];
                         $title = esc_html($group['Group_Name'] ?? '');
-                        $congregationId = esc_html($group['Congregation_ID'] ?? '');
                         $congregationName = esc_html($group['Congregation_Name'] ?? '');
                         echo "<div class='group-item'>";
                         echo "<h3>{$title}</h3>";
-                        echo "<p>Congregation ID: {$congregationId}</p>";
-                        echo "<p>Congregation Name: {$congregationName}</p>";
+                        echo "<p>{$congregationName}</p>";
                         echo "<hr>";
                         echo "</div>";
                     }
