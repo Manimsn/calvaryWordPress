@@ -2274,7 +2274,7 @@ position: absolute;
         }
     }
 
-
+    // -----------------------------------Group Finder-------------------------------------
     public static function mpapi_list_groups_sc($atts = [], $content = null)
     {
         $atts = shortcode_atts([
@@ -2283,11 +2283,11 @@ position: absolute;
 
         $limit = intval($atts['limit']);
 
-        // Layout with search box on right
+        // Layout with fixed right sidebar and scrollable left content
         $output = '
-    <div style="display: flex; gap: 20px;">
-        <!-- Left side - Groups List -->
-        <div style="flex: 75%;">
+    <div style="display: flex; gap: 20px; height: 80vh;">
+        <!-- Left side - Scrollable Groups List -->
+        <div style="flex: 75%; overflow-y: auto; padding-right: 10px;">
             <div id="groups-results">';
 
         $mp = new MP();
@@ -2300,8 +2300,6 @@ position: absolute;
                     ->select("*,Congregation_ID_Table.Congregation_ID, Congregation_ID_Table.Congregation_Name")
                     ->filter($filter)
                     ->get();
-
-                echo "<script>console.log('GROUP FINDER:', " . json_encode($groups) . ");</script>";
 
                 if (empty($groups)) {
                     $output .= '<p>No groups found.</p>';
@@ -2331,21 +2329,26 @@ position: absolute;
             </div>
         </div>
         
-        <!-- Right side - Search & Filter -->
-        <div style="flex: 25%;">
-            <div style="position: relative; margin-bottom: 15px;">
-                <input type="text" id="group-search" placeholder="Search groups..." 
-                       style="width: 100%; padding: 12px 40px 12px 15px; border: 1px solid #ddd; border-radius: 25px;">
-                <svg style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; color: #666; pointer-events: none;" 
-                     fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path>
-                </svg>
-            </div>
-            
-            <div style="margin-bottom: 15px;">
-                <select id="congregation-filter" style="width: 100%; padding: 12px 15px; border: 1px solid #ddd; border-radius: 25px; background: white;">
-                    <option value="">All Congregations</option>
-                </select>
+        <!-- Right side - Fixed Search & Filter -->
+        <div style="flex: 25%; position: sticky; top: 0; height: fit-content;">
+            <div style="background: #f9f9f9; padding: 20px; border-radius: 8px; border: 1px solid #ddd;">
+                <h4 style="margin-top: 0;">Search & Filter</h4>
+                
+                <div style="position: relative; margin-bottom: 15px;">
+                    <input type="text" id="group-search" placeholder="Search groups..." 
+                           style="width: 100%; padding: 12px 40px 12px 15px; border: 1px solid #ddd; border-radius: 25px; box-sizing: border-box;">
+                    <svg style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; color: #666; pointer-events: none;" 
+                         fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path>
+                    </svg>
+                </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <label for="congregation-filter" style="display: block; margin-bottom: 5px; font-weight: bold;">Campus</label>
+                    <select id="congregation-filter" style="width: 100%; padding: 12px 15px; border: 1px solid #ddd; border-radius: 5px; background: white; box-sizing: border-box;">
+                        <option value="">All Campuses</option>
+                    </select>
+                </div>
             </div>
         </div>
     </div>
@@ -2379,7 +2382,7 @@ position: absolute;
             })
             .then(response => response.json())
             .then(data => {
-                congregationSelect.innerHTML = "<option value=\"\">All Congregations</option>";
+                congregationSelect.innerHTML = "<option value=\"\">All Campuses</option>";
                 data.forEach(function(congregation) {
                     const option = document.createElement("option");
                     option.value = congregation.Congregation_ID;
@@ -2410,7 +2413,6 @@ position: absolute;
 
         return $output;
     }
-
 
     public static function mpapi_get_congregations()
     {
@@ -2485,6 +2487,7 @@ position: absolute;
 
         wp_die();
     }
+
 }
 
 
