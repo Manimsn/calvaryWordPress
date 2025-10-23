@@ -52,8 +52,12 @@ add_shortcode('hashTagEventsCheck', ['MinistryPlatform\MP_API_SHORTCODES', 'hash
 add_shortcode('campusFilterEvents', ['MinistryPlatform\MP_API_SHORTCODES', 'campusFilterEvents']); // Not used directly
 add_shortcode('newHashTagEvents', ['MinistryPlatform\MP_API_SHORTCODES', 'newHashTagEvents']); // Not used directly
 
+
 add_shortcode('newSwiperEvents', ['MinistryPlatform\MP_API_SHORTCODES', 'newSwiperEvents']);
 
+add_shortcode('mpapi_replace_event_description', ['MinistryPlatform\MP_API_SHORTCODES', 'mpapi_replace_event_description_sc']);
+
+add_shortcode('mpapi_list_groups', ['MinistryPlatform\MP_API_SHORTCODES', 'mpapi_list_groups_sc']);
 class MP_API_SHORTCODES
 {
     /**
@@ -860,7 +864,7 @@ class MP_API_SHORTCODES
   font-size: 1.6em;
   font-weight: 700;
   height: 60px;
-  padding: 0;
+    padding: 0;
 }
 .mp-event-location {
   margin: 4px 0;
@@ -1040,6 +1044,7 @@ position: absolute;
             return '<p>Unable to authenticate with Ministry Platform.</p>';
         }
     }
+
     public static function campusFilterEvents($atts = [], $content = null)
     {
 
@@ -1128,7 +1133,7 @@ position: absolute;
     position: relative;
     height: 100%;  
     min-height: 0;  
-  }
+}
 }
 .mp-event-card-basic {
   width: 400px;
@@ -1373,7 +1378,7 @@ position: absolute;
                     ->orderBy('Event_Start_Date')
                     ->get();
 
-                echo "<script>console.log('newHashTagEvents filter_condition att:', " . json_encode($atts) . ");</script>";
+                echo "<script>console.log('newHashTagEvents filter_condition test01 att:', " . json_encode($atts) . ");</script>";
                 echo "<script>console.log('newHashTagEvents Event:', " . json_encode($events) . ");</script>";
 
                 if (empty($events)) {
@@ -1659,7 +1664,8 @@ position: absolute;
 
                     $title = esc_html($event['Event_Title'] ?? '');
                     $location = esc_html($event['Congregation_Name'] ?? $event['Congregation_ID_Table.Congregation_Name'] ?? '');
-                    $desc = esc_html($event['Description'] ?? '');
+                    // $desc = esc_html($event['Description'] ?? '');
+                    $desc = esc_html(wp_strip_all_tags($event['Web_Description'] ?? ''));
 
                     // Title will be truncated by CSS to 2 lines
                     $titleTruncated = $title;
@@ -1887,7 +1893,7 @@ position: absolute;
             display: flex;
             flex-direction: column;
             overflow: hidden;
-                }
+                               }
 
                 .horiz-card-top {
                      display: flex;
@@ -2091,7 +2097,8 @@ position: absolute;
 
 
                     $location = esc_html($event['Congregation_Name'] ?? $event['Congregation_ID_Table.Congregation_Name'] ?? '');
-                    $desc = esc_html($event['Description'] ?? '');
+                    // $desc = esc_html($event['Web_Description'] ?? '');
+                    $desc = esc_html(wp_strip_all_tags($event['Web_Description'] ?? ''));
 
                     $descTruncated = strlen($desc) > 100 ? substr($desc, 0, 100) . '...' : $desc;
 
@@ -2207,6 +2214,169 @@ position: absolute;
         }
     }
 
+    // Shortcode to replace element content with event web description
+    public static function mpapi_replace_event_description_sc($atts = [], $content = null)
+    {
+        // Get event ID from URL parameter
+        $event_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
+
+        if (!$event_id) {
+            return $content; // Return original content if no ID
+        }
+
+        $mp = new MP();
+
+        if ($mp->authenticate()) {
+            try {
+                $event = $mp->table('Events')
+                    ->select('Web_Description')
+                    ->filter("Event_ID = {$event_id}")
+                    ->first();
+
+                if ($event && !empty($event['Web_Description'])) {
+                    // Output JavaScript to replace the content in Shadow DOM
+                    ob_start();
+                    ?>
+                    <script>
+                        console.log('Replacing event description for Event ID: <?php echo $event_id; ?>');
+                        console.log('event check: <?php echo $event; ?>');
+                        console.log('New description:', <?php echo json_encode($event['Web_Description']); ?>);
+
+                        function replaceEventDescription() {
+                            // Look for the mpp-event-details element
+                            var mppEventDetails = document.querySelector('mpp-event-details');
+                            if (mppEventDetails && mppEventDetails.shadowRoot) {
+                                // Access the shadow root
+                                var shadowRoot = mppEventDetails.shadowRoot;
+                                var descElement = shadowRoot.querySelector('.mpp-innerpage--description');
+
+                                if (descElement) {
+                                    descElement.innerHTML = <?php echo json_encode($event['Web_Description']); ?>;
+                                    console.log('✅ Event description replaced successfully in Shadow DOM');
+                                    return true;
+                                } else {
+                                    console.log('⏳ Element .mpp-innerpage--description not found in Shadow DOM, retrying...');
+                                    return false;
+                                }
+                            } else {
+                                console.log('⏳ mpp-event-details or shadowRoot not found yet, retrying...');
+                                return false;
+                            }
+                        }
+
+                        // Try immediately
+                        if (!replaceEventDescription()) {
+                            // Try when DOM is ready
+                            document.addEventListener('DOMContentLoaded', function () {
+                                if (!replaceEventDescription()) {
+                                    // Try after a short delay
+                                    setTimeout(function () {
+                                        if (!replaceEventDescription()) {
+                                            // Try with a longer delay
+                                            setTimeout(function () {
+                                                if (!replaceEventDescription()) {
+                                                    console.log('❌ Failed to find and replace element in Shadow DOM after multiple attempts');
+
+                                                    // Debug: Check if the element exists
+                                                    var mppEventDetails = document.querySelector('mpp-event-details');
+                                                    if (mppEventDetails) {
+                                                        console.log('Found mpp-event-details element:', mppEventDetails);
+                                                        console.log('Shadow root:', mppEventDetails.shadowRoot);
+                                                    } else {
+                                                        console.log('mpp-event-details element not found');
+                                                    }
+                                                }
+                                            }, 3000);
+                                        }
+                                    }, 1000);
+                                }
+                            });
+                        }
+                    </script>
+                    <?php
+                    return ob_get_clean();
+                } else {
+                    echo "<script>console.log('No web description found for Event ID: {$event_id}');</script>";
+                    return $content;
+                }
+
+            } catch (Exception $e) {
+                echo "<script>console.log('Error fetching event: " . esc_js($e->getMessage()) . "');</script>";
+                return $content;
+            }
+        } else {
+            echo "<script>console.log('Ministry Platform authentication failed');</script>";
+            return $content;
+        }
+    }
+
+    public static function mpapi_list_groups_sc($atts = [], $content = null)
+    {
+        $atts = shortcode_atts([
+            'limit' => 50,
+        ], $atts);
+
+        $limit = intval($atts['limit']);
+
+        // Layout with search box on right
+        $output = '
+    <div style="display: flex; gap: 20px;">
+        <!-- Left side - Groups List -->
+        <div style="flex: 75%;">
+            <div id="groups-results">';
+
+        $mp = new MP();
+
+        if ($mp->authenticate()) {
+            try {
+                $filter = "Groups.Group_Type_ID = 1 AND Groups.Available_Online = 1 AND (Groups.End_Date IS NULL OR Groups.End_Date > GETDATE())";
+
+                $groups = $mp->table('Groups')
+                    ->select("*")
+                    ->filter($filter)
+                    ->get();
+
+                if (empty($groups)) {
+                    $output .= '<p>No groups found.</p>';
+                } else {
+                    $output .= '<div class="groups-list">';
+                    foreach ($groups as $group) {
+                        $groupId = $group['Group_ID'];
+                        $title = esc_html($group['Group_Name'] ?? '');
+                        $output .= "<div class='group-item'>";
+                        $output .= "<h3>{$title}</h3>";
+                        $output .= "<hr>";
+                        $output .= "</div>";
+                    }
+                    $output .= '</div>';
+                }
+
+            } catch (Exception $e) {
+                $output .= '<p>Error: ' . esc_html($e->getMessage()) . '</p>';
+            }
+        } else {
+            $output .= '<p>Authentication failed.</p>';
+        }
+
+        $output .= '
+            </div>
+        </div>
+        
+        <!-- Right side - Search Box -->
+        <div style="flex: 25%;">
+            <div style="position: relative;">
+                <input type="text" id="group-search" placeholder="Search groups..." 
+                       style="width: 100%; padding: 12px 40px 12px 15px; border: 1px solid #ddd; border-radius: 25px;">
+                <svg style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; color: #666; pointer-events: none;" 
+                     fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path>
+                </svg>
+            </div>
+        </div>
+    </div>';
+
+        return $output;
+    }
 }
 
 
