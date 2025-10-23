@@ -2270,7 +2270,7 @@ position: absolute;
         }
     }
 
-public static function mpapi_list_groups_sc($atts = [], $content = null)
+    public static function mpapi_list_groups_sc($atts = [], $content = null)
     {
         $atts = shortcode_atts([
             'limit' => 50,
@@ -2292,7 +2292,7 @@ public static function mpapi_list_groups_sc($atts = [], $content = null)
                 $filter = "Groups.Group_Type_ID = 1 AND Groups.Available_Online = 1 AND (Groups.End_Date IS NULL OR Groups.End_Date > GETDATE())";
 
                 $groups = $mp->table('Groups')
-                    ->select("*")
+                    ->select("*,Congregation_ID_Table.Congregation_ID, Congregation_ID_Table.Congregation_Name")
                     ->filter($filter)
                     ->get();
 
@@ -2305,8 +2305,12 @@ public static function mpapi_list_groups_sc($atts = [], $content = null)
                     foreach ($groups as $group) {
                         $groupId = $group['Group_ID'];
                         $title = esc_html($group['Group_Name'] ?? '');
+                        $congregationId = esc_html($group['Congregation_ID'] ?? '');
+                        $congregationName = esc_html($group['Congregation_Name'] ?? '');
                         $output .= "<div class='group-item'>";
                         $output .= "<h3>{$title}</h3>";
+                        $output .= "<p>Congregation ID: {$congregationId}</p>";
+                        $output .= "<p>Congregation Name: {$congregationName}</p>";
                         $output .= "<hr>";
                         $output .= "</div>";
                     }
@@ -2377,7 +2381,7 @@ public static function mpapi_list_groups_sc($atts = [], $content = null)
                 }
 
                 $groups = $mp->table('Groups')
-                    ->select("*")
+                    ->select("*,Congregation_ID_Table.Congregation_ID, Congregation_ID_Table.Congregation_Name")
                     ->filter($filter)
                     ->get();
 
@@ -2390,8 +2394,12 @@ public static function mpapi_list_groups_sc($atts = [], $content = null)
                     foreach ($groups as $group) {
                         $groupId = $group['Group_ID'];
                         $title = esc_html($group['Group_Name'] ?? '');
+                        $congregationId = esc_html($group['Congregation_ID'] ?? '');
+                        $congregationName = esc_html($group['Congregation_Name'] ?? '');
                         echo "<div class='group-item'>";
                         echo "<h3>{$title}</h3>";
+                        echo "<p>Congregation ID: {$congregationId}</p>";
+                        echo "<p>Congregation Name: {$congregationName}</p>";
                         echo "<hr>";
                         echo "</div>";
                     }
