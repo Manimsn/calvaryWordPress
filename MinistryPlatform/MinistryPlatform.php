@@ -2300,7 +2300,7 @@ position: absolute;
 
     .groups-card-grid {
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(3, 1fr);
         gap: 15px;
         justify-content: center;
         align-content: start;
@@ -2548,8 +2548,8 @@ position: absolute;
 
                         if ($meetingDay && $meetingTime) {
                             $days = ['', 'SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
-                            $dayName = $days[$meetingDay] ?? '';
-                            $time = date('g:i A', strtotime($meetingTime));
+                            $dayName = $days[$meetingDay] ?? 'Date N/A';
+                            $time = date('g:i A', strtotime($meetingTime)) ?? 'Time N/A';
                             $timeDisplay = "{$dayName} | {$time}";
                         }
 
@@ -2756,8 +2756,8 @@ position: absolute;
 
                         if ($meetingDay && $meetingTime) {
                             $days = ['', 'SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
-                            $dayName = $days[$meetingDay] ?? '';
-                            $time = date('g:i A', strtotime($meetingTime));
+                            $dayName = $days[$meetingDay] ?? 'Day N/A';
+                            $time = date('g:i A', strtotime($meetingTime)) ?? 'Time N/A';
                             $timeDisplay = "{$dayName} | {$time}";
                         }
 
