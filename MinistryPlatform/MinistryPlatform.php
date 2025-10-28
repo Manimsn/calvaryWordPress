@@ -524,7 +524,6 @@ class MP_API_SHORTCODES
         return ob_get_clean();
     }
 
-
     public static function mpapi_search_groups_ajax()
     {
         $searchTerm = isset($_POST['search']) ? sanitize_text_field($_POST['search']) : '';
@@ -2028,7 +2027,7 @@ position: absolute;
 
 
                     $location = esc_html($event['Congregation_Name'] ?? $event['Congregation_ID_Table.Congregation_Name'] ?? '');
-                    // $desc = esc_html($event['Web_Description'] ?? '');
+                    // $desc = esc_html($event['Description'] ?? '');
                     $desc = esc_html(wp_strip_all_tags($event['Web_Description'] ?? ''));
 
                     $descTruncated = strlen($desc) > 100 ? substr($desc, 0, 100) . '...' : $desc;
@@ -2145,6 +2144,8 @@ position: absolute;
         }
     }
 
+
+
     // Shortcode to replace element content with event web description
     public static function mpapi_replace_event_description_sc($atts = [], $content = null)
     {
@@ -2240,7 +2241,6 @@ position: absolute;
             return $content;
         }
     }
-
 
     // -----------------------------------Group Finder-------------------------------------
     public static function mpapi_list_groups_sc($atts = [], $content = null)
