@@ -2523,11 +2523,12 @@ position: absolute;
                 $filter = "Groups.Group_Type_ID = 1 AND Groups.Available_Online = 1 AND (Groups.End_Date IS NULL OR Groups.End_Date > GETDATE())";
 
                 $groups = $mp->table('Groups')
-                    ->select("*,Congregation_ID_Table.Congregation_ID, Congregation_ID_Table.Congregation_Name, Primary_Contact_Table.[Display_Name], Life_Stage_ID_Table.Life_Stage, Congregation_ID_Table_Location_ID_Table.[Location_Name]")
+                    ->select("*,Congregation_ID_Table.Congregation_ID, Congregation_ID_Table.Congregation_Name, Primary_Contact_Table.[Display_Name], Life_Stage_ID_Table.Life_Stage, Congregation_ID_Table_Location_ID_Table.[Location_Name],
+                    Congregation_ID_Table_Location_ID_Table_Address_ID_Table.[City],Congregation_ID_Table_Location_ID_Table_Address_ID_Table.[Latitude], Congregation_ID_Table_Location_ID_Table_Address_ID_Table.[Longitude]")
                     ->filter($filter)
                     ->get();
 
-                echo "<script>console.log('LIFE STAGE:', " . json_encode($groups) . ");</script>";
+                echo "<script>console.log('LIFE STAGE CHECK:', " . json_encode($groups) . ");</script>";
 
                 if (empty($groups)) {
                     $output .= '<p>No groups found.</p>';
@@ -2541,6 +2542,8 @@ position: absolute;
                         $lifeStage = esc_html($group['Life_Stage'] ?? 'N/A');
                         $description = esc_html($group['Description'] ?? 'N/A');
                         $locationName = esc_html($group['Location_Name'] ?? 'N/A');
+                        $latitude = esc_html($group['Latitude'] ?? 'N/A');
+                        $longitude = esc_html($group['Longitude'] ?? 'N/A');
                         $descTruncated = strlen($description) > 100 ? substr($description, 0, 100) . '...' : $description;
 
                         // Meeting day and time
@@ -2560,7 +2563,7 @@ position: absolute;
                         <div class='group-card-top'>
                             <div class='group-card-left'>
                                 <div class='group-date-circle'>
-                                    <div class='group-date-month'>GRP</div>
+                                    
                                     <div class='group-date-day'>{$groupId}</div>
                                 </div>
                             </div>
@@ -2587,6 +2590,9 @@ position: absolute;
                             </div>
                             <div class='group-card-display-name'>
                                 {$locationName}
+                            </div>
+                            <div class='group-card-display-name'>
+                                {$latitude} | {$longitude}
                             </div>
                             <div class='group-card-bottom-content'>
                                 <div class='group-card-description truncated'>
@@ -2826,7 +2832,8 @@ window.performSearch = function() {
                 }
 
                 $groups = $mp->table('Groups')
-                    ->select("*,Congregation_ID_Table.Congregation_ID, Congregation_ID_Table.Congregation_Name, Primary_Contact_Table.[Display_Name], Life_Stage_ID_Table.Life_Stage, Congregation_ID_Table_Location_ID_Table.[Location_Name]")
+                    ->select("*,Congregation_ID_Table.Congregation_ID, Congregation_ID_Table.Congregation_Name, Primary_Contact_Table.[Display_Name], Life_Stage_ID_Table.Life_Stage, Congregation_ID_Table_Location_ID_Table.[Location_Name],
+                    Congregation_ID_Table_Location_ID_Table_Address_ID_Table.[City],Congregation_ID_Table_Location_ID_Table_Address_ID_Table.[Latitude], Congregation_ID_Table_Location_ID_Table_Address_ID_Table.[Longitude]")
                     ->filter($filter)
                     ->get();
 
@@ -2842,6 +2849,8 @@ window.performSearch = function() {
                         $lifeStage = esc_html($group['Life_Stage'] ?? 'N/A');
                         $description = esc_html($group['Description'] ?? '');
                         $locationName = esc_html($group['Location_Name'] ?? 'N/A');
+                        $latitude = esc_html($group['Latitude'] ?? 'N/A');
+                        $longitude = esc_html($group['Longitude'] ?? 'N/A');
                         $descTruncated = strlen($description) > 100 ? substr($description, 0, 100) . '...' : $description;
 
                         // Meeting day and time
@@ -2855,13 +2864,13 @@ window.performSearch = function() {
                             $time = date('g:i A', strtotime($meetingTime)) ?? 'Time N/A';
                             $timeDisplay = "{$dayName} | {$time}";
                         }
-
+// <div class='group-date-month'>GRP</div>
                         echo "
                     <div class='group-card'>
                         <div class='group-card-top'>
                             <div class='group-card-left'>
                                 <div class='group-date-circle'>
-                                    <div class='group-date-month'>GRP</div>
+                                    
                                     <div class='group-date-day'>{$groupId}</div>
                                 </div>
                             </div>
@@ -2888,6 +2897,9 @@ window.performSearch = function() {
                             </div>
                             <div class='group-card-display-name'>
                                 {$locationName}
+                            </div>
+                            <div class='group-card-display-name'>
+                                {$latitude} | {$longitude}
                             </div>
                             <div class='group-card-bottom-content'>
                                 <div class='group-card-description truncated'>
