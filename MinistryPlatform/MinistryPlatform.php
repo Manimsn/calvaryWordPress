@@ -55,8 +55,6 @@ add_shortcode('newHashTagEvents', ['MinistryPlatform\MP_API_SHORTCODES', 'newHas
 
 add_shortcode('newSwiperEvents', ['MinistryPlatform\MP_API_SHORTCODES', 'newSwiperEvents']);
 
-add_shortcode('mpapi_replace_event_description', ['MinistryPlatform\MP_API_SHORTCODES', 'mpapi_replace_event_description_sc']);
-
 add_shortcode('mpapi_list_groups', ['MinistryPlatform\MP_API_SHORTCODES', 'mpapi_list_groups_sc']);
 
 add_action('wp_ajax_mpapi_search_groups_finder_ajax', ['MinistryPlatform\MP_API_SHORTCODES', 'mpapi_search_groups_finder_ajax']);
@@ -64,6 +62,10 @@ add_action('wp_ajax_nopriv_mpapi_search_groups_finder_ajax', ['MinistryPlatform\
 
 add_action('wp_ajax_mpapi_get_congregations', ['MinistryPlatform\MP_API_SHORTCODES', 'mpapi_get_congregations']);
 add_action('wp_ajax_nopriv_mpapi_get_congregations', ['MinistryPlatform\MP_API_SHORTCODES', 'mpapi_get_congregations']);
+
+
+add_action('wp_ajax_mpapi_get_life_stages', ['MinistryPlatform\MP_API_SHORTCODES', 'mpapi_get_life_stages']);
+add_action('wp_ajax_nopriv_mpapi_get_life_stages', ['MinistryPlatform\MP_API_SHORTCODES', 'mpapi_get_life_stages']);
 
 class MP_API_SHORTCODES
 {
@@ -239,11 +241,6 @@ class MP_API_SHORTCODES
             ?>
             <script>
                 const familyData = <?php echo json_encode($family_data ?? []); ?>;
-                // console.log("family_data:", <?php echo json_encode($family_data ?? []); ?>);
-                // console.log("family_data length:", Array.isArray(familyData) ? familyData.length : 'Not an array');
-                // console.log("contactID:", "<?php echo $contactID; ?>");
-                // console.log("participant_record:", <?php echo json_encode($participant_record); ?>);
-                // console.log("participant_milestones:", <?php echo json_encode($participant_milestones); ?>);
             </script>
             <?php
             return ob_get_clean();
@@ -365,7 +362,7 @@ class MP_API_SHORTCODES
     <a 
         
         target="_blank" class="btn"  
-        href="' . site_url('/certificate/en.php') . '?name=' . $fullName . '&date=' . urlencode($spanishDate) . '">
+        href="' . site_url('/certificate/en.php') . '?name=' . $fullName . '&year=' . $year . '&month=' . $month . '&date=' . $displayDay . $suffix . '" >
         Print Baptism Certificate
     </a>
 
@@ -448,7 +445,6 @@ class MP_API_SHORTCODES
                 })
                     .then(res => res.json())
                     .then(data => {
-                        // console.log("AJAX response:", JSON.stringify(data, null, 2)); // ✅ log full response
 
                         if (data.success && data.data?.html) {
                             container.innerHTML = data.data.html;
@@ -460,7 +456,6 @@ class MP_API_SHORTCODES
                         }
                     })
                     .catch((e) => {
-                        console.error("AJAX error:", e);
                         container.innerHTML = "<p>AJAX request failed.</p>";
                     });
             });
@@ -478,37 +473,24 @@ class MP_API_SHORTCODES
             $email = sanitize_email($_POST['email']);
             $password = sanitize_text_field($_POST['password']);
 
-            // echo "<script>console.log('MP Login - Email: " . esc_js($email) . "');</script>";
-            // echo "<script>console.log('MP Login - Password: " . esc_js($password) . "');</script>";
-
             $mp = new MP();
 
             if ($mp->authenticate()) {
-                // echo "<script>console.log('MP Authenticated with API');</script>";
 
                 $user = $mp->table('dp_Users')
                     ->select("Contact_ID, User_Name, Password") // fetch only specific fields
                     ->filter("User_Name = '$email'")
                     ->get();
-                // echo "<script>console.log('User data:', " . json_encode($user) . ");</script>";
+
                 $Contact_ID = $user[0]['Contact_ID'];
                 $User_Name = $user[0]['User_Name'];
-                // echo "<script>console.log('Contact_ID:', '$Contact_ID');</script>";
-                // echo "<script>console.log('User_Name:', '$User_Name');</script>";
-
 
                 if (!empty($user)) {
-                    // echo "<script>console.log('User found in dp_Users');</script>";
                     $hashedPassword = $user[0]['Password'];
                     $md5Hash = base64_encode(md5($password, true));
                     $sha1Hash = base64_encode(sha1($password, true));
 
-                    // echo "<script>console.log('hashedPassword:', '$hashedPassword');</script>";
-                    // echo "<script>console.log('MD5 Base64:', '$md5Hash');</script>";
-                    // echo "<script>console.log('SHA1 Base64:', '$sha1Hash');</script>";
-
                     if ($md5Hash === $hashedPassword) {
-                        // echo "<script>console.log('Password matched');</script>";
 
                         $contactId = $user[0]['Contact_ID'];
 
@@ -518,20 +500,15 @@ class MP_API_SHORTCODES
                             ->get();
 
                         $contactJson = json_encode($contact[0]);
-                        // echo "<script>console.log('Contact:', " . json_encode($contact) . ");</script>";
-                        // echo "<script>console.log('Contact:', " . json_encode($contactJson) . ");</script>";
 
                         echo "<p>Login successful. Check console for user details.</p>";
                     } else {
-                        // echo "<script>console.log('Password mismatch');</script>";
                         echo "<p>Invalid password.</p>";
                     }
                 } else {
-                    // echo "<script>console.log('No user found in dp_Users');</script>";
                     echo "<p>No user found with the provided email.</p>";
                 }
             } else {
-                // echo "<script>console.log('MP authentication failed');</script>";
                 echo "<p>Authentication to Ministry Platform failed.</p>";
             }
         }
@@ -1008,7 +985,6 @@ position: absolute;
             return '<p>Unable to authenticate with Ministry Platform.</p>';
         }
     }
-
     public static function campusFilterEvents($atts = [], $content = null)
     {
 
@@ -1031,9 +1007,6 @@ position: absolute;
                     ->filter("(Events.Event_Start_Date >= getDate() AND Visibility_Level_ID_Table.[Visibility_Level_ID] = 4 AND Events.Cancelled = 0 AND Events.[_Approved] = 1 AND Congregation_ID_Table.Congregation_ID = '{$hashtag}')")
                     ->orderBy('Event_Start_Date')
                     ->get();
-
-                echo "<script>console.log('campusFilterEvents atts:', " . json_encode($atts) . ");</script>";
-                echo "<script>console.log('campusFilterEvents Event:', " . json_encode($events) . ");</script>";
 
                 if (empty($events)) {
                     return '<p>No hashtag events found: ' . esc_html($hashtag) . '</p>';
@@ -1097,7 +1070,7 @@ position: absolute;
     position: relative;
     height: 100%;  
     min-height: 0;  
-}
+  }
 }
 .mp-event-card-basic {
   width: 400px;
@@ -1341,9 +1314,6 @@ position: absolute;
                     ->filter("(Events.Event_Start_Date >= getDate() AND Visibility_Level_ID_Table.[Visibility_Level_ID] = 4 AND Events.Cancelled = 0 AND Events.[_Approved] = 1 AND {$filter_condition})")
                     ->orderBy('Event_Start_Date')
                     ->get();
-
-                echo "<script>console.log('newHashTagEvents filter_condition test01 att:', " . json_encode($atts) . ");</script>";
-                echo "<script>console.log('newHashTagEvents Event:', " . json_encode($events) . ");</script>";
 
                 if (empty($events)) {
                     return '<p>No hashtag events found: ' . esc_html($hashtag) . '</p>';
@@ -1628,8 +1598,7 @@ position: absolute;
 
                     $title = esc_html($event['Event_Title'] ?? '');
                     $location = esc_html($event['Congregation_Name'] ?? $event['Congregation_ID_Table.Congregation_Name'] ?? '');
-                    // $desc = esc_html($event['Description'] ?? '');
-                    $desc = esc_html(wp_strip_all_tags($event['Web_Description'] ?? ''));
+                    $desc = esc_html($event['Description'] ?? '');
 
                     // Title will be truncated by CSS to 2 lines
                     $titleTruncated = $title;
@@ -1745,9 +1714,6 @@ position: absolute;
                     ->orderBy('Event_Start_Date')
                     ->get();
 
-                echo "<script>console.log('newSwiperEvents filter_condition test att:', " . json_encode($atts) . ");</script>";
-                echo "<script>console.log('newSwiperEvents Event-pas:', " . json_encode($events) . ");</script>";
-
                 if (empty($events)) {
                     return '<p>No events found for this hashtag.</p>';
                 }
@@ -1857,7 +1823,7 @@ position: absolute;
             display: flex;
             flex-direction: column;
             overflow: hidden;
-                               }
+                }
 
                 .horiz-card-top {
                      display: flex;
@@ -2061,8 +2027,7 @@ position: absolute;
 
 
                     $location = esc_html($event['Congregation_Name'] ?? $event['Congregation_ID_Table.Congregation_Name'] ?? '');
-                    // $desc = esc_html($event['Web_Description'] ?? '');
-                    $desc = esc_html(wp_strip_all_tags($event['Web_Description'] ?? ''));
+                    $desc = esc_html($event['Description'] ?? '');
 
                     $descTruncated = strlen($desc) > 100 ? substr($desc, 0, 100) . '...' : $desc;
 
@@ -2177,103 +2142,6 @@ position: absolute;
             return '<p>Authentication failed.</p>';
         }
     }
-
-    // Shortcode to replace element content with event web description
-    public static function mpapi_replace_event_description_sc($atts = [], $content = null)
-    {
-        // Get event ID from URL parameter
-        $event_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
-
-        if (!$event_id) {
-            return $content; // Return original content if no ID
-        }
-
-        $mp = new MP();
-
-        if ($mp->authenticate()) {
-            try {
-                $event = $mp->table('Events')
-                    ->select('Web_Description')
-                    ->filter("Event_ID = {$event_id}")
-                    ->first();
-
-                if ($event && !empty($event['Web_Description'])) {
-                    // Output JavaScript to replace the content in Shadow DOM
-                    ob_start();
-                    ?>
-                    <script>
-                        console.log('Replacing event description for Event ID: <?php echo $event_id; ?>');
-                        console.log('event check: <?php echo $event; ?>');
-                        console.log('New description:', <?php echo json_encode($event['Web_Description']); ?>);
-
-                        function replaceEventDescription() {
-                            // Look for the mpp-event-details element
-                            var mppEventDetails = document.querySelector('mpp-event-details');
-                            if (mppEventDetails && mppEventDetails.shadowRoot) {
-                                // Access the shadow root
-                                var shadowRoot = mppEventDetails.shadowRoot;
-                                var descElement = shadowRoot.querySelector('.mpp-innerpage--description');
-
-                                if (descElement) {
-                                    descElement.innerHTML = <?php echo json_encode($event['Web_Description']); ?>;
-                                    console.log('✅ Event description replaced successfully in Shadow DOM');
-                                    return true;
-                                } else {
-                                    console.log('⏳ Element .mpp-innerpage--description not found in Shadow DOM, retrying...');
-                                    return false;
-                                }
-                            } else {
-                                console.log('⏳ mpp-event-details or shadowRoot not found yet, retrying...');
-                                return false;
-                            }
-                        }
-
-                        // Try immediately
-                        if (!replaceEventDescription()) {
-                            // Try when DOM is ready
-                            document.addEventListener('DOMContentLoaded', function () {
-                                if (!replaceEventDescription()) {
-                                    // Try after a short delay
-                                    setTimeout(function () {
-                                        if (!replaceEventDescription()) {
-                                            // Try with a longer delay
-                                            setTimeout(function () {
-                                                if (!replaceEventDescription()) {
-                                                    console.log('❌ Failed to find and replace element in Shadow DOM after multiple attempts');
-
-                                                    // Debug: Check if the element exists
-                                                    var mppEventDetails = document.querySelector('mpp-event-details');
-                                                    if (mppEventDetails) {
-                                                        console.log('Found mpp-event-details element:', mppEventDetails);
-                                                        console.log('Shadow root:', mppEventDetails.shadowRoot);
-                                                    } else {
-                                                        console.log('mpp-event-details element not found');
-                                                    }
-                                                }
-                                            }, 3000);
-                                        }
-                                    }, 1000);
-                                }
-                            });
-                        }
-                    </script>
-                    <?php
-                    return ob_get_clean();
-                } else {
-                    echo "<script>console.log('No web description found for Event ID: {$event_id}');</script>";
-                    return $content;
-                }
-
-            } catch (Exception $e) {
-                echo "<script>console.log('Error fetching event: " . esc_js($e->getMessage()) . "');</script>";
-                return $content;
-            }
-        } else {
-            echo "<script>console.log('Ministry Platform authentication failed');</script>";
-            return $content;
-        }
-    }
-
 
     // -----------------------------------Group Finder-------------------------------------
     public static function mpapi_list_groups_sc($atts = [], $content = null)
@@ -2558,9 +2426,11 @@ position: absolute;
                 $filter = "Groups.Group_Type_ID = 1 AND Groups.Available_Online = 1 AND (Groups.End_Date IS NULL OR Groups.End_Date > GETDATE())";
 
                 $groups = $mp->table('Groups')
-                    ->select("*,Congregation_ID_Table.Congregation_ID, Congregation_ID_Table.Congregation_Name, Primary_Contact_Table.[Display_Name]")
+                    ->select("*,Congregation_ID_Table.Congregation_ID, Congregation_ID_Table.Congregation_Name, Primary_Contact_Table.[Display_Name], Life_Stage_ID_Table.Life_Stage")
                     ->filter($filter)
                     ->get();
+
+                echo "<script>console.log('LIFE STAGE:', " . json_encode($groups) . ");</script>";
 
                 if (empty($groups)) {
                     $output .= '<p>No groups found.</p>';
@@ -2571,6 +2441,7 @@ position: absolute;
                         $title = esc_html($group['Group_Name'] ?? '');
                         $congregationName = esc_html($group['Congregation_Name'] ?? '');
                         $displayName = esc_html($group['Display_Name'] ?? 'N/A');
+                        $lifeStage = esc_html($group['Life_Stage'] ?? 'N/A');
                         $description = esc_html($group['Description'] ?? '');
                         $descTruncated = strlen($description) > 100 ? substr($description, 0, 100) . '...' : $description;
 
@@ -2612,6 +2483,9 @@ position: absolute;
                             </div>
                             <div class='group-card-display-name'>
                                 {$displayName}
+                            </div>
+                            <div class='group-card-display-name'>
+                                {$lifeStage}
                             </div>
                             <div class='group-card-bottom-content'>
                                 <div class='group-card-description truncated'>
@@ -2741,7 +2615,6 @@ function fetchLifeStages() {
     })
     .then(response => response.json())
     .then(data => {
-        console.log("Life Stages Response:", data); // Log the parsed response
         const lifeStageContainer = document.getElementById("life-stage-container");
         lifeStageContainer.innerHTML = ""; // Clear any existing content
 
@@ -2852,7 +2725,7 @@ window.performSearch = function() {
                 }
 
                 $groups = $mp->table('Groups')
-                    ->select("*,Congregation_ID_Table.Congregation_ID, Congregation_ID_Table.Congregation_Name, Primary_Contact_Table.[Display_Name]")
+                    ->select("*,Congregation_ID_Table.Congregation_ID, Congregation_ID_Table.Congregation_Name, Primary_Contact_Table.[Display_Name], Life_Stage_ID_Table.Life_Stage")
                     ->filter($filter)
                     ->get();
 
@@ -2865,12 +2738,13 @@ window.performSearch = function() {
                         $title = esc_html($group['Group_Name'] ?? '');
                         $congregationName = esc_html($group['Congregation_Name'] ?? '');
                         $displayName = esc_html($group['Display_Name'] ?? 'N/A');
+                        $lifeStage = esc_html($group['Life_Stage'] ?? 'N/A');
                         $description = esc_html($group['Description'] ?? '');
                         $descTruncated = strlen($description) > 100 ? substr($description, 0, 100) . '...' : $description;
 
                         // Meeting day and time
-                        $meetingDay = $group['Meeting_Day_ID'] ?? '';
-                        $meetingTime = $group['Meeting_Time'] ?? '';
+                        $meetingDay = $group['Meeting_Day_ID'] ?? 'Date N/A';
+                        $meetingTime = $group['Meeting_Time'] ?? 'Date N/A';
                         $timeDisplay = '';
 
                         if ($meetingDay && $meetingTime) {
@@ -2906,6 +2780,9 @@ window.performSearch = function() {
                             </div>
                             <div class='group-card-display-name'>
                                 {$displayName}
+                            </div>
+                            <div class='group-card-display-name'>
+                                {$lifeStage}
                             </div>
                             <div class='group-card-bottom-content'>
                                 <div class='group-card-description truncated'>
