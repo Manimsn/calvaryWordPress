@@ -2276,7 +2276,6 @@ position: absolute;
 
 
     // -----------------------------------Group Finder-------------------------------------
-
     public static function mpapi_list_groups_sc($atts = [], $content = null)
     {
         $atts = shortcode_atts([
@@ -2411,7 +2410,7 @@ position: absolute;
         background: white;
     }
 
-    .group-card-datetime {
+    .group-card-datetime, .group-card-display-name {
         font-family: Poppins, sans-serif;
         color: #333;
         font-size: 0.85rem;
@@ -2510,6 +2509,39 @@ position: absolute;
     .groups-card-grid {
         justify-items: stretch;
     }
+
+    
+.life-stage-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.life-stage-button {
+    background: #f0f0f0;
+    color: #333;
+    padding: 8px 15px;
+    border-radius: 20px;
+    border: 1px solid #ddd;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-family: Poppins, sans-serif;
+    transition: all 0.3s ease;
+}
+
+.life-stage-button:hover {
+    background: #4ab6f5;
+    color: white;
+    border-color: #4ab6f5;
+}
+
+.life-stage-button.selected {
+    background: #4ab6f5;
+    color: white;
+    border-color: #4ab6f5;
+}
+
     </style>';
 
         // Layout with fixed right sidebar and scrollable left content
@@ -2526,7 +2558,7 @@ position: absolute;
                 $filter = "Groups.Group_Type_ID = 1 AND Groups.Available_Online = 1 AND (Groups.End_Date IS NULL OR Groups.End_Date > GETDATE())";
 
                 $groups = $mp->table('Groups')
-                    ->select("*,Congregation_ID_Table.Congregation_ID, Congregation_ID_Table.Congregation_Name")
+                    ->select("*,Congregation_ID_Table.Congregation_ID, Congregation_ID_Table.Congregation_Name, Primary_Contact_Table.[Display_Name]")
                     ->filter($filter)
                     ->get();
 
@@ -2538,12 +2570,13 @@ position: absolute;
                         $groupId = $group['Group_ID'];
                         $title = esc_html($group['Group_Name'] ?? '');
                         $congregationName = esc_html($group['Congregation_Name'] ?? '');
+                        $displayName = esc_html($group['Display_Name'] ?? 'N/A');
                         $description = esc_html($group['Description'] ?? '');
                         $descTruncated = strlen($description) > 100 ? substr($description, 0, 100) . '...' : $description;
 
                         // Meeting day and time
-                        $meetingDay = $group['Meeting_Day_ID'] ?? '';
-                        $meetingTime = $group['Meeting_Time'] ?? '';
+                        $meetingDay = $group['Meeting_Day_ID'] ?? 'Date N/A';
+                        $meetingTime = $group['Meeting_Time'] ?? 'Date N/A';
                         $timeDisplay = '';
 
                         if ($meetingDay && $meetingTime) {
@@ -2576,6 +2609,9 @@ position: absolute;
                         <div class='group-card-bottom'>
                             <div class='group-card-datetime'>
                                 {$timeDisplay}
+                            </div>
+                            <div class='group-card-display-name'>
+                                {$displayName}
                             </div>
                             <div class='group-card-bottom-content'>
                                 <div class='group-card-description truncated'>
@@ -2624,6 +2660,9 @@ position: absolute;
                         <option value="">All Campuses</option>
                     </select>
                 </div>
+                <div class="life-stage-container" id="life-stage-container">
+    <!-- Life stage buttons will be dynamically added here -->
+</div>
             </div>
         </div>
     </div>
@@ -2665,27 +2704,100 @@ position: absolute;
         }
         
         function performSearch() {
-            const searchTerm = searchInput.value.trim();
-            const congregationId = congregationSelect.value;
-            
-            fetch("' . admin_url('admin-ajax.php') . '", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/x-www-form-urlencoded",
-                },
-                body: "action=mpapi_search_groups_finder_ajax&search=" + encodeURIComponent(searchTerm) + "&congregation_id=" + encodeURIComponent(congregationId)
-            })
-            .then(response => response.text())
-            .then(data => {
-                resultsDiv.innerHTML = data;
-            });
-        }
+    const searchTerm = searchInput.value.trim();
+    const congregationId = congregationSelect.value;
+    const selectedLifeStages = Array.from(document.querySelectorAll(".life-stage-button.selected"))
+        .map(button => button.dataset.id)
+        .join(",");
+
+    fetch("' . admin_url('admin-ajax.php') . '", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: "action=mpapi_search_groups_finder_ajax&search=" + encodeURIComponent(searchTerm) + 
+              "&congregation_id=" + encodeURIComponent(congregationId) + 
+              "&life_stages=" + encodeURIComponent(selectedLifeStages)
+    })
+    .then(response => response.text())
+    .then(data => {
+        resultsDiv.innerHTML = data;
+    });
+}
     });
     
     function showMap(groupId, title) {
         alert("Map for " + title + " (ID: " + groupId + ")");
         // TODO: Implement map modal
     }
+
+function fetchLifeStages() {
+    fetch("' . admin_url('admin-ajax.php') . '", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: "action=mpapi_get_life_stages"
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log("Life Stages Response:", data); // Log the parsed response
+        const lifeStageContainer = document.getElementById("life-stage-container");
+        lifeStageContainer.innerHTML = ""; // Clear any existing content
+
+        if (Array.isArray(data)) {
+            data.forEach(function(stage) {
+                const button = document.createElement("button");
+                button.className = "life-stage-button";
+                button.dataset.id = stage.Life_Stage_ID;
+                button.textContent = stage.Life_Stage;
+                button.addEventListener("click", function () {
+                    button.classList.toggle("selected"); // Toggle selection
+                    window.performSearch(); // Call the global performSearch function
+                });
+                lifeStageContainer.appendChild(button);
+            });
+        } else {
+            console.error("Unexpected response format:", data);
+        }
+    })
+    .catch(error => {
+        console.error("Error fetching life stages:", error);
+    });
+}
+
+// Call the function to fetch life stages
+fetchLifeStages();
+
+// Define performSearch globally
+window.performSearch = function() {
+    const searchInput = document.getElementById("group-search");
+    const congregationSelect = document.getElementById("congregation-filter");
+    const resultsDiv = document.getElementById("groups-results");
+
+    const searchTerm = searchInput.value.trim();
+    const congregationId = congregationSelect.value;
+    const selectedLifeStages = Array.from(document.querySelectorAll(".life-stage-button.selected"))
+        .map(button => button.dataset.id)
+        .join(",");
+
+    fetch("' . admin_url('admin-ajax.php') . '", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: "action=mpapi_search_groups_finder_ajax&search=" + encodeURIComponent(searchTerm) + 
+              "&congregation_id=" + encodeURIComponent(congregationId) + 
+              "&life_stages=" + encodeURIComponent(selectedLifeStages)
+    })
+    .then(response => response.text())
+    .then(data => {
+        resultsDiv.innerHTML = data;
+    })
+    .catch(error => {
+        console.error("Error performing search:", error);
+    });
+};
     </script>';
 
         return $output;
@@ -2718,6 +2830,7 @@ position: absolute;
     {
         $search_term = isset($_POST['search']) ? sanitize_text_field($_POST['search']) : '';
         $congregation_id = isset($_POST['congregation_id']) ? sanitize_text_field($_POST['congregation_id']) : '';
+        $life_stages = isset($_POST['life_stages']) ? sanitize_text_field($_POST['life_stages']) : '';
 
         $mp = new MP();
 
@@ -2733,8 +2846,13 @@ position: absolute;
                     $filter .= " AND Groups.Congregation_ID = " . intval($congregation_id);
                 }
 
+                if (!empty($life_stages)) {
+                    $lifeStageIds = implode(',', array_map('intval', explode(',', $life_stages)));
+                    $filter .= " AND Groups.Life_Stage_ID IN ({$lifeStageIds})";
+                }
+
                 $groups = $mp->table('Groups')
-                    ->select("*,Congregation_ID_Table.Congregation_ID, Congregation_ID_Table.Congregation_Name")
+                    ->select("*,Congregation_ID_Table.Congregation_ID, Congregation_ID_Table.Congregation_Name, Primary_Contact_Table.[Display_Name]")
                     ->filter($filter)
                     ->get();
 
@@ -2746,6 +2864,7 @@ position: absolute;
                         $groupId = $group['Group_ID'];
                         $title = esc_html($group['Group_Name'] ?? '');
                         $congregationName = esc_html($group['Congregation_Name'] ?? '');
+                        $displayName = esc_html($group['Display_Name'] ?? 'N/A');
                         $description = esc_html($group['Description'] ?? '');
                         $descTruncated = strlen($description) > 100 ? substr($description, 0, 100) . '...' : $description;
 
@@ -2785,6 +2904,9 @@ position: absolute;
                             <div class='group-card-datetime'>
                                 {$timeDisplay}
                             </div>
+                            <div class='group-card-display-name'>
+                                {$displayName}
+                            </div>
                             <div class='group-card-bottom-content'>
                                 <div class='group-card-description truncated'>
                                     {$descTruncated}
@@ -2808,6 +2930,41 @@ position: absolute;
             echo '<p>Authentication failed.</p>';
         }
 
+        wp_die();
+    }
+
+    public static function mpapi_get_life_stages()
+    {
+        ob_start(); // Start output buffering
+
+        $mp = new MP();
+
+        if ($mp->authenticate()) {
+            try {
+                $lifeStages = $mp->table('Life_Stages')
+                    ->select("Life_Stage_ID, Life_Stage") // Select only the required columns
+                    ->orderBy('Life_Stage') // Order by the Life Stage column
+                    ->get();
+
+                // Log the query result for debugging
+                error_log('Life Stages Query Result: ' . print_r($lifeStages, true));
+
+                // Ensure the response is a valid JSON array
+                echo json_encode($lifeStages);
+            } catch (Exception $e) {
+                // Log any exceptions
+                error_log('Error in mpapi_get_life_stages: ' . $e->getMessage());
+                echo json_encode([]); // Return an empty array on error
+            }
+        } else {
+            // Log authentication failure
+            error_log('Authentication failed in mpapi_get_life_stages');
+            echo json_encode([]); // Return an empty array if authentication fails
+        }
+
+        $output = ob_get_clean(); // Get the buffered output
+        error_log('Buffered Output: ' . $output); // Log the buffered output for debugging
+        echo $output; // Send the output to the client
         wp_die();
     }
 
