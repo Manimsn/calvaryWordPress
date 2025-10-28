@@ -2144,8 +2144,6 @@ position: absolute;
         }
     }
 
-
-
     // Shortcode to replace element content with event web description
     public static function mpapi_replace_event_description_sc($atts = [], $content = null)
     {
@@ -2525,7 +2523,7 @@ position: absolute;
                 $filter = "Groups.Group_Type_ID = 1 AND Groups.Available_Online = 1 AND (Groups.End_Date IS NULL OR Groups.End_Date > GETDATE())";
 
                 $groups = $mp->table('Groups')
-                    ->select("*,Congregation_ID_Table.Congregation_ID, Congregation_ID_Table.Congregation_Name, Primary_Contact_Table.[Display_Name], Life_Stage_ID_Table.Life_Stage")
+                    ->select("*,Congregation_ID_Table.Congregation_ID, Congregation_ID_Table.Congregation_Name, Primary_Contact_Table.[Display_Name], Life_Stage_ID_Table.Life_Stage, Congregation_ID_Table_Location_ID_Table.[Location_Name]")
                     ->filter($filter)
                     ->get();
 
@@ -2541,7 +2539,8 @@ position: absolute;
                         $congregationName = esc_html($group['Congregation_Name'] ?? '');
                         $displayName = esc_html($group['Display_Name'] ?? 'N/A');
                         $lifeStage = esc_html($group['Life_Stage'] ?? 'N/A');
-                        $description = esc_html($group['Description'] ?? '');
+                        $description = esc_html($group['Description'] ?? 'N/A');
+                        $locationName = esc_html($group['Location_Name'] ?? 'N/A');
                         $descTruncated = strlen($description) > 100 ? substr($description, 0, 100) . '...' : $description;
 
                         // Meeting day and time
@@ -2585,6 +2584,9 @@ position: absolute;
                             </div>
                             <div class='group-card-display-name'>
                                 {$lifeStage}
+                            </div>
+                            <div class='group-card-display-name'>
+                                {$locationName}
                             </div>
                             <div class='group-card-bottom-content'>
                                 <div class='group-card-description truncated'>
@@ -2824,7 +2826,7 @@ window.performSearch = function() {
                 }
 
                 $groups = $mp->table('Groups')
-                    ->select("*,Congregation_ID_Table.Congregation_ID, Congregation_ID_Table.Congregation_Name, Primary_Contact_Table.[Display_Name], Life_Stage_ID_Table.Life_Stage")
+                    ->select("*,Congregation_ID_Table.Congregation_ID, Congregation_ID_Table.Congregation_Name, Primary_Contact_Table.[Display_Name], Life_Stage_ID_Table.Life_Stage, Congregation_ID_Table_Location_ID_Table.[Location_Name]")
                     ->filter($filter)
                     ->get();
 
@@ -2839,6 +2841,7 @@ window.performSearch = function() {
                         $displayName = esc_html($group['Display_Name'] ?? 'N/A');
                         $lifeStage = esc_html($group['Life_Stage'] ?? 'N/A');
                         $description = esc_html($group['Description'] ?? '');
+                        $locationName = esc_html($group['Location_Name'] ?? 'N/A');
                         $descTruncated = strlen($description) > 100 ? substr($description, 0, 100) . '...' : $description;
 
                         // Meeting day and time
@@ -2883,6 +2886,9 @@ window.performSearch = function() {
                             <div class='group-card-display-name'>
                                 {$lifeStage}
                             </div>
+                            <div class='group-card-display-name'>
+                                {$locationName}
+                            </div>
                             <div class='group-card-bottom-content'>
                                 <div class='group-card-description truncated'>
                                     {$descTruncated}
@@ -2908,7 +2914,6 @@ window.performSearch = function() {
 
         wp_die();
     }
-
     public static function mpapi_get_life_stages()
     {
         ob_start(); // Start output buffering
