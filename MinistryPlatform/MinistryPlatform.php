@@ -2522,6 +2522,20 @@ position: absolute;
             try {
                 $filter = "Groups.Group_Type_ID = 1 AND Groups.Available_Online = 1 AND (Groups.End_Date IS NULL OR Groups.End_Date > GETDATE())";
 
+                // Static latitude and longitude for filtering
+                $staticLatitude = 26.332715;
+                $staticLongitude = -80.212841;
+                $radiusInMiles = 5;
+
+                // Haversine formula to calculate distance
+                $filter .= " AND (3959 * acos(
+    cos(radians({$staticLatitude})) *
+    cos(radians(Congregation_ID_Table_Location_ID_Table_Address_ID_Table.Latitude)) *
+    cos(radians(Congregation_ID_Table_Location_ID_Table_Address_ID_Table.Longitude) - radians({$staticLongitude})) +
+    sin(radians({$staticLatitude})) *
+    sin(radians(Congregation_ID_Table_Location_ID_Table_Address_ID_Table.Latitude))
+)) <= {$radiusInMiles}";
+
                 $groups = $mp->table('Groups')
                     ->select("*,Congregation_ID_Table.Congregation_ID, Congregation_ID_Table.Congregation_Name, Primary_Contact_Table.[Display_Name], Life_Stage_ID_Table.Life_Stage, Congregation_ID_Table_Location_ID_Table.[Location_Name],
                     Congregation_ID_Table_Location_ID_Table_Address_ID_Table.[City],Congregation_ID_Table_Location_ID_Table_Address_ID_Table.[Latitude], Congregation_ID_Table_Location_ID_Table_Address_ID_Table.[Longitude]")
@@ -2831,7 +2845,22 @@ window.performSearch = function() {
                     $filter .= " AND Groups.Life_Stage_ID IN ({$lifeStageIds})";
                 }
 
+                // Static latitude and longitude for filtering
+                $staticLatitude = 26.332715;
+                $staticLongitude = -80.212841;
+                $radiusInMiles = 5;
+
+                // Haversine formula to calculate distance
+                $filter .= " AND (3959 * acos(
+    cos(radians({$staticLatitude})) *
+    cos(radians(Congregation_ID_Table_Location_ID_Table_Address_ID_Table.Latitude)) *
+    cos(radians(Congregation_ID_Table_Location_ID_Table_Address_ID_Table.Longitude) - radians({$staticLongitude})) +
+    sin(radians({$staticLatitude})) *
+    sin(radians(Congregation_ID_Table_Location_ID_Table_Address_ID_Table.Latitude))
+)) <= {$radiusInMiles}";
+
                 $groups = $mp->table('Groups')
+                    // ->select("*,Congregation_ID_Table.Congregation_ID, Congregation_ID_Table.Congregation_Name, Primary_Contact_Table.[Display_Name], Life_Stage_ID_Table.Life_Stage")
                     ->select("*,Congregation_ID_Table.Congregation_ID, Congregation_ID_Table.Congregation_Name, Primary_Contact_Table.[Display_Name], Life_Stage_ID_Table.Life_Stage, Congregation_ID_Table_Location_ID_Table.[Location_Name],
                     Congregation_ID_Table_Location_ID_Table_Address_ID_Table.[City],Congregation_ID_Table_Location_ID_Table_Address_ID_Table.[Latitude], Congregation_ID_Table_Location_ID_Table_Address_ID_Table.[Longitude]")
                     ->filter($filter)
@@ -2864,7 +2893,7 @@ window.performSearch = function() {
                             $time = date('g:i A', strtotime($meetingTime)) ?? 'Time N/A';
                             $timeDisplay = "{$dayName} | {$time}";
                         }
-// <div class='group-date-month'>GRP</div>
+                        // <div class='group-date-month'>GRP</div>
                         echo "
                     <div class='group-card'>
                         <div class='group-card-top'>
