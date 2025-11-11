@@ -179,6 +179,9 @@ function show_token_name_shortcode()
 add_shortcode('show_token_name', 'show_token_name_shortcode');
 
 
+
+
+
 function custom_login_form_function()
 {
     ob_start();
@@ -364,7 +367,7 @@ add_action('wp_enqueue_scripts', 'enqueue_custom_login_validation_script');
 
 function enqueue_custom_my_account_script()
 {
-    if (is_page('my-accounts-page-new/')) {
+    if (is_page('my-account-page/')) {
         wp_enqueue_script(
             'my-account',
             get_stylesheet_directory_uri() . '/js/my-account.js',
@@ -378,7 +381,7 @@ add_action('wp_enqueue_scripts', 'enqueue_custom_my_account_script');
 
 function enqueue_custom_my_giving_script()
 {
-    if (is_page('my-giving-page-new/')) {
+    if (is_page('my-giving-page/')) {
         wp_enqueue_script(
             'my-giving',
             get_stylesheet_directory_uri() . '/js/my-giving.js',
@@ -403,3 +406,279 @@ function enqueue_custom_edit_profile_script()
     }
 }
 add_action('wp_enqueue_scripts', 'enqueue_custom_edit_profile_script');
+
+// Adobe Target Integration
+function add_adobe_target_to_site()
+{
+    ?>
+    <!-- Adobe Target at.js -->
+    <script src="https://my.calvaryftl.org/widgets/Content/at.js"></script>
+    <script>
+        // Initialize Adobe Target
+        document.addEventListener('DOMContentLoaded', function () {
+            console.log('Adobe Target loaded');
+            if (typeof adobe !== 'undefined' && adobe.target) {
+                console.log('Adobe Target is ready!');
+                // Trigger view for SPA support
+                adobe.target.triggerView("homepage");
+            }
+        });
+    </script>
+    <?php
+}
+add_action('wp_head', 'add_adobe_target_to_site');
+
+// Add Target-ready classes to body
+function add_target_body_class($classes)
+{
+    $classes[] = 'adobe-target-enabled';
+    return $classes;
+}
+add_filter('body_class', 'add_target_body_class');
+
+
+// Enhanced Adobe Target Integration
+function add_enhanced_adobe_target()
+{
+    ?>
+    <!-- Adobe Target at.js -->
+    <script src="https://my.calvaryftl.org/widgets/Content/at.js"></script>
+    <script>
+        // Global Target configuration
+        window.targetGlobalSettings = {
+            timeout: 3000,
+            visitorApiTimeout: 2000,
+            enabled: true
+        };
+
+        // User detection functions
+        function detectUserType() {
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
+            const hasVisited = localStorage.getItem('calvary_has_visited') === 'true';
+            const sessionCount = parseInt(localStorage.getItem('calvary_session_count') || '0');
+
+            // Update visit tracking
+            if (!hasVisited) {
+                localStorage.setItem('calvary_has_visited', 'true');
+                localStorage.setItem('calvary_first_visit', new Date().toISOString());
+            }
+            localStorage.setItem('calvary_session_count', (sessionCount + 1).toString());
+            localStorage.setItem('calvary_last_visit', new Date().toISOString());
+
+            return {
+                isMobile: isMobile,
+                isReturning: hasVisited,
+                sessionCount: sessionCount + 1,
+                deviceType: isMobile ? 'mobile' : 'desktop',
+                userCategory: isMobile ? 'mobile' : (hasVisited ? 'returning' : 'new')
+            };
+        }
+
+        // Initialize Adobe Target when ready
+        document.addEventListener('DOMContentLoaded', function () {
+            console.log('🎯 Adobe Target: Initializing...');
+
+            const userInfo = detectUserType();
+            console.log('👤 User Info:', userInfo);
+
+            // Add user type to body class for CSS targeting
+            document.body.classList.add('target-user-' + userInfo.userCategory);
+            document.body.classList.add('target-device-' + userInfo.deviceType);
+
+            // Wait for Adobe Target to load
+            function waitForTarget(attempts = 0) {
+                if (typeof adobe !== 'undefined' && adobe.target) {
+                    console.log('✅ Adobe Target: Ready!');
+                    initializePersonalization(userInfo);
+                } else if (attempts < 50) { // Wait up to 5 seconds
+                    setTimeout(() => waitForTarget(attempts + 1), 100);
+                } else {
+                    console.error('❌ Adobe Target: Failed to load');
+                }
+            }
+            waitForTarget();
+        });
+
+        function initializePersonalization(userInfo) {
+            // Set global parameters for all mboxes
+            window.targetPageParams = function () {
+                return {
+                    'userCategory': userInfo.userCategory,
+                    'deviceType': userInfo.deviceType,
+                    'isMobile': userInfo.isMobile.toString(),
+                    'isReturning': userInfo.isReturning.toString(),
+                    'sessionCount': userInfo.sessionCount.toString(),
+                    'pageName': document.title,
+                    'pageUrl': window.location.href,
+                    'timeOfDay': new Date().getHours().toString(),
+                    'dayOfWeek': new Date().getDay().toString()
+                };
+            };
+
+            console.log('🔧 Target Parameters:', window.targetPageParams());
+
+            // Trigger view for SPA support
+            adobe.target.triggerView("homepage", {
+                page: true
+            });
+        }
+    </script>
+    <?php
+}
+
+// Replace existing function
+remove_action('wp_head', 'add_adobe_target_to_site');
+add_action('wp_head', 'add_enhanced_adobe_target');
+
+// Add Target-ready classes to body
+function add_enhanced_target_body_class($classes)
+{
+    $classes[] = 'adobe-target-enabled';
+    $classes[] = 'target-ready';
+    return $classes;
+}
+add_filter('body_class', 'add_enhanced_target_body_class');
+
+// Enhanced personalization with specific mboxes
+function add_comprehensive_personalization()
+{
+    ?>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Wait for Target initialization
+            setTimeout(function () {
+                if (typeof adobe !== 'undefined' && adobe.target) {
+                    setupPersonalizationTargets();
+                }
+            }, 1000);
+        });
+
+        function setupPersonalizationTargets() {
+            console.log('🎨 Setting up personalization targets...');
+
+            // 1. Hero Section Personalization
+            setupHeroPersonalization();
+
+            // 2. Navigation Personalization
+            setupNavigationPersonalization();
+
+            // 3. Button Personalization
+            setupButtonPersonalization();
+
+            // 4. Content Block Personalization
+            setupContentPersonalization();
+        }
+
+        function setupHeroPersonalization() {
+            const heroSection = document.querySelector('.et_pb_section');
+            if (heroSection) {
+                heroSection.setAttribute('data-mbox', 'hero-section');
+
+                adobe.target.getOffer({
+                    mbox: 'hero-section',
+                    success: function (offer) {
+                        console.log('🏠 Hero personalization applied');
+                        adobe.target.applyOffer({
+                            mbox: 'hero-section',
+                            offer: offer
+                        });
+                    },
+                    error: function (status, error) {
+                        console.log('❌ Hero personalization error:', error);
+                    }
+                });
+            }
+        }
+
+        function setupNavigationPersonalization() {
+            const navigation = document.querySelector('.et_pb_menu, .et-menu, #main-header');
+            if (navigation) {
+                navigation.setAttribute('data-mbox', 'main-navigation');
+
+                adobe.target.getOffer({
+                    mbox: 'main-navigation',
+                    success: function (offer) {
+                        console.log('🧭 Navigation personalization applied');
+                        adobe.target.applyOffer({
+                            mbox: 'main-navigation',
+                            offer: offer
+                        });
+                    }
+                });
+            }
+        }
+
+        function setupButtonPersonalization() {
+            const buttons = document.querySelectorAll('.et_pb_button');
+            buttons.forEach(function (button, index) {
+                const mboxName = 'cta-button-' + index;
+                button.setAttribute('data-mbox', mboxName);
+
+                adobe.target.getOffer({
+                    mbox: mboxName,
+                    success: function (offer) {
+                        console.log('🔘 Button ' + index + ' personalization applied');
+                        adobe.target.applyOffer({
+                            mbox: mboxName,
+                            offer: offer
+                        });
+                    }
+                });
+            });
+        }
+
+        function setupContentPersonalization() {
+            // Personalize specific content modules
+            const contentModules = document.querySelectorAll('.et_pb_blurb, .et_pb_text');
+            contentModules.forEach(function (module, index) {
+                if (index < 3) { // Limit to first 3 modules
+                    const mboxName = 'content-module-' + index;
+                    module.setAttribute('data-mbox', mboxName);
+
+                    adobe.target.getOffer({
+                        mbox: mboxName,
+                        success: function (offer) {
+                            console.log('📄 Content module ' + index + ' personalization applied');
+                            adobe.target.applyOffer({
+                                mbox: mboxName,
+                                offer: offer
+                            });
+                        }
+                    });
+                }
+            });
+        }
+
+        // Track custom events
+        function trackTargetEvent(eventName, additionalParams = {}) {
+            if (typeof adobe !== 'undefined' && adobe.target) {
+                const params = Object.assign(window.targetPageParams(), additionalParams);
+                adobe.target.trackEvent({
+                    mbox: eventName,
+                    params: params
+                });
+                console.log('📊 Tracked event:', eventName, params);
+            }
+        }
+
+        // Auto-track common events
+        setTimeout(function () {
+            // Track page engagement after 10 seconds
+            trackTargetEvent('page-engagement-10s');
+        }, 10000);
+
+        // Track scroll depth
+        let scrollTracked = false;
+        window.addEventListener('scroll', function () {
+            if (!scrollTracked && (window.scrollY > document.body.scrollHeight * 0.5)) {
+                trackTargetEvent('scroll-50-percent');
+                scrollTracked = true;
+            }
+        });
+    </script>
+    <?php
+}
+
+// Replace existing personalization function
+remove_action('wp_footer', 'add_simple_personalization');
+add_action('wp_footer', 'add_comprehensive_personalization');
