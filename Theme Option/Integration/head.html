@@ -72,6 +72,7 @@
     }, 500);
 </script>
 
+
 <!-- jQuery To Collapse The Divi Mobile Menu Submenus  -->
 <script>
     jQuery(function ($) {
@@ -173,6 +174,11 @@
         saturdayContainer.style.display = showSaturday ? "block" : "none";
         sundayContainer.style.display = showSunday ? "block" : "none";
 
+        // Debug logs
+        console.log("Current ET Time:", now.toString());
+        console.log("Today is:", day === 5 ? "Saturday" : day === 7 ? "Sunday" : "Other");
+        console.log("Show Saturday:", showSaturday);
+        console.log("Show Sunday:", showSunday);
     });
 </script>
 
@@ -219,6 +225,28 @@
         }, true); // Capture phase
     });
 </script>
+
+<script>
+    jQuery(function ($) {
+        $('.et_pb_toggle_title').click(function () {
+            var $toggle = $(this).closest('.et_pb_toggle');
+
+            //     if (!$toggle.hasClass('et_pb_accordion_toggling')) {
+            var $accordion = $toggle.closest('.et_pb_accordion');
+            if ($toggle.hasClass('et_pb_toggle_open')) {
+                //         $accordion.addClass('et_pb_accordion_toggling');
+                $toggle.find('.et_pb_toggle_content').slideToggle(700, function () {
+                    $toggle.removeClass('et_pb_toggle_open').addClass('et_pb_toggle_close');
+                });
+                //       }
+                //       setTimeout(function(){ 
+                //         $accordion.removeClass('et_pb_accordion_toggling'); 
+                //       }, 750);
+            }
+        });
+    });
+</script>
+
 
 <link rel="stylesheet" href="https://unpkg.com/swiper@7/swiper-bundle.min.css" />
 <script src="https://unpkg.com/swiper@7/swiper-bundle.min.js"></script>
