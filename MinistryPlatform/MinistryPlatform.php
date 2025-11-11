@@ -67,6 +67,8 @@ add_action('wp_ajax_nopriv_mpapi_get_congregations', ['MinistryPlatform\MP_API_S
 add_action('wp_ajax_mpapi_get_life_stages', ['MinistryPlatform\MP_API_SHORTCODES', 'mpapi_get_life_stages']);
 add_action('wp_ajax_nopriv_mpapi_get_life_stages', ['MinistryPlatform\MP_API_SHORTCODES', 'mpapi_get_life_stages']);
 
+
+add_shortcode('mpapi_detect_location', ['MinistryPlatform\MP_API_SHORTCODES', 'mpapi_detect_location_sc']);
 class MP_API_SHORTCODES
 {
     /**
@@ -2988,6 +2990,69 @@ window.performSearch = function() {
         error_log('Buffered Output: ' . $output); // Log the buffered output for debugging
         echo $output; // Send the output to the client
         wp_die();
+    }
+
+    public static function mpapi_detect_location_sc()
+    {
+        ob_start();
+        ?>
+        <div id="location-container">
+            <p>Detecting your location...</p>
+        </div>
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const locationContainer = document.getElementById("location-container");
+
+                // Function to fetch latitude and longitude from zip code
+                function fetchLatLongFromZip(zipCode) {
+                    fetch(`https://api.zippopotam.us/us/${zipCode}`)
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error("Invalid ZIP code");
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            const latitude = data.places[0].latitude;
+                            const longitude = data.places[0].longitude;
+                            locationContainer.innerHTML = `<p>Latitude: ${latitude}, Longitude: ${longitude}</p>`;
+                            console.log("Latitude:", latitude, "Longitude:", longitude);
+                        })
+                        .catch(error => {
+                            locationContainer.innerHTML = `<p>Error: ${error.message}</p>`;
+                        });
+                }
+
+                // Check if geolocation is available
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                        (position) => {
+                            const latitude = position.coords.latitude;
+                            const longitude = position.coords.longitude;
+                            locationContainer.innerHTML = `<p>Latitude: ${latitude}, Longitude: ${longitude}</p>`;
+                            console.log("Latitude:", latitude, "Longitude:", longitude);
+                        },
+                        (error) => {
+                            if (error.code === error.PERMISSION_DENIED) {
+                                const zipCode = prompt("Location access blocked. Please enter your ZIP code:");
+                                if (zipCode) {
+                                    fetchLatLongFromZip(zipCode);
+                                } else {
+                                    locationContainer.innerHTML = "<p>Location access denied and no ZIP code provided.</p>";
+                                }
+                            } else {
+                                locationContainer.innerHTML = "<p>Unable to retrieve your location.</p>";
+                            }
+                        }
+                    );
+                } else {
+                    locationContainer.innerHTML = "<p>Geolocation is not supported by your browser.</p>";
+                }
+            });
+        </script>
+        <?php
+        return ob_get_clean();
     }
 
 }
