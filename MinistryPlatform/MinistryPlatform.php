@@ -1,6 +1,7 @@
 <?php
 namespace MinistryPlatform;
 /**
+ * Developement Version
  * Plugin Name: Ministry Platform Data Access
  * Description: A wordpress plugin wrapper for accessing Ministry Platform
  * utilizing the the ministry platform API
@@ -67,8 +68,8 @@ add_action('wp_ajax_nopriv_mpapi_get_congregations', ['MinistryPlatform\MP_API_S
 add_action('wp_ajax_mpapi_get_life_stages', ['MinistryPlatform\MP_API_SHORTCODES', 'mpapi_get_life_stages']);
 add_action('wp_ajax_nopriv_mpapi_get_life_stages', ['MinistryPlatform\MP_API_SHORTCODES', 'mpapi_get_life_stages']);
 
-
 add_shortcode('mpapi_detect_location', ['MinistryPlatform\MP_API_SHORTCODES', 'mpapi_detect_location_sc']);
+
 class MP_API_SHORTCODES
 {
     /**
@@ -2551,6 +2552,7 @@ position: absolute;
                 } else {
                     $output .= '<div class="groups-container"><div class="groups-card-grid">';
                     foreach ($groups as $group) {
+                        // echo "<script>console.log('LIFE STAGE CHECK:', " . json_encode($group['Latitude']) . ", " . json_encode($group['Longitude']) . ");</script>";
                         $groupId = $group['Group_ID'];
                         $title = esc_html($group['Group_Name'] ?? '');
                         $congregationName = esc_html($group['Congregation_Name'] ?? '');
@@ -3006,11 +3008,18 @@ window.performSearch = function() {
 
                 // Function to fetch latitude and longitude from zip code
                 function fetchLatLongFromZip(zipCode) {
+                    // Validate ZIP code format (5 digits)
+                    if (!/^\d{5}$/.test(zipCode)) {
+                        locationContainer.innerHTML = `<p>Error: Invalid ZIP code format. Please enter a 5-digit ZIP code.</p>`;
+                        return;
+                    }
+
                     fetch(`https://api.zippopotam.us/us/${zipCode}`)
                         .then(response => {
                             if (!response.ok) {
-                                throw new Error("Invalid ZIP code");
+                                throw new Error("ZIP code not found");
                             }
+                            console.log(response)
                             return response.json();
                         })
                         .then(data => {
@@ -3020,6 +3029,7 @@ window.performSearch = function() {
                             console.log("Latitude:", latitude, "Longitude:", longitude);
                         })
                         .catch(error => {
+                            console.log(error);
                             locationContainer.innerHTML = `<p>Error: ${error.message}</p>`;
                         });
                 }
