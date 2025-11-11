@@ -1,4 +1,63 @@
 <script>
+    jQuery(function ($) {
+        var $accordion = $('#my_events_list_accordion');
+        if (!$accordion.length) return;
+
+        // Ensure initial display matches classes
+        $accordion.find('.et_pb_toggle').each(function () {
+            var $t = $(this);
+            var $c = $t.find('.et_pb_toggle_content').first();
+            if ($t.hasClass('et_pb_toggle_open')) $c.show(); else $c.hide();
+        });
+
+        // Remove any previous handlers added by this script to avoid duplicates
+        $accordion.off('click.myAccordion', '.et_pb_toggle_title');
+
+        $accordion.on('click.myAccordion', '.et_pb_toggle_title', function (e) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+
+            // ignore clicks on interactive children
+            if ($(e.target).closest('a, button, input, textarea, label, [role="button"]').length) return;
+
+            var $title = $(this);
+            var $toggle = $title.closest('.et_pb_toggle');
+            var $content = $toggle.find('.et_pb_toggle_content').first();
+
+            // guard: don't re-run while animating
+            if ($toggle.hasClass('animating')) return;
+
+            // mark animating on this toggle (and optionally on accordion)
+            $toggle.addClass('animating');
+
+            if ($toggle.hasClass('et_pb_toggle_open')) {
+                // close this
+                $content.stop(true, true).slideUp(400, function () {
+                    $toggle.removeClass('et_pb_toggle_open').addClass('et_pb_toggle_close').removeClass('animating');
+                });
+            } else {
+                // close others first
+                $accordion.find('.et_pb_toggle.et_pb_toggle_open').each(function () {
+                    var $other = $(this);
+                    var $otherContent = $other.find('.et_pb_toggle_content').first();
+                    if ($other.is($toggle)) return;
+                    $other.addClass('animating');
+                    $otherContent.stop(true, true).slideUp(400, function () {
+                        $other.removeClass('et_pb_toggle_open').addClass('et_pb_toggle_close').removeClass('animating');
+                    });
+                });
+
+                // open clicked one
+                $content.stop(true, true).slideDown(400, function () {
+                    $toggle.removeClass('et_pb_toggle_close').addClass('et_pb_toggle_open').removeClass('animating');
+                });
+            }
+        });
+    });
+</script>
+
+
+<script>
     setTimeout(function () {
         jQuery(document).ready(function () {
             jQuery('li.menu-item-has-children').click(function () {
@@ -12,7 +71,6 @@
         });
     }, 500);
 </script>
-
 
 <!-- jQuery To Collapse The Divi Mobile Menu Submenus  -->
 <script>
@@ -115,11 +173,6 @@
         saturdayContainer.style.display = showSaturday ? "block" : "none";
         sundayContainer.style.display = showSunday ? "block" : "none";
 
-        // Debug logs
-        console.log("Current ET Time:", now.toString());
-        console.log("Today is:", day === 5 ? "Saturday" : day === 7 ? "Sunday" : "Other");
-        console.log("Show Saturday:", showSaturday);
-        console.log("Show Sunday:", showSunday);
     });
 </script>
 
@@ -166,3 +219,10 @@
         }, true); // Capture phase
     });
 </script>
+
+<link rel="stylesheet" href="https://unpkg.com/swiper@7/swiper-bundle.min.css" />
+<script src="https://unpkg.com/swiper@7/swiper-bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<script src="https://cdn.jsdelivr.net/npm/air-datepicker@3.6.0/air-datepicker.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/air-datepicker@3.6.0/air-datepicker.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
