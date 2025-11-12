@@ -3022,6 +3022,7 @@ window.performSearch = function() {
                             return response.json();
                         })
                         .then(data => {
+                            console.log("ZIP code data:", data);
                             const latitude = data.places[0].latitude;
                             const longitude = data.places[0].longitude;
                             const locationDetails = `Latitude: ${latitude}, Longitude: ${longitude}`;
@@ -3045,6 +3046,7 @@ window.performSearch = function() {
                     })
                         .then(response => response.json())
                         .then(data => {
+                            console.log("Groups query result:", data);
                             if (data.success && data.groups) {
                                 const groupsHtml = data.groups.map(group => `
                             <p>${group.Group_Name}</p>
@@ -3104,43 +3106,35 @@ window.performSearch = function() {
 
         if ($mp->authenticate()) {
             try {
+                // Extract latitude and longitude from the location string
+                preg_match('/Latitude: ([\d.-]+), Longitude: ([\d.-]+)/', $location, $matches);
+                $latitude = isset($matches[1]) ? floatval($matches[1]) : null;
+                $longitude = isset($matches[2]) ? floatval($matches[2]) : null;
 
-                $filter = "Groups.Group_Type_ID = 1 AND Groups.Available_Online = 1 AND (Groups.End_Date IS NULL OR Groups.End_Date > GETDATE())";
+                if ($latitude && $longitude) {
+                    $radiusInMiles = 10; // Define the radius for filtering groups
 
-                if (!empty($search_term)) {
-                    $filter .= " AND Groups.Group_Name LIKE '%" . $search_term . "%'";
-                }
+                    $filter = "Groups.Group_Type_ID = 1 AND Groups.Available_Online = 1 AND (Groups.End_Date IS NULL OR Groups.End_Date > GETDATE())";
 
-                if (!empty($congregation_id)) {
-                    $filter .= " AND Groups.Congregation_ID = " . intval($congregation_id);
-                }
+                    // Haversine formula to calculate distance
+                    $filter .= " AND (3959 * acos(
+                    cos(radians({$latitude})) *
+                    cos(radians(Congregation_ID_Table_Location_ID_Table_Address_ID_Table.Latitude)) *
+                    cos(radians(Congregation_ID_Table_Location_ID_Table_Address_ID_Table.Longitude) - radians({$longitude})) +
+                    sin(radians({$latitude})) *
+                    sin(radians(Congregation_ID_Table_Location_ID_Table_Address_ID_Table.Latitude))
+                )) <= {$radiusInMiles}";
 
-                if (!empty($life_stages)) {
-                    $lifeStageIds = implode(',', array_map('intval', explode(',', $life_stages)));
-                    $filter .= " AND Groups.Life_Stage_ID IN ({$lifeStageIds})";
-                }
-
-                // Static latitude and longitude for filtering
-                $staticLatitude = 26.332715;
-                $staticLongitude = -80.212841;
-                $radiusInMiles = 5;
-
-                // Haversine formula to calculate distance
-                $filter .= " AND (3959 * acos(
-    cos(radians({$staticLatitude})) *
-    cos(radians(Congregation_ID_Table_Location_ID_Table_Address_ID_Table.Latitude)) *
-    cos(radians(Congregation_ID_Table_Location_ID_Table_Address_ID_Table.Longitude) - radians({$staticLongitude})) +
-    sin(radians({$staticLatitude})) *
-    sin(radians(Congregation_ID_Table_Location_ID_Table_Address_ID_Table.Latitude))
-)) <= {$radiusInMiles}";
-
-                $groups = $mp->table('Groups')
-                    ->select("*,Congregation_ID_Table.Congregation_ID, Congregation_ID_Table.Congregation_Name, Primary_Contact_Table.[Display_Name], Life_Stage_ID_Table.Life_Stage, Congregation_ID_Table_Location_ID_Table.[Location_Name],
+                    $groups = $mp->table('Groups')
+                        ->select("*,Congregation_ID_Table.Congregation_ID, Congregation_ID_Table.Congregation_Name, Primary_Contact_Table.[Display_Name], Life_Stage_ID_Table.Life_Stage, Congregation_ID_Table_Location_ID_Table.[Location_Name],
                     Congregation_ID_Table_Location_ID_Table_Address_ID_Table.[City],Congregation_ID_Table_Location_ID_Table_Address_ID_Table.[Latitude], Congregation_ID_Table_Location_ID_Table_Address_ID_Table.[Longitude]")
-                    ->filter($filter)
-                    ->get();
+                        ->filter($filter)
+                        ->get();
 
-                echo json_encode(['success' => true, 'groups' => $groups]);
+                    echo json_encode(['success' => true, 'groups' => $groups]);
+                } else {
+                    echo json_encode(['success' => false, 'error' => 'Invalid location data']);
+                }
             } catch (Exception $e) {
                 error_log('Error in mpapi_query_groups: ' . $e->getMessage());
                 echo json_encode(['success' => false, 'error' => $e->getMessage()]);
