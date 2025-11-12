@@ -3006,7 +3006,7 @@ window.performSearch = function() {
             document.addEventListener("DOMContentLoaded", function () {
                 const locationContainer = document.getElementById("location-container");
 
-                // Function to fetch latitude and longitude from zip code
+                // Function to fetch latitude and longitude from ZIP code
                 function fetchLatLongFromZip(zipCode) {
                     // Validate ZIP code format (5 digits)
                     if (!/^\d{5}$/.test(zipCode)) {
@@ -3019,18 +3019,45 @@ window.performSearch = function() {
                             if (!response.ok) {
                                 throw new Error("ZIP code not found");
                             }
-                            console.log(response)
                             return response.json();
                         })
                         .then(data => {
                             const latitude = data.places[0].latitude;
                             const longitude = data.places[0].longitude;
-                            locationContainer.innerHTML = `<p>Latitude: ${latitude}, Longitude: ${longitude}</p>`;
-                            console.log("Latitude:", latitude, "Longitude:", longitude);
+                            const locationDetails = `Latitude: ${latitude}, Longitude: ${longitude}`;
+                            locationContainer.innerHTML = `<p>${locationDetails}</p>`;
+                            queryGroups(locationDetails);
                         })
                         .catch(error => {
-                            console.log(error);
+                            console.error("Error fetching ZIP code data:", error);
                             locationContainer.innerHTML = `<p>Error: ${error.message}</p>`;
+                        });
+                }
+
+                // Function to query groups after fetching location
+                function queryGroups(locationDetails) {
+                    fetch("<?php echo admin_url('admin-ajax.php'); ?>", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/x-www-form-urlencoded"
+                        },
+                        body: `action=mpapi_query_groups&location=${encodeURIComponent(locationDetails)}`
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success && data.groups) {
+                                const groupsHtml = data.groups.map(group => `
+                            <p>${group.Group_Name}</p>
+                            <p>${group.Congregation_Name}</p>
+                        `).join('');
+                                locationContainer.innerHTML = `<h3>Groups:</h3>${groupsHtml}`;
+                            } else {
+                                locationContainer.innerHTML = `<p>No groups found.</p>`;
+                            }
+                        })
+                        .catch(error => {
+                            console.error("Error querying groups:", error);
+                            locationContainer.innerHTML = `<p>Error querying groups.</p>`;
                         });
                 }
 
@@ -3038,10 +3065,9 @@ window.performSearch = function() {
                 if (navigator.geolocation) {
                     navigator.geolocation.getCurrentPosition(
                         (position) => {
-                            const latitude = position.coords.latitude;
-                            const longitude = position.coords.longitude;
-                            locationContainer.innerHTML = `<p>Latitude: ${latitude}, Longitude: ${longitude}</p>`;
-                            console.log("Latitude:", latitude, "Longitude:", longitude);
+                            const locationDetails = `Latitude: ${position.coords.latitude}, Longitude: ${position.coords.longitude}`;
+                            locationContainer.innerHTML = `<p>${locationDetails}</p>`;
+                            queryGroups(locationDetails);
                         },
                         (error) => {
                             if (error.code === error.PERMISSION_DENIED) {
@@ -3063,6 +3089,70 @@ window.performSearch = function() {
         </script>
         <?php
         return ob_get_clean();
+    }
+
+    // Add this new function to handle the AJAX request
+    public static function mpapi_query_groups()
+    {
+        ob_start();
+
+        $location = isset($_POST['location']) ? sanitize_text_field($_POST['location']) : '';
+
+        error_log('Location received: ' . $location);
+
+        $mp = new MP();
+
+        if ($mp->authenticate()) {
+            try {
+
+                $filter = "Groups.Group_Type_ID = 1 AND Groups.Available_Online = 1 AND (Groups.End_Date IS NULL OR Groups.End_Date > GETDATE())";
+
+                if (!empty($search_term)) {
+                    $filter .= " AND Groups.Group_Name LIKE '%" . $search_term . "%'";
+                }
+
+                if (!empty($congregation_id)) {
+                    $filter .= " AND Groups.Congregation_ID = " . intval($congregation_id);
+                }
+
+                if (!empty($life_stages)) {
+                    $lifeStageIds = implode(',', array_map('intval', explode(',', $life_stages)));
+                    $filter .= " AND Groups.Life_Stage_ID IN ({$lifeStageIds})";
+                }
+
+                // Static latitude and longitude for filtering
+                $staticLatitude = 26.332715;
+                $staticLongitude = -80.212841;
+                $radiusInMiles = 5;
+
+                // Haversine formula to calculate distance
+                $filter .= " AND (3959 * acos(
+    cos(radians({$staticLatitude})) *
+    cos(radians(Congregation_ID_Table_Location_ID_Table_Address_ID_Table.Latitude)) *
+    cos(radians(Congregation_ID_Table_Location_ID_Table_Address_ID_Table.Longitude) - radians({$staticLongitude})) +
+    sin(radians({$staticLatitude})) *
+    sin(radians(Congregation_ID_Table_Location_ID_Table_Address_ID_Table.Latitude))
+)) <= {$radiusInMiles}";
+
+                $groups = $mp->table('Groups')
+                    ->select("*,Congregation_ID_Table.Congregation_ID, Congregation_ID_Table.Congregation_Name, Primary_Contact_Table.[Display_Name], Life_Stage_ID_Table.Life_Stage, Congregation_ID_Table_Location_ID_Table.[Location_Name],
+                    Congregation_ID_Table_Location_ID_Table_Address_ID_Table.[City],Congregation_ID_Table_Location_ID_Table_Address_ID_Table.[Latitude], Congregation_ID_Table_Location_ID_Table_Address_ID_Table.[Longitude]")
+                    ->filter($filter)
+                    ->get();
+
+                echo json_encode(['success' => true, 'groups' => $groups]);
+            } catch (Exception $e) {
+                error_log('Error in mpapi_query_groups: ' . $e->getMessage());
+                echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+            }
+        } else {
+            error_log('Authentication failed in mpapi_query_groups');
+            echo json_encode(['success' => false, 'error' => 'Authentication failed']);
+        }
+
+        $output = ob_get_clean();
+        echo $output;
+        wp_die();
     }
 
 }
