@@ -3256,6 +3256,52 @@ window.performSearch = function() {
                 color: white;
                 border-color: #4ab6f5;
             }
+
+            .switch {
+                position: relative;
+                display: inline-block;
+                width: 50px;
+                height: 25px;
+            }
+
+            .switch input {
+                opacity: 0;
+                width: 0;
+                height: 0;
+            }
+
+            .slider {
+                position: absolute;
+                cursor: pointer;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background-color: black;
+                border-radius: 25px;
+                transition: 0.4s;
+            }
+
+            .slider:before {
+                position: absolute;
+                content: "";
+                height: 19px;
+                width: 19px;
+                left: 3px;
+                bottom: 3px;
+                background-color: white;
+                border-radius: 50%;
+                transition: 0.4s;
+            }
+
+            input:checked+.slider {
+                background-color: #4ab6f5;
+                /* Light blue for selected */
+            }
+
+            input:checked+.slider:before {
+                transform: translateX(25px);
+            }
         </style>
         <div id="location-container">
             <p>Detecting your location...</p>
@@ -3325,6 +3371,7 @@ window.performSearch = function() {
                                     const Longitude = group.Longitude || "N/A"; // Fallback if undefined
                                     const CongregationName = group.Congregation_Name || "N/A"; // Fallback if undefined
                                     const GroupName = group.Group_Name || "N/A"; // Fallback if undefined
+                                    const MeetsOnline = group.Meets_Online  || "N/A"; // Fallback if undefined
 
                                     const description = group.Description
                                         ? (group.Description.length > 100
@@ -3361,7 +3408,7 @@ window.performSearch = function() {
                                 ${locationName}
                             </div>
                             <div class='group-card-display-name'>
-                                ${Latitude} | ${Longitude}
+                                ${Latitude} | ${Longitude} | ${MeetsOnline}
                             </div>
                             <div class='group-card-bottom-content'>
                                 <div class='group-card-description truncated'>
@@ -3395,6 +3442,20 @@ window.performSearch = function() {
                         <option value="">All Campuses</option>
                     </select>
                 </div>
+
+             <div style="margin-bottom: 15px;">
+    <label for="toggle-switch" style="display: block; margin-bottom: 5px; font-weight: bold;">Group Type</label>
+    <div id="toggle-switch" style="display: flex; align-items: center; gap: 10px;">
+        <span id="toggle-label" style="font-weight: bold;">In Person</span>
+        <label class="switch">
+            <input type="checkbox" id="toggle-checkbox">
+            <span class="slider"></span>
+        </label>
+        <span id="toggle-label-off" style="font-weight: bold; color: #666;">Online</span>
+    </div>
+</div>
+
+
                 <div class="life-stage-container" id="life-stage-container">
                     <!-- Life stage buttons will be dynamically added here -->
                 </div>
@@ -3438,6 +3499,25 @@ window.performSearch = function() {
                 } else {
                     locationContainer.innerHTML = "<p>Geolocation is not supported by your browser.</p>";
                 }
+
+                //Toggle button functionality
+                const toggleCheckbox = document.getElementById("toggle-checkbox");
+                const toggleLabel = document.getElementById("toggle-label");
+                const toggleLabelOff = document.getElementById("toggle-label-off");
+
+                toggleCheckbox.addEventListener("change", function () {
+                    if (toggleCheckbox.checked) {
+                        toggleLabel.style.color = "#666"; // Dim "In Person"
+                        toggleLabelOff.style.color = "black"; // Highlight "Online"
+                        console.log("Online selected");
+                        // Add logic to filter for "Online" groups
+                    } else {
+                        toggleLabel.style.color = "black"; // Highlight "In Person"
+                        toggleLabelOff.style.color = "#666"; // Dim "Online"
+                        console.log("In Person selected");
+                        // Add logic to filter for "In Person" groups
+                    }
+                });
             });
         </script>
         <?php
