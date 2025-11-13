@@ -3307,7 +3307,10 @@ window.performSearch = function() {
                         .then(data => {
                             console.log("Groups query:", data);
                             if (data.success && data.groups) {
-                                const groupsHtml = data.groups.map(group => {
+                                const groupsHtml = `
+                <div class="groups-container">
+                    <div class="groups-card-grid">
+            ` + data.groups.map(group => {
                                     const groupId = group.Group_ID; // Correct variable declaration
                                     const timeDisplay = group.Meeting_Day_ID || "N/A"; // Replace with actual logic if needed
                                     const displayName = group.Display_Name || "N/A"; // Fallback if undefined
@@ -3318,7 +3321,6 @@ window.performSearch = function() {
                                     const CongregationName = group.Congregation_Name || "N/A"; // Fallback if undefined
                                     const GroupName = group.Group_Name || "N/A"; // Fallback if undefined
 
-
                                     const description = group.Description
                                         ? (group.Description.length > 100
                                             ? group.Description.substring(0, 100) + "..."
@@ -3326,53 +3328,52 @@ window.performSearch = function() {
                                         : "N/A"; // Fallback if undefined
 
                                     return `
-    <div class="groups-container">
-        <div class="groups-card-grid">
-            <div class='group-card'>
-                <div class='group-card-top'>
-                    <div class='group-card-left'>
-                        <div class='group-date-circle'>
-                            <div class='group-date-day'>${groupId}</div>
+                    <div class='group-card'>
+                        <div class='group-card-top'>
+                            <div class='group-card-left'>
+                                <div class='group-date-circle'>
+                                    <div class='group-date-day'>${groupId}</div>
+                                </div>
+                            </div>
+                            <div class='group-card-right'>
+                                <div class='group-card-title'>
+                                    ${GroupName}
+                                </div>
+                            </div>
+                        </div>
+                        <div class='group-card-location'>
+                            <div class='group-location-pill'>
+                                ${CongregationName}
+                            </div>
+                        </div>
+                        <div class='group-card-bottom'>
+                            <div class='group-card-datetime'>
+                                ${timeDisplay}
+                            </div>
+                            <div class='group-card-display-name'>
+                                ${displayName}
+                            </div>
+                            <div class='group-card-display-name'>
+                                ${lifeStage}
+                            </div>
+                            <div class='group-card-display-name'>
+                                ${locationName}
+                            </div>
+                            <div class='group-card-display-name'>
+                                ${Latitude} | ${Longitude}
+                            </div>
+                            <div class='group-card-bottom-content'>
+                                <div class='group-card-description truncated'>
+                                    ${description}
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class='group-card-right'>
-                        <div class='group-card-title'>
-                            ${GroupName}
-                        </div>
+                `;
+                                }).join('') + `
                     </div>
                 </div>
-                <div class='group-card-location'>
-                    <div class='group-location-pill'>
-                        ${CongregationName}
-                    </div>
-                </div>
-                <div class='group-card-bottom'>
-                    <div class='group-card-datetime'>
-                        ${timeDisplay}
-                    </div>
-                    <div class='group-card-display-name'>
-                        ${displayName}
-                    </div>
-                    <div class='group-card-display-name'>
-                        ${lifeStage}
-                    </div>
-                    <div class='group-card-display-name'>
-                        ${locationName}
-                    </div>
-                    <div class='group-card-display-name'>
-                        ${Latitude} | ${Longitude}
-                    </div>
-                    <div class='group-card-bottom-content'>
-                        <div class='group-card-description truncated'>
-                            ${description}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-        `;
-                                }).join('');
+            `;
 
                                 locationContainer.innerHTML = `<h3>Groups:</h3>${groupsHtml}`;
                             } else {
