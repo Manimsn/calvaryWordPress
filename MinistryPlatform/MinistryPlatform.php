@@ -2999,6 +2999,264 @@ window.performSearch = function() {
     {
         ob_start();
         ?>
+
+        <style>
+            @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
+
+            .groups-container {
+                max-width: 1400px;
+                width: 100%;
+                margin: 0 auto;
+                padding: 20px;
+                font-family: Poppins, sans-serif;
+            }
+
+            .groups-card-grid {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 15px;
+                justify-content: center;
+                align-content: start;
+            }
+
+            .group-card {
+                background: white;
+                border-radius: 10px;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                padding: 0;
+                transition: transform 0.3s ease, box-shadow 0.3s ease;
+                min-height: 250px;
+                display: flex;
+                flex-direction: column;
+                overflow: hidden;
+            }
+
+            .group-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+            }
+
+            .group-card-top {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 15px 15px 5px 15px;
+                min-height: 60px;
+                height: 80px;
+            }
+
+            .group-card-left {
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start;
+                flex-shrink: 0;
+                height: 100%;
+                justify-content: center;
+            }
+
+            .group-date-circle {
+                background: #4ab6f5;
+                color: white;
+                width: 50px;
+                height: 50px;
+                border-radius: 50%;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                font-family: Poppins, sans-serif;
+                font-weight: bold;
+                font-size: 0.8rem;
+                text-align: center;
+            }
+
+            .group-date-month {
+                font-size: 0.65rem;
+                line-height: 1;
+            }
+
+            .group-date-day {
+                font-size: 0.9rem;
+                line-height: 1;
+            }
+
+            .group-card-right {
+                flex: 1;
+                margin-left: 15px;
+                height: 100%;
+                display: flex;
+                align-items: center;
+            }
+
+            .group-card-location {
+                padding: 10px 15px 10px 15px;
+            }
+
+            .group-location-pill {
+                background: #4ab6f5;
+                color: white;
+                padding: 5px 12px;
+                border-radius: 20px;
+                font-family: Poppins, sans-serif;
+                font-size: 0.8rem;
+                display: inline-flex;
+                align-items: center;
+                gap: 5px;
+            }
+
+            .group-card-title {
+                font-family: Poppins, sans-serif;
+                font-size: 1.6em;
+                font-weight: bold;
+                color: #333;
+                line-height: 1.3;
+                position: relative;
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+            }
+
+            .group-card-bottom {
+                padding: 10px 15px;
+                border-top: 1px solid white;
+                background: white;
+            }
+
+            .group-card-datetime,
+            .group-card-display-name {
+                font-family: Poppins, sans-serif;
+                color: #333;
+                font-size: 0.85rem;
+                font-weight: 500;
+                margin-bottom: 10px;
+            }
+
+            .group-card-bottom-content {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .group-card-description {
+                flex: 1;
+                font-family: Poppins, sans-serif;
+                color: #333;
+                line-height: 1.4;
+                font-size: 0.9rem;
+            }
+
+            .group-card-description.truncated {
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+            }
+
+            .group-card-arrow {
+                width: 50px;
+                height: 50px;
+                border: 2px solid #333;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: white;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                flex-shrink: 0;
+                text-decoration: none;
+            }
+
+            .group-card-arrow:hover {
+                background: #333;
+                color: white;
+            }
+
+            .group-card-arrow svg path {
+                stroke: #333;
+                transition: stroke 0.3s ease;
+            }
+
+            .group-card-arrow:hover svg path {
+                stroke: white;
+            }
+
+            /* Large tablets and smaller - 2 cards per row */
+            @media (max-width: 1024px) {
+                .groups-card-grid {
+                    grid-template-columns: repeat(2, 1fr);
+                    gap: 12px;
+                }
+            }
+
+            /* Small tablets - 2 cards per row */
+            @media (max-width: 768px) {
+                .groups-card-grid {
+                    grid-template-columns: repeat(2, 1fr);
+                    gap: 12px;
+                }
+            }
+
+            /* Mobile styles - 1 card per row */
+            @media (max-width: 480px) {
+                .groups-card-grid {
+                    grid-template-columns: 1fr;
+                    gap: 10px;
+                }
+
+                .group-card-top {
+                    padding: 12px 12px 5px 12px;
+                }
+
+                .group-card-location {
+                    padding: 0 12px 8px 12px;
+                }
+
+                .group-card-bottom {
+                    padding: 12px;
+                }
+            }
+
+            .groups-card-grid {
+                justify-items: stretch;
+            }
+
+
+            .life-stage-container {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
+                margin-top: 15px;
+            }
+
+            .life-stage-button {
+                background: #f0f0f0;
+                color: #333;
+                padding: 8px 15px;
+                border-radius: 20px;
+                border: 1px solid #ddd;
+                cursor: pointer;
+                font-size: 0.9rem;
+                font-family: Poppins, sans-serif;
+                transition: all 0.3s ease;
+            }
+
+            .life-stage-button:hover {
+                background: #4ab6f5;
+                color: white;
+                border-color: #4ab6f5;
+            }
+
+            .life-stage-button.selected {
+                background: #4ab6f5;
+                color: white;
+                border-color: #4ab6f5;
+            }
+        </style>
         <div id="location-container">
             <p>Detecting your location...</p>
         </div>
@@ -3068,6 +3326,8 @@ window.performSearch = function() {
                                         : "N/A"; // Fallback if undefined
 
                                     return `
+    <div class="groups-container">
+        <div class="groups-card-grid">
             <div class='group-card'>
                 <div class='group-card-top'>
                     <div class='group-card-left'>
@@ -3109,6 +3369,8 @@ window.performSearch = function() {
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
         `;
                                 }).join('');
 
