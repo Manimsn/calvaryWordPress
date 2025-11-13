@@ -3303,15 +3303,30 @@ window.performSearch = function() {
                 transform: translateX(25px);
             }
         </style>
+        <div id="toggle-switch" style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+            <span id="toggle-label" style="font-weight: bold;">In Person</span>
+            <label class="switch">
+                <input type="checkbox" id="toggle-checkbox">
+                <span class="slider"></span>
+            </label>
+            <span id="toggle-label-off" style="font-weight: bold; color: #666;">Online</span>
+        </div>
+
         <div id="location-container">
             <p>Detecting your location...</p>
         </div>
 
-
-
         <script>
             document.addEventListener("DOMContentLoaded", function () {
                 const locationContainer = document.getElementById("location-container");
+
+                // Ensure the toggle-checkbox exists before accessing it
+                const toggleCheckbox = document.getElementById("toggle-checkbox");
+                if (!toggleCheckbox) {
+                    console.error("Toggle checkbox not found in the DOM.");
+                    locationContainer.innerHTML = "<p>Error: Toggle switch is missing. Please check the page setup.</p>";
+                    return;
+                }
 
                 // Function to fetch latitude and longitude from ZIP code
                 function fetchLatLongFromZip(zipCode) {
@@ -3332,9 +3347,11 @@ window.performSearch = function() {
                             console.log("ZIP code datasss:", data);
                             const latitude = data.places[0].latitude;
                             const longitude = data.places[0].longitude;
-                            const locationDetails = `Latitude: ${latitude}, Longitude: ${longitude}`;
+                            locationDetails = `Latitude: ${latitude}, Longitude: ${longitude}`;
                             locationContainer.innerHTML = `<p>${locationDetails}</p>`;
-                            queryGroups(locationDetails);
+
+                            const meetsOnline = toggleCheckbox.checked; // Get the current toggle state
+                            queryGroups(locationDetails, meetsOnline);
                         })
                         .catch(error => {
                             console.error("Error fetching ZIP code data:", error);
@@ -3343,17 +3360,17 @@ window.performSearch = function() {
                 }
 
                 // Function to query groups after fetching location
-                function queryGroups(locationDetails) {
+                function queryGroups(locationDetails, meetsOnline) {
                     fetch("<?php echo admin_url('admin-ajax.php'); ?>", {
                         method: "POST",
                         headers: {
                             "Content-Type": "application/x-www-form-urlencoded"
                         },
-                        body: `action=mpapi_query_groups&location=${encodeURIComponent(locationDetails)}`
+                        body: `action=mpapi_query_groups&location=${encodeURIComponent(locationDetails)}&meets_online=${meetsOnline}`
                     })
                         .then(response => response.json())
                         .then(data => {
-                            console.log("Groups query:", data);
+                            console.log("Groups querys:", data);
                             if (data.success && data.groups) {
                                 const groupsHtml = `
                                 <div style="display: flex; gap: 20px; height: 80vh;">
@@ -3371,7 +3388,7 @@ window.performSearch = function() {
                                     const Longitude = group.Longitude || "N/A"; // Fallback if undefined
                                     const CongregationName = group.Congregation_Name || "N/A"; // Fallback if undefined
                                     const GroupName = group.Group_Name || "N/A"; // Fallback if undefined
-                                    const MeetsOnline = group.Meets_Online  || "N/A"; // Fallback if undefined
+                                    const MeetsOnline = group.Meets_Online || "N/A"; // Fallback if undefined
 
                                     const description = group.Description
                                         ? (group.Description.length > 100
@@ -3475,13 +3492,24 @@ window.performSearch = function() {
                         });
                 }
 
-                // Check if geolocation is available
+                // Handle toggle switch changes
+                toggleCheckbox.addEventListener("change", function () {
+                    if (!locationDetails) {
+                        console.error("Location details are not defined.");
+                        return;
+                    }
+
+                    const meetsOnline = toggleCheckbox.checked;
+                    queryGroups(locationDetails, meetsOnline);
+                });
+
+                // Detect location using geolocation or prompt for ZIP code
                 if (navigator.geolocation) {
                     navigator.geolocation.getCurrentPosition(
                         (position) => {
-                            const locationDetails = `Latitude: ${position.coords.latitude}, Longitude: ${position.coords.longitude}`;
+                            locationDetails = `Latitude: ${position.coords.latitude}, Longitude: ${position.coords.longitude}`;
                             locationContainer.innerHTML = `<p>${locationDetails}</p>`;
-                            queryGroups(locationDetails);
+                            queryGroups(locationDetails, false); // Default to "In Person"
                         },
                         (error) => {
                             if (error.code === error.PERMISSION_DENIED) {
@@ -3500,24 +3528,6 @@ window.performSearch = function() {
                     locationContainer.innerHTML = "<p>Geolocation is not supported by your browser.</p>";
                 }
 
-                //Toggle button functionality
-                const toggleCheckbox = document.getElementById("toggle-checkbox");
-                const toggleLabel = document.getElementById("toggle-label");
-                const toggleLabelOff = document.getElementById("toggle-label-off");
-
-                toggleCheckbox.addEventListener("change", function () {
-                    if (toggleCheckbox.checked) {
-                        toggleLabel.style.color = "#666"; // Dim "In Person"
-                        toggleLabelOff.style.color = "black"; // Highlight "Online"
-                        console.log("Online selected");
-                        // Add logic to filter for "Online" groups
-                    } else {
-                        toggleLabel.style.color = "black"; // Highlight "In Person"
-                        toggleLabelOff.style.color = "#666"; // Dim "Online"
-                        console.log("In Person selected");
-                        // Add logic to filter for "In Person" groups
-                    }
-                });
             });
         </script>
         <?php
@@ -3530,24 +3540,31 @@ window.performSearch = function() {
         ob_start();
 
         $location = isset($_POST['location']) ? sanitize_text_field($_POST['location']) : '';
+        $meetsOnline = isset($_POST['meets_online']) ? filter_var($_POST['meets_online'], FILTER_VALIDATE_BOOLEAN) : null;
 
-        error_log('Location received: ' . $location);
+        if (empty($location)) {
+            echo json_encode(['success' => false, 'error' => 'Location is required.']);
+            wp_die();
+        }
+
+        if ($meetsOnline === null) {
+            echo json_encode(['success' => false, 'error' => 'Meets_Online value is required.']);
+            wp_die();
+        }
 
         $mp = new MP();
 
         if ($mp->authenticate()) {
             try {
-                // Extract latitude and longitude from the location string
                 preg_match('/Latitude: ([\d.-]+), Longitude: ([\d.-]+)/', $location, $matches);
                 $latitude = isset($matches[1]) ? floatval($matches[1]) : null;
                 $longitude = isset($matches[2]) ? floatval($matches[2]) : null;
 
                 if ($latitude && $longitude) {
-                    $radiusInMiles = 10; // Define the radius for filtering groups
+                    $radiusInMiles = 10;
 
-                    $filter = "Groups.Group_Type_ID = 1 AND Groups.Available_Online = 1 AND (Groups.End_Date IS NULL OR Groups.End_Date > GETDATE())";
-
-                    // Haversine formula to calculate distance
+                    $filter = "Groups.Group_Type_ID = 1 AND (Groups.End_Date IS NULL OR Groups.End_Date > GETDATE())";
+                    $filter .= " AND Groups.Meets_Online = " . ($meetsOnline ? "1" : "0");
                     $filter .= " AND (3959 * acos(
                     cos(radians({$latitude})) *
                     cos(radians(Congregation_ID_Table_Location_ID_Table_Address_ID_Table.Latitude)) *
@@ -3557,8 +3574,8 @@ window.performSearch = function() {
                 )) <= {$radiusInMiles}";
 
                     $groups = $mp->table('Groups')
-                        ->select("*,Congregation_ID_Table.Congregation_ID, Congregation_ID_Table.Congregation_Name, Primary_Contact_Table.[Display_Name], Life_Stage_ID_Table.Life_Stage, Congregation_ID_Table_Location_ID_Table.[Location_Name],
-                    Congregation_ID_Table_Location_ID_Table_Address_ID_Table.[City],Congregation_ID_Table_Location_ID_Table_Address_ID_Table.[Latitude], Congregation_ID_Table_Location_ID_Table_Address_ID_Table.[Longitude]")
+                        ->select("Group_ID, Group_Name, Meets_Online, Congregation_ID_Table.Congregation_ID, Congregation_ID_Table.Congregation_Name, Primary_Contact_Table.[Display_Name], Life_Stage_ID_Table.Life_Stage, Congregation_ID_Table_Location_ID_Table.[Location_Name],
+                    Congregation_ID_Table_Location_ID_Table_Address_ID_Table.[City],Congregation_ID_Table_Location_ID_Table_Address_ID_Table.[Latitude], Congregation_ID_Table_Location_ID_Table_Address_ID_Table.[Longitude], *")
                         ->filter($filter)
                         ->get();
 
@@ -3567,11 +3584,9 @@ window.performSearch = function() {
                     echo json_encode(['success' => false, 'error' => 'Invalid location data']);
                 }
             } catch (Exception $e) {
-                error_log('Error in mpapi_query_groups: ' . $e->getMessage());
                 echo json_encode(['success' => false, 'error' => $e->getMessage()]);
             }
         } else {
-            error_log('Authentication failed in mpapi_query_groups');
             echo json_encode(['success' => false, 'error' => 'Authentication failed']);
         }
 
