@@ -3261,6 +3261,8 @@ window.performSearch = function() {
             <p>Detecting your location...</p>
         </div>
 
+
+
         <script>
             document.addEventListener("DOMContentLoaded", function () {
                 const locationContainer = document.getElementById("location-container");
@@ -3308,6 +3310,9 @@ window.performSearch = function() {
                             console.log("Groups query:", data);
                             if (data.success && data.groups) {
                                 const groupsHtml = `
+                                <div style="display: flex; gap: 20px; height: 80vh;">
+        <!-- Left side - Scrollable Groups List -->
+        <div style="flex: 75%; overflow-y: auto; padding-right: 10px;">
                 <div class="groups-container">
                     <div class="groups-card-grid">
             ` + data.groups.map(group => {
@@ -3330,11 +3335,7 @@ window.performSearch = function() {
                                     return `
                     <div class='group-card'>
                         <div class='group-card-top'>
-                            <div class='group-card-left'>
-                                <div class='group-date-circle'>
-                                    <div class='group-date-day'>${groupId}</div>
-                                </div>
-                            </div>
+                            
                             <div class='group-card-right'>
                                 <div class='group-card-title'>
                                     ${GroupName}
@@ -3343,7 +3344,7 @@ window.performSearch = function() {
                         </div>
                         <div class='group-card-location'>
                             <div class='group-location-pill'>
-                                ${CongregationName}
+                                ${lifeStage}
                             </div>
                         </div>
                         <div class='group-card-bottom'>
@@ -3372,6 +3373,33 @@ window.performSearch = function() {
                 `;
                                 }).join('') + `
                     </div>
+                </div>
+                    </div>
+                    <!-- Right side - Fixed Search & Filter -->
+        <div style="flex: 25%; position: sticky; top: 0; height: fit-content;">
+            <div style="background: #f9f9f9; padding: 20px; border-radius: 8px; border: 1px solid #ddd;">
+                <h4 style="margin-top: 0;">Search & Filter</h4>
+                
+                <div style="position: relative; margin-bottom: 15px;">
+                    <input type="text" id="group-search" placeholder="Search groups..." 
+                           style="width: 100%; padding: 12px 40px 12px 15px; border: 1px solid #ddd; border-radius: 25px; box-sizing: border-box;">
+                    <svg style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; color: #666; pointer-events: none;" 
+                         fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path>
+                    </svg>
+                </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <label for="congregation-filter" style="display: block; margin-bottom: 5px; font-weight: bold;">Campus</label>
+                    <select id="congregation-filter" style="width: 100%; padding: 12px 15px; border: 1px solid #ddd; border-radius: 5px; background: white; box-sizing: border-box;">
+                        <option value="">All Campuses</option>
+                    </select>
+                </div>
+                <div class="life-stage-container" id="life-stage-container">
+                    <!-- Life stage buttons will be dynamically added here -->
+                </div>
+            </div>
+        </div>
                 </div>
             `;
 
