@@ -69,6 +69,7 @@ add_action('wp_ajax_mpapi_get_life_stages', ['MinistryPlatform\MP_API_SHORTCODES
 add_action('wp_ajax_nopriv_mpapi_get_life_stages', ['MinistryPlatform\MP_API_SHORTCODES', 'mpapi_get_life_stages']);
 
 add_shortcode('mpapi_detect_location', ['MinistryPlatform\MP_API_SHORTCODES', 'mpapi_detect_location_sc']);
+add_shortcode('mpapi_replace_event_description', ['MinistryPlatform\MP_API_SHORTCODES', 'mpapi_replace_event_description_sc']);
 
 class MP_API_SHORTCODES
 {
