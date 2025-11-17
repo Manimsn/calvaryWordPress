@@ -3005,6 +3005,7 @@ window.performSearch = function() {
 
             #location-container,
             .groups-header {
+
                 margin: 0 auto;
                 padding: 20px;
             }
@@ -3379,6 +3380,12 @@ window.performSearch = function() {
 
                     <div class="life-stage-container" id="life-stage-container">
                         <!-- Life stage buttons will be dynamically added here -->
+                        <label for="congregation-filter"
+                            style="display: block; margin-bottom: 5px; font-weight: bold;">Campus</label>
+                        <select id="congregation-filter"
+                            style="width: 100%; padding: 12px 15px; border: 1px solid #ddd; border-radius: 5px; background: white; box-sizing: border-box;">
+                            <option value="">All Life Stage</option>
+                        </select>
                     </div>
                 </div>
                 <div id="map" style="width: 100%; height: 400px; margin-top: 15px; border: 1px solid #ddd; border-radius: 8px;">
@@ -3402,6 +3409,17 @@ window.performSearch = function() {
                     locationContainer.innerHTML = "<p>Error: Toggle switch is missing. Please check the page setup.</p>";
                     return;
                 }
+
+                // Add event listener for sort options
+                const sortOptions = document.querySelectorAll('input[name="sort_by"]');
+                sortOptions.forEach(option => {
+                    option.addEventListener("change", () => {
+                        if (locationDetails) {
+                            const meetsOnline = toggleCheckbox.checked;
+                            queryGroups(locationDetails, meetsOnline);
+                        }
+                    });
+                });
 
                 // Function to fetch latitude and longitude from ZIP code
                 function fetchLatLongFromZip(zipCode) {
@@ -3446,6 +3464,18 @@ window.performSearch = function() {
                             console.log("Groups querys:", data);
                             if (data.success && data.groups) {
                                 const groups = data.groups;
+
+                                // Get the selected sort option
+                                const selectedSort = document.querySelector('input[name="sort_by"]:checked').value;
+
+                                // Sort groups based on the selected option
+                                if (selectedSort === "campus") {
+                                    groups.sort((a, b) => {
+                                        const nameA = (a.Congregation_Name || "N/A").toUpperCase();
+                                        const nameB = (b.Congregation_Name || "N/A").toUpperCase();
+                                        return nameA.localeCompare(nameB);
+                                    });
+                                }
 
                                 // Clear existing markers and bounds
                                 if (map && mapMarkers) {
@@ -3554,7 +3584,7 @@ window.performSearch = function() {
                             ${lifeStage}
                         </div>
                         <div class='group-card-display-name'>
-                            ${locationName}
+                            ${locationName} | ${CongregationName}
                         </div>
                         <div class='group-card-display-name'>
                             ${Latitude} | ${Longitude} | ${MeetsOnline}
