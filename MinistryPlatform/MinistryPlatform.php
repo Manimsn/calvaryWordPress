@@ -3358,6 +3358,24 @@ window.performSearch = function() {
                         </div>
                     </div>
 
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: bold;">Sort By</label>
+                        <div style="display: flex; flex-direction: column; gap: 5px;">
+                            <label>
+                                <input type="radio" name="sort_by" value="distance" checked>
+                                Distance
+                            </label>
+                            <label>
+                                <input type="radio" name="sort_by" value="city_alphabetical">
+                                City Alphabetical
+                            </label>
+                            <label>
+                                <input type="radio" name="sort_by" value="campus">
+                                Campus
+                            </label>
+                        </div>
+                    </div>
+
 
                     <div class="life-stage-container" id="life-stage-container">
                         <!-- Life stage buttons will be dynamically added here -->
