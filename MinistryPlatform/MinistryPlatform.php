@@ -3364,6 +3364,9 @@ window.performSearch = function() {
         <!-- <div id="map" style="width: 100%; height: 400px; margin-top: 15px; border: 1px solid #ddd; border-radius: 8px;"></div> -->
 
         <script>
+            let map;
+            let mapMarkers = []; // Array to store map markers
+
             document.addEventListener("DOMContentLoaded", function () {
                 const locationContainer = document.getElementById("location-container");
                 const groupsContainer = document.getElementById("groups-left");
@@ -3418,6 +3421,38 @@ window.performSearch = function() {
                         .then(data => {
                             console.log("Groups querys:", data);
                             if (data.success && data.groups) {
+                                const groups = data.groups;
+
+                                // Clear existing markers and bounds
+                                if (map && mapMarkers) {
+                                    mapMarkers.forEach(marker => map.removeLayer(marker));
+                                    mapMarkers = [];
+                                }
+                                const bounds = L.latLngBounds();
+
+                                // Add markers for each group
+                                groups.forEach(group => {
+                                    console.log("Group:", group.Latitude)
+                                    console.log("Group:Longitude", group.Longitude)
+                                    const latitude = parseFloat(group.Latitude);
+                                    const longitude = parseFloat(group.Longitude);
+                                    const groupName = group.Group_Name || "Unknown Group";
+
+                                    if (!isNaN(latitude) && !isNaN(longitude)) {
+                                        const marker = L.marker([latitude, longitude])
+                                            .addTo(map)
+                                            .bindPopup(`<strong>${groupName}</strong>`);
+                                        mapMarkers.push(marker);
+                                        bounds.extend([latitude, longitude]);
+                                    }
+                                });
+
+                                // Adjust map bounds to fit all markers
+                                if (mapMarkers.length > 0) {
+                                    map.fitBounds(bounds, { padding: [50, 50] });
+                                }
+
+                                // Render group cards in the left container
                                 const groupsHtml = `                               
         <div class="groups-container">
             <div class="groups-card-grid">
@@ -3555,18 +3590,14 @@ window.performSearch = function() {
                 toggleCheckbox.addEventListener("change", toggleMapVisibility);
 
                 if (mapContainer) {
-                    const map = L.map("map").setView([26.332715, -80.212841], 10); // Static center and zoom level
+                    // Initialize the map
+                    map = L.map("map").setView([26.332715, -80.212841], 10);
 
                     // Add OpenStreetMap tiles
                     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
                         maxZoom: 19,
                         attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                     }).addTo(map);
-
-                    // Add a static marker
-                    L.marker([26.332715, -80.212841]).addTo(map)
-                        .bindPopup("Static Location")
-                        .openPopup();
                 }
 
             });
