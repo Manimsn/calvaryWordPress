@@ -3447,17 +3447,31 @@ window.performSearch = function() {
                                 });
 
                                 // Add markers for each unique location
+                                // Add markers for each unique location
                                 Object.keys(groupedLocations).forEach(key => {
                                     const [latitude, longitude] = key.split(",").map(coord => parseFloat(coord));
                                     const groupNames = groupedLocations[key];
 
+                                    const popupContent = `
+        <div style="max-height: 200px; overflow-y: auto;">
+            <strong>Groups at this location:</strong>
+            <ul>
+                ${groupNames.map(name => `<li>${name}</li>`).join("")}
+            </ul>
+        </div>
+    `;
+
                                     const marker = L.marker([latitude, longitude])
                                         .addTo(map)
-                                        .bindPopup(
-                                            `<strong>Groups at this location:</strong><ul>${groupNames
-                                        .map(name => `<li>${name}</li>`)
-                                        .join("")}</ul>`
-                                        );
+                                        .bindPopup(popupContent, {
+                                            autoPan: false // Prevent the map from panning when the popup is opened
+                                        });
+
+                                    marker.on("popupopen", () => {
+                                        // Ensure the marker is visible when the popup is opened
+                                        map.setView([latitude, longitude], map.getZoom(), { animate: true });
+                                    });
+
                                     mapMarkers.push(marker);
                                     bounds.extend([latitude, longitude]);
                                 });
