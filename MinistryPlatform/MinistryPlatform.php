@@ -3534,6 +3534,26 @@ window.performSearch = function() {
                 // Initialize the map with a static location
                 const mapContainer = document.getElementById("map");
 
+                function toggleMapVisibility() {
+                    if (toggleCheckbox.checked) {
+                        // "Online" is selected, hide the map
+                        if (mapContainer) {
+                            mapContainer.style.display = "none";
+                        }
+                    } else {
+                        // "In Person" is selected, show the map
+                        if (mapContainer) {
+                            mapContainer.style.display = "block";
+                        }
+                    }
+                }
+
+                // Initialize the map visibility based on the default toggle state
+                toggleMapVisibility();
+
+                // Add an event listener to the toggle switch
+                toggleCheckbox.addEventListener("change", toggleMapVisibility);
+
                 if (mapContainer) {
                     const map = L.map("map").setView([26.332715, -80.212841], 10); // Static center and zoom level
 
