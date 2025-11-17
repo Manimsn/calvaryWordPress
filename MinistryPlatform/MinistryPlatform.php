@@ -3430,21 +3430,36 @@ window.performSearch = function() {
                                 }
                                 const bounds = L.latLngBounds();
 
-                                // Add markers for each group
+                                // Group names by latitude and longitude
+                                const groupedLocations = {};
                                 groups.forEach(group => {
-                                    console.log("Group:", group.Latitude)
-                                    console.log("Group:Longitude", group.Longitude)
                                     const latitude = parseFloat(group.Latitude);
                                     const longitude = parseFloat(group.Longitude);
                                     const groupName = group.Group_Name || "Unknown Group";
 
                                     if (!isNaN(latitude) && !isNaN(longitude)) {
-                                        const marker = L.marker([latitude, longitude])
-                                            .addTo(map)
-                                            .bindPopup(`<strong>${groupName}</strong>`);
-                                        mapMarkers.push(marker);
-                                        bounds.extend([latitude, longitude]);
+                                        const key = `${latitude},${longitude}`;
+                                        if (!groupedLocations[key]) {
+                                            groupedLocations[key] = [];
+                                        }
+                                        groupedLocations[key].push(groupName);
                                     }
+                                });
+
+                                // Add markers for each unique location
+                                Object.keys(groupedLocations).forEach(key => {
+                                    const [latitude, longitude] = key.split(",").map(coord => parseFloat(coord));
+                                    const groupNames = groupedLocations[key];
+
+                                    const marker = L.marker([latitude, longitude])
+                                        .addTo(map)
+                                        .bindPopup(
+                                            `<strong>Groups at this location:</strong><ul>${groupNames
+                                        .map(name => `<li>${name}</li>`)
+                                        .join("")}</ul>`
+                                        );
+                                    mapMarkers.push(marker);
+                                    bounds.extend([latitude, longitude]);
                                 });
 
                                 // Adjust map bounds to fit all markers
