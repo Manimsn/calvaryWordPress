@@ -3315,6 +3315,7 @@ window.performSearch = function() {
         <div id="location-container">
             <p>Detecting your location...</p>
         </div>
+        <div id="map" style="width: 100%; height: 400px; margin-top: 15px; border: 1px solid #ddd; border-radius: 8px;"></div>
 
         <script>
             document.addEventListener("DOMContentLoaded", function () {
@@ -3529,6 +3530,24 @@ window.performSearch = function() {
                     );
                 } else {
                     locationContainer.innerHTML = "<p>Geolocation is not supported by your browser.</p>";
+                }
+
+                // Initialize the map with a static location
+                const mapContainer = document.getElementById("map");
+
+                if (mapContainer) {
+                    const map = L.map("map").setView([26.332715, -80.212841], 10); // Static center and zoom level
+
+                    // Add OpenStreetMap tiles
+                    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+                        maxZoom: 19,
+                        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                    }).addTo(map);
+
+                    // Add a static marker
+                    L.marker([26.332715, -80.212841]).addTo(map)
+                        .bindPopup("Static Location")
+                        .openPopup();
                 }
 
             });
