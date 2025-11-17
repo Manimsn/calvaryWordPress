@@ -3082,7 +3082,7 @@ window.performSearch = function() {
 
             .group-card-right {
                 flex: 1;
-                margin-left: 15px;
+                /* margin-left: 15px; */
                 height: 100%;
                 display: flex;
                 align-items: center;
@@ -3330,7 +3330,6 @@ window.performSearch = function() {
 
                 // Function to fetch latitude and longitude from ZIP code
                 function fetchLatLongFromZip(zipCode) {
-                    // Validate ZIP code format (5 digits)
                     if (!/^\d{5}$/.test(zipCode)) {
                         locationContainer.innerHTML = `<p>Error: Invalid ZIP code format. Please enter a 5-digit ZIP code.</p>`;
                         return;
@@ -3344,7 +3343,6 @@ window.performSearch = function() {
                             return response.json();
                         })
                         .then(data => {
-                            console.log("ZIP code datasss:", data);
                             const latitude = data.places[0].latitude;
                             const longitude = data.places[0].longitude;
                             locationDetails = `Latitude: ${latitude}, Longitude: ${longitude}`;
@@ -3388,7 +3386,7 @@ window.performSearch = function() {
                                     const Longitude = group.Longitude || "N/A"; // Fallback if undefined
                                     const CongregationName = group.Congregation_Name || "N/A"; // Fallback if undefined
                                     const GroupName = group.Group_Name || "N/A"; // Fallback if undefined
-                                    const MeetsOnline = group.Meets_Online || "N/A"; // Fallback if undefined
+                                    const MeetsOnline = group.Meets_Online; // Fallback if undefined
 
                                     const description = group.Description
                                         ? (group.Description.length > 100
@@ -3542,11 +3540,6 @@ window.performSearch = function() {
         $location = isset($_POST['location']) ? sanitize_text_field($_POST['location']) : '';
         $meetsOnline = isset($_POST['meets_online']) ? filter_var($_POST['meets_online'], FILTER_VALIDATE_BOOLEAN) : null;
 
-        if (empty($location)) {
-            echo json_encode(['success' => false, 'error' => 'Location is required.']);
-            wp_die();
-        }
-
         if ($meetsOnline === null) {
             echo json_encode(['success' => false, 'error' => 'Meets_Online value is required.']);
             wp_die();
@@ -3556,33 +3549,38 @@ window.performSearch = function() {
 
         if ($mp->authenticate()) {
             try {
-                preg_match('/Latitude: ([\d.-]+), Longitude: ([\d.-]+)/', $location, $matches);
-                $latitude = isset($matches[1]) ? floatval($matches[1]) : null;
-                $longitude = isset($matches[2]) ? floatval($matches[2]) : null;
+                $filter = "Groups.Group_Type_ID = 1 AND (Groups.End_Date IS NULL OR Groups.End_Date > GETDATE())";
+                $filter .= " AND Groups.Meets_Online = " . ($meetsOnline ? "1" : "0");
 
-                if ($latitude && $longitude) {
-                    $radiusInMiles = 10;
+                // Only apply the latitude and longitude filter if "In Person" is selected
+                if (!$meetsOnline && !empty($location)) {
+                    preg_match('/Latitude: ([\d.-]+), Longitude: ([\d.-]+)/', $location, $matches);
+                    $latitude = isset($matches[1]) ? floatval($matches[1]) : null;
+                    $longitude = isset($matches[2]) ? floatval($matches[2]) : null;
 
-                    $filter = "Groups.Group_Type_ID = 1 AND (Groups.End_Date IS NULL OR Groups.End_Date > GETDATE())";
-                    $filter .= " AND Groups.Meets_Online = " . ($meetsOnline ? "1" : "0");
-                    $filter .= " AND (3959 * acos(
-                    cos(radians({$latitude})) *
-                    cos(radians(Congregation_ID_Table_Location_ID_Table_Address_ID_Table.Latitude)) *
-                    cos(radians(Congregation_ID_Table_Location_ID_Table_Address_ID_Table.Longitude) - radians({$longitude})) +
-                    sin(radians({$latitude})) *
-                    sin(radians(Congregation_ID_Table_Location_ID_Table_Address_ID_Table.Latitude))
-                )) <= {$radiusInMiles}";
+                    if ($latitude && $longitude) {
+                        $radiusInMiles = 10;
 
-                    $groups = $mp->table('Groups')
-                        ->select("Group_ID, Group_Name, Meets_Online, Congregation_ID_Table.Congregation_ID, Congregation_ID_Table.Congregation_Name, Primary_Contact_Table.[Display_Name], Life_Stage_ID_Table.Life_Stage, Congregation_ID_Table_Location_ID_Table.[Location_Name],
-                    Congregation_ID_Table_Location_ID_Table_Address_ID_Table.[City],Congregation_ID_Table_Location_ID_Table_Address_ID_Table.[Latitude], Congregation_ID_Table_Location_ID_Table_Address_ID_Table.[Longitude], *")
-                        ->filter($filter)
-                        ->get();
-
-                    echo json_encode(['success' => true, 'groups' => $groups]);
-                } else {
-                    echo json_encode(['success' => false, 'error' => 'Invalid location data']);
+                        $filter .= " AND (3959 * acos(
+                        cos(radians({$latitude})) *
+                        cos(radians(Congregation_ID_Table_Location_ID_Table_Address_ID_Table.Latitude)) *
+                        cos(radians(Congregation_ID_Table_Location_ID_Table_Address_ID_Table.Longitude) - radians({$longitude})) +
+                        sin(radians({$latitude})) *
+                        sin(radians(Congregation_ID_Table_Location_ID_Table_Address_ID_Table.Latitude))
+                    )) <= {$radiusInMiles}";
+                    } else {
+                        echo json_encode(['success' => false, 'error' => 'Invalid location data']);
+                        wp_die();
+                    }
                 }
+
+                $groups = $mp->table('Groups')
+                    ->select("Group_ID, Group_Name, Meets_Online, Congregation_ID_Table.Congregation_ID, Congregation_ID_Table.Congregation_Name, Primary_Contact_Table.[Display_Name], Life_Stage_ID_Table.Life_Stage, Congregation_ID_Table_Location_ID_Table.[Location_Name],
+                Congregation_ID_Table_Location_ID_Table_Address_ID_Table.[City],Congregation_ID_Table_Location_ID_Table_Address_ID_Table.[Latitude], Congregation_ID_Table_Location_ID_Table_Address_ID_Table.[Longitude], *")
+                    ->filter($filter)
+                    ->get();
+
+                echo json_encode(['success' => true, 'groups' => $groups]);
             } catch (Exception $e) {
                 echo json_encode(['success' => false, 'error' => $e->getMessage()]);
             }
