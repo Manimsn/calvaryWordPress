@@ -3003,6 +3003,12 @@ window.performSearch = function() {
         <style>
             @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
 
+            #location-container,
+            .groups-header {
+                margin: 0 auto;
+                padding: 20px;
+            }
+
             .groups-container {
                 max-width: 1400px;
                 width: 100%;
@@ -3310,7 +3316,7 @@ window.performSearch = function() {
 
         <div style="display: flex; gap: 20px; height: 80vh;" class="groups-left-right">
             <!-- Left side - Scrollable Groups List -->
-            <div style="flex: 75%; overflow-y: auto; padding-right: 10px;" id="groups-left">
+            <div style="flex: 60%; overflow-y: auto; padding-right: 10px;" id="groups-left">
 
             </div>
 
@@ -3549,7 +3555,7 @@ window.performSearch = function() {
 
             `;
 
-                                groupsContainer.innerHTML = `<h3>Groups:</h3>${groupsHtml}`;
+                                groupsContainer.innerHTML = `<h3 class="groups-header">Groups:</h3>${groupsHtml}`;
                             } else {
                                 groupsContainer.innerHTML = `<p>No groups found.</p>`;
                             }
@@ -3621,12 +3627,17 @@ window.performSearch = function() {
 
                 if (mapContainer) {
                     // Initialize the map
-                    map = L.map("map").setView([26.332715, -80.212841], 10);
+                    map = L.map("map", { zoomControl: false }).setView([26.332715, -80.212841], 10);
 
                     // Add OpenStreetMap tiles
                     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
                         maxZoom: 19,
                         attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                    }).addTo(map);
+
+                    // Add zoom controls to the bottom-right corner
+                    L.control.zoom({
+                        position: "bottomright" // Move zoom controls to the bottom-right corner
                     }).addTo(map);
                 }
 
