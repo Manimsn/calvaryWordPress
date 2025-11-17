@@ -3397,6 +3397,7 @@ window.performSearch = function() {
         <script>
             let map;
             let mapMarkers = []; // Array to store map markers
+            let allGroups = []; // Global variable to store all groups
 
             document.addEventListener("DOMContentLoaded", function () {
                 const locationContainer = document.getElementById("location-container");
@@ -3463,49 +3464,79 @@ window.performSearch = function() {
                         .then(data => {
                             console.log("Groups querys:", data);
                             if (data.success && data.groups) {
-                                const groups = data.groups;
+                                allGroups = data.groups; // Store the fetched groups in the global variable
+                                renderGroups(allGroups); // Render all groups initially
+                            } else {
+                                groupsContainer.innerHTML = `<p>No groups found.</p>`;
+                            }
+                        })
+                        .catch(error => {
+                            console.error("Error querying groups:", error);
+                            groupsContainer.innerHTML = `<p>Error querying groups.</p>`;
+                        });
+                }
 
-                                // Get the selected sort option
-                                const selectedSort = document.querySelector('input[name="sort_by"]:checked').value;
+                function filterGroups() {
+                    const selectedLifeStages = Array.from(document.querySelectorAll(".life-stage-button.selected"))
+                        .map(button => button.getAttribute("data-id"));
 
-                                // Sort groups based on the selected option
-                                if (selectedSort === "campus") {
-                                    groups.sort((a, b) => {
-                                        const nameA = (a.Congregation_Name || "N/A").toUpperCase();
-                                        const nameB = (b.Congregation_Name || "N/A").toUpperCase();
-                                        return nameA.localeCompare(nameB);
-                                    });
-                                }
+                    // Filter the groups based on selected life stages
+                    const filteredGroups = selectedLifeStages.length > 0
+                        ? allGroups.filter(group => selectedLifeStages.includes(String(group.Life_Stage_ID)))
+                        : allGroups; // If no life stage is selected, show all groups
 
-                                // Clear existing markers and bounds
-                                if (map && mapMarkers) {
-                                    mapMarkers.forEach(marker => map.removeLayer(marker));
-                                    mapMarkers = [];
-                                }
-                                const bounds = L.latLngBounds();
+                    renderGroups(filteredGroups); // Render the filtered groups
+                }
 
-                                // Group names by latitude and longitude
-                                const groupedLocations = {};
-                                groups.forEach(group => {
-                                    const latitude = parseFloat(group.Latitude);
-                                    const longitude = parseFloat(group.Longitude);
-                                    const groupName = group.Group_Name || "Unknown Group";
+                function renderGroups(groups) {
+                    const groupsContainer = document.getElementById("groups-left");
 
-                                    if (!isNaN(latitude) && !isNaN(longitude)) {
-                                        const key = `${latitude},${longitude}`;
-                                        if (!groupedLocations[key]) {
-                                            groupedLocations[key] = [];
-                                        }
-                                        groupedLocations[key].push(groupName);
-                                    }
-                                });
+                    if (groups.length === 0) {
+                        groupsContainer.innerHTML = `<p>No groups found.</p>`;
+                        return;
+                    }
 
-                                // Add markers for each unique location
-                                Object.keys(groupedLocations).forEach(key => {
-                                    const [latitude, longitude] = key.split(",").map(coord => parseFloat(coord));
-                                    const groupNames = groupedLocations[key];
+                    // Get the selected sort option
+                    const selectedSort = document.querySelector('input[name="sort_by"]:checked').value;
 
-                                    const popupContent = `
+                    // Sort groups based on the selected option
+                    if (selectedSort === "campus") {
+                        groups.sort((a, b) => {
+                            const nameA = (a.Congregation_Name || "N/A").toUpperCase();
+                            const nameB = (b.Congregation_Name || "N/A").toUpperCase();
+                            return nameA.localeCompare(nameB);
+                        });
+                    }
+
+                    // Clear existing markers and bounds
+                    if (map && mapMarkers) {
+                        mapMarkers.forEach(marker => map.removeLayer(marker));
+                        mapMarkers = [];
+                    }
+                    const bounds = L.latLngBounds();
+
+                    // Group names by latitude and longitude
+                    const groupedLocations = {};
+                    groups.forEach(group => {
+                        const latitude = parseFloat(group.Latitude);
+                        const longitude = parseFloat(group.Longitude);
+                        const groupName = group.Group_Name || "Unknown Group";
+
+                        if (!isNaN(latitude) && !isNaN(longitude)) {
+                            const key = `${latitude},${longitude}`;
+                            if (!groupedLocations[key]) {
+                                groupedLocations[key] = [];
+                            }
+                            groupedLocations[key].push(groupName);
+                        }
+                    });
+
+                    // Add markers for each unique location
+                    Object.keys(groupedLocations).forEach(key => {
+                        const [latitude, longitude] = key.split(",").map(coord => parseFloat(coord));
+                        const groupNames = groupedLocations[key];
+
+                        const popupContent = `
         <div style="max-height: 200px; overflow-y: auto;">
             <strong>Groups at this location:</strong>
             <ul>
@@ -3514,51 +3545,51 @@ window.performSearch = function() {
         </div>
     `;
 
-                                    const marker = L.marker([latitude, longitude])
-                                        .addTo(map)
-                                        .bindPopup(popupContent, {
-                                            maxWidth: 300, // Set a maximum width for the popup
-                                            keepInView: true, // Ensure the popup stays within the map boundaries
-                                            autoPan: true // Enable auto-panning to keep the popup visible
-                                        });
+                        const marker = L.marker([latitude, longitude])
+                            .addTo(map)
+                            .bindPopup(popupContent, {
+                                maxWidth: 300, // Set a maximum width for the popup
+                                keepInView: true, // Ensure the popup stays within the map boundaries
+                                autoPan: true // Enable auto-panning to keep the popup visible
+                            });
 
-                                    marker.on("popupopen", () => {
-                                        // Ensure the marker is visible when the popup is opened
-                                        map.setView([latitude, longitude], map.getZoom(), { animate: true });
-                                    });
+                        marker.on("popupopen", () => {
+                            // Ensure the marker is visible when the popup is opened
+                            map.setView([latitude, longitude], map.getZoom(), { animate: true });
+                        });
 
-                                    mapMarkers.push(marker);
-                                    bounds.extend([latitude, longitude]);
-                                });
+                        mapMarkers.push(marker);
+                        bounds.extend([latitude, longitude]);
+                    });
 
-                                // Adjust map bounds to fit all markers
-                                if (mapMarkers.length > 0) {
-                                    map.fitBounds(bounds, { padding: [50, 50] });
-                                }
+                    // Adjust map bounds to fit all markers
+                    if (mapMarkers.length > 0) {
+                        map.fitBounds(bounds, { padding: [50, 50] });
+                    }
 
-                                // Render group cards in the left container
-                                const groupsHtml = `                               
+                    // Render group cards in the left container
+                    const groupsHtml = `                               
         <div class="groups-container">
             <div class="groups-card-grid">
-                ` + data.groups.map(group => {
-                                    const groupId = group.Group_ID; // Correct variable declaration
-                                    const timeDisplay = group.Meeting_Day_ID || "N/A"; // Replace with actual logic if needed
-                                    const displayName = group.Display_Name || "N/A"; // Fallback if undefined
-                                    const lifeStage = group.Life_Stage || "N/A"; // Fallback if undefined
-                                    const locationName = group.Location_Name || "N/A"; // Fallback if undefined
-                                    const Latitude = group.Latitude || "N/A"; // Fallback if undefined
-                                    const Longitude = group.Longitude || "N/A"; // Fallback if undefined
-                                    const CongregationName = group.Congregation_Name || "N/A"; // Fallback if undefined
-                                    const GroupName = group.Group_Name || "N/A"; // Fallback if undefined
-                                    const MeetsOnline = group.Meets_Online; // Fallback if undefined
+                ` + groups.map(group => {
+                        const groupId = group.Group_ID; // Correct variable declaration
+                        const timeDisplay = group.Meeting_Day_ID || "N/A"; // Replace with actual logic if needed
+                        const displayName = group.Display_Name || "N/A"; // Fallback if undefined
+                        const lifeStage = group.Life_Stage || "N/A"; // Fallback if undefined
+                        const locationName = group.Location_Name || "N/A"; // Fallback if undefined
+                        const Latitude = group.Latitude || "N/A"; // Fallback if undefined
+                        const Longitude = group.Longitude || "N/A"; // Fallback if undefined
+                        const CongregationName = group.Congregation_Name || "N/A"; // Fallback if undefined
+                        const GroupName = group.Group_Name || "N/A"; // Fallback if undefined
+                        const MeetsOnline = group.Meets_Online; // Fallback if undefined
 
-                                    const description = group.Description
-                                        ? (group.Description.length > 100
-                                            ? group.Description.substring(0, 100) + "..."
-                                            : group.Description)
-                                        : "N/A"; // Fallback if undefined
+                        const description = group.Description
+                            ? (group.Description.length > 100
+                                ? group.Description.substring(0, 100) + "..."
+                                : group.Description)
+                            : "N/A"; // Fallback if undefined
 
-                                    return `
+                        return `
                 <div class='group-card'>
                     <div class='group-card-top'>
 
@@ -3597,21 +3628,13 @@ window.performSearch = function() {
                     </div>
                 </div>
                 `;
-                                }).join('') + `
+                    }).join('') + `
             </div>
         </div>
 
             `;
 
-                                groupsContainer.innerHTML = `<h3 class="groups-header">Groups:</h3>${groupsHtml}`;
-                            } else {
-                                groupsContainer.innerHTML = `<p>No groups found.</p>`;
-                            }
-                        })
-                        .catch(error => {
-                            console.error("Error querying groups:", error);
-                            groupsContainer.innerHTML = `<p>Error querying groups.</p>`;
-                        });
+                    groupsContainer.innerHTML = `<h3 class="groups-header">Groups:</h3>${groupsHtml}`;
                 }
 
                 // Handle toggle switch changes
@@ -3705,17 +3728,22 @@ window.performSearch = function() {
                         .then(data => {
                             console.log("Life stages data:", data);
 
-                            // Check if the response is an array
                             if (Array.isArray(data) && data.length > 0) {
-                                // Clear existing content in the life stage container
-                                lifeStageContainer.innerHTML = "";
+                                lifeStageContainer.innerHTML = ""; // Clear existing content
 
                                 // Render each life stage as a button
                                 data.forEach(stage => {
                                     const button = document.createElement("button");
                                     button.className = "life-stage-button";
-                                    button.textContent = stage.Life_Stage; // Use the Life_Stage property for the button text
-                                    button.setAttribute("data-id", stage.Life_Stage_ID); // Add Life_Stage_ID as a data attribute
+                                    button.textContent = stage.Life_Stage;
+                                    button.setAttribute("data-id", stage.Life_Stage_ID);
+
+                                    // Add click event listener to toggle selection and filter groups
+                                    button.addEventListener("click", function () {
+                                        button.classList.toggle("selected"); // Toggle the "selected" class
+                                        filterGroups(); // Filter groups based on the selected life stages
+                                    });
+
                                     lifeStageContainer.appendChild(button);
                                 });
                             } else {
