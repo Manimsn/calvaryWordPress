@@ -3584,10 +3584,10 @@ window.performSearch = function() {
                 }
 
                 // Initialize the map visibility based on the default toggle state
-                toggleMapVisibility();
+                // toggleMapVisibility();
 
                 // Add an event listener to the toggle switch
-                toggleCheckbox.addEventListener("change", toggleMapVisibility);
+                // toggleCheckbox.addEventListener("change", toggleMapVisibility);
 
                 if (mapContainer) {
                     // Initialize the map
@@ -3633,7 +3633,7 @@ window.performSearch = function() {
                     $longitude = isset($matches[2]) ? floatval($matches[2]) : null;
 
                     if ($latitude && $longitude) {
-                        $radiusInMiles = 10;
+                        $radiusInMiles = 5;
 
                         $filter .= " AND (3959 * acos(
                         cos(radians({$latitude})) *
