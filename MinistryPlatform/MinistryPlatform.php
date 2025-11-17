@@ -3315,7 +3315,7 @@ window.performSearch = function() {
             <p>Detecting your location...</p>
         </div>
 
-        <div style="display: flex; gap: 20px; height: 80vh;" class="groups-left-right">
+        <div style="display: flex; gap: 20px; height: 100vh;" class="groups-left-right">
             <!-- Left side - Scrollable Groups List -->
             <div style="flex: 60%; overflow-y: auto; padding-right: 10px;" id="groups-left">
 
@@ -3688,6 +3688,48 @@ window.performSearch = function() {
                         position: "bottomright" // Move zoom controls to the bottom-right corner
                     }).addTo(map);
                 }
+
+                // Fetch and render life stages
+                function fetchAndRenderLifeStages() {
+                    const lifeStageContainer = document.getElementById("life-stage-container");
+
+                    // Fetch life stages from the API
+                    fetch("<?php echo admin_url('admin-ajax.php'); ?>", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/x-www-form-urlencoded"
+                        },
+                        body: "action=mpapi_get_life_stages"
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log("Life stages data:", data);
+
+                            // Check if the response is an array
+                            if (Array.isArray(data) && data.length > 0) {
+                                // Clear existing content in the life stage container
+                                lifeStageContainer.innerHTML = "";
+
+                                // Render each life stage as a button
+                                data.forEach(stage => {
+                                    const button = document.createElement("button");
+                                    button.className = "life-stage-button";
+                                    button.textContent = stage.Life_Stage; // Use the Life_Stage property for the button text
+                                    button.setAttribute("data-id", stage.Life_Stage_ID); // Add Life_Stage_ID as a data attribute
+                                    lifeStageContainer.appendChild(button);
+                                });
+                            } else {
+                                lifeStageContainer.innerHTML = "<p>No life stages found.</p>";
+                            }
+                        })
+                        .catch(error => {
+                            console.error("Error fetching life stages:", error);
+                            lifeStageContainer.innerHTML = "<p>Error loading life stages.</p>";
+                        });
+                }
+
+                // Call the function to fetch and render life stages
+                fetchAndRenderLifeStages();
 
             });
         </script>
