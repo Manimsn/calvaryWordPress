@@ -3447,7 +3447,6 @@ window.performSearch = function() {
                                 });
 
                                 // Add markers for each unique location
-                                // Add markers for each unique location
                                 Object.keys(groupedLocations).forEach(key => {
                                     const [latitude, longitude] = key.split(",").map(coord => parseFloat(coord));
                                     const groupNames = groupedLocations[key];
@@ -3464,7 +3463,9 @@ window.performSearch = function() {
                                     const marker = L.marker([latitude, longitude])
                                         .addTo(map)
                                         .bindPopup(popupContent, {
-                                            autoPan: false // Prevent the map from panning when the popup is opened
+                                            maxWidth: 300, // Set a maximum width for the popup
+                                            keepInView: true, // Ensure the popup stays within the map boundaries
+                                            autoPan: true // Enable auto-panning to keep the popup visible
                                         });
 
                                     marker.on("popupopen", () => {
