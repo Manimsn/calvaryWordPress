@@ -1,7 +1,7 @@
 <?php
 namespace MinistryPlatform;
 /**
- * Developement Version
+ * Staging Version
  * Plugin Name: Ministry Platform Data Access
  * Description: A wordpress plugin wrapper for accessing Ministry Platform
  * utilizing the the ministry platform API
@@ -68,8 +68,13 @@ add_action('wp_ajax_nopriv_mpapi_get_congregations', ['MinistryPlatform\MP_API_S
 add_action('wp_ajax_mpapi_get_life_stages', ['MinistryPlatform\MP_API_SHORTCODES', 'mpapi_get_life_stages']);
 add_action('wp_ajax_nopriv_mpapi_get_life_stages', ['MinistryPlatform\MP_API_SHORTCODES', 'mpapi_get_life_stages']);
 
-add_shortcode('mpapi_detect_location', ['MinistryPlatform\MP_API_SHORTCODES', 'mpapi_detect_location_sc']);
 add_shortcode('mpapi_replace_event_description', ['MinistryPlatform\MP_API_SHORTCODES', 'mpapi_replace_event_description_sc']);
+
+add_shortcode('mpapi_detect_location', ['MinistryPlatform\MP_API_SHORTCODES', 'mpapi_detect_location_sc']);
+
+
+add_action('wp_ajax_mpapi_query_groups', ['MinistryPlatform\MP_API_SHORTCODES', 'mpapi_query_groups']);
+add_action('wp_ajax_nopriv_mpapi_query_groups', ['MinistryPlatform\MP_API_SHORTCODES', 'mpapi_query_groups']);
 
 class MP_API_SHORTCODES
 {
@@ -165,7 +170,6 @@ class MP_API_SHORTCODES
 
     }
 
-
     public static function mpapi_baptism_sc($atts = [], $content = null)
     {
         $mp = new MP();
@@ -185,7 +189,6 @@ class MP_API_SHORTCODES
 
     }
 
-
     public static function mpapi_debug_test_sc($atts = [], $content = null)
     {
         $mp = new MP();
@@ -196,7 +199,6 @@ class MP_API_SHORTCODES
             return "<p style='color:red; font-weight:bold;'>❌ MinistryPlatform API Authentication Failed!</p>";
         }
     }
-
 
     public static function mpapi_participant_milestones_sc($atts = [], $content = null)
     {
@@ -351,16 +353,6 @@ class MP_API_SHORTCODES
                     >
                 </iframe>';
 
-                    //             $printButtons = '<div style="text-align:center; margin-bottom: 36px;">
-
-                    //         <a 
-                    //         style="display:inline-block;background-color:#4ab6f5;color:white;padding:20px 20px;border-radius:40px;font-size:20px;font-family:\'Poppins\', sans-serif;text-decoration:none;margin-right:10px;"
-                    //         target="_blank" class="btn"  href="' . site_url('/certificate/en.php') . '?name=' . $fullName . '&date=' . urlencode($spanishDate) . '">Print Baptism Certificate</a>
-                    //    </div>
-                    //         <a 
-                    //         style="display:inline-block;background-color:#4ab6f5;color:white;padding:20px 20px;border-radius:40px;font-size:20px;font-family:\'Poppins\', sans-serif;text-decoration:none;margin-right:10px;"
-                    //         target="_blank" class="btn"  href="' . site_url('/certificate/es.php') . '?name=' . $fullName . '&date=' . urlencode($spanishDate) . '">Imprimir Certificado de Bautismo</a>
-                    //    </div>';
                     $printButtons = '
 <div class="baptism-buttons-container">
     <a 
@@ -377,21 +369,7 @@ class MP_API_SHORTCODES
         Imprimir Certificado de Bautismo
     </a>
 </div>';
-                    // <div style="width:60%;text-align:center; margin-bottom:36px; display:flex; justify-content:center; gap:10px;">
-//     <a 
-//         style="display:inline-block;background-color:#4ab6f5;color:white;padding:20px 20px;border-radius:40px;font-size:20px;font-family:\'Poppins\', sans-serif;text-decoration:none;"
-//         target="_blank" class="btn"  
-//         href="' . site_url('/certificate/en.php') . '?name=' . $fullName . '&date=' . urlencode($spanishDate) . '">
-//         Print Baptism Certificate
-//     </a>
-
-                    //     <a 
-//         style="display:inline-block;background-color:#4ab6f5;color:white;padding:20px 20px;border-radius:40px;font-size:20px;font-family:\'Poppins\', sans-serif;text-decoration:none;"
-//         target="_blank" class="btn"  
-//         href="' . site_url('/certificate/es.php') . '?name=' . $fullName . '&date=' . urlencode($spanishDate) . '">
-//         Imprimir Certificado de Bautismo
-//     </a>
-// </div>';
+                    ;
 
                     // $output .= $iframe;
                     $output .= $iframe . $printButtons;
@@ -406,8 +384,6 @@ class MP_API_SHORTCODES
         return $output;
         // return $output;
     }
-
-
 
     public static function mpapi_token_name_sc()
     {
@@ -467,7 +443,6 @@ class MP_API_SHORTCODES
         <?php
         return ob_get_clean();
     }
-
 
     public static function mpapi_login_sc()
     {
@@ -609,7 +584,6 @@ class MP_API_SHORTCODES
 
         wp_die(); // End the AJAX request
     }
-
 
     public static function mpapi_search_events_ajax()
     {
@@ -1601,7 +1575,7 @@ position: absolute;
 
                     $title = esc_html($event['Event_Title'] ?? '');
                     $location = esc_html($event['Congregation_Name'] ?? $event['Congregation_ID_Table.Congregation_Name'] ?? '');
-                    // $desc = esc_html($event['Description'] ?? '');
+                    // $desc = esc_html($event['Web_Description'] ?? '');
                     $desc = esc_html(wp_strip_all_tags($event['Web_Description'] ?? ''));
 
                     // Title will be truncated by CSS to 2 lines
@@ -3568,8 +3542,7 @@ window.performSearch = function() {
                     }
 
                     // Render group cards in the left container
-                    const groupsHtml = `                               
-        <div class="groups-container">
+                    const groupsHtml = `<div class="groups-container">
             <div class="groups-card-grid">
                 ` + groups.map(group => {
                         const groupId = group.Group_ID; // Correct variable declaration
@@ -3592,7 +3565,6 @@ window.performSearch = function() {
                         return `
                 <div class='group-card'>
                     <div class='group-card-top'>
-
                         <div class='group-card-right'>
                             <div class='group-card-title'>
                                 ${GroupName}
@@ -3612,9 +3584,6 @@ window.performSearch = function() {
                             ${displayName}
                         </div>
                         <div class='group-card-display-name'>
-                            ${lifeStage}
-                        </div>
-                        <div class='group-card-display-name'>
                             ${locationName} | ${CongregationName}
                         </div>
                         <div class='group-card-display-name'>
@@ -3626,13 +3595,10 @@ window.performSearch = function() {
                             </div>
                         </div>
                     </div>
-                </div>
-                `;
+                </div>`;
                     }).join('') + `
             </div>
-        </div>
-
-            `;
+        </div>`;
 
                     groupsContainer.innerHTML = `<h3 class="groups-header">Groups:</h3>${groupsHtml}`;
                 }
@@ -3827,5 +3793,3 @@ window.performSearch = function() {
     }
 
 }
-
-
