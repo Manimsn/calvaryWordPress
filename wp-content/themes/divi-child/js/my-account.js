@@ -502,7 +502,8 @@ async function loadMyGivings(){
             fontWeight: 600,
           },
           formatter: function (val) {
-            return `$${val}`;
+            // return `$${val}`;
+            return `$${val.toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 0})}`;
           }
         }
       },
