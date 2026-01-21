@@ -1,8 +1,10 @@
 function renderGivingData(data, ytd = false) {
+  console.log("COMMA CHANGES V2")
   //Total Contribution
   const totalAmnt = document.getElementById('total_contribution');
   const amnt = data.TotalAmount || 0;
-  const formattedAmount = amnt < 0 ? `-$${Math.abs(amnt).toFixed(2)}` : `$${amnt.toFixed(2)}`;
+  // const formattedAmount = amnt < 0 ? `-$${Math.abs(amnt).toFixed(2)}` : `$${amnt.toFixed(2)}`;
+  const formattedAmount = amnt < 0 ? `-$${Math.abs(amnt).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}` : `$${amnt.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
   totalAmnt.textContent = formattedAmount;
 
   //Transaction List
