@@ -3,10 +3,10 @@ let groupSize = 0;
 async function loadRegisteredEvents() {
     try {
       // Replace jwttoken with authToken  
-      const jwtToken = localStorage.getItem("mpp-widgets_AuthToken");
+      const jwtToken = localStorage.getItem("mpp-widgets_JwtToken");
 
         const response = await fetch(
-            "https://mobileserverdev.calvaryftl.org/v1.1/api/My/Event/Registered",
+            `${baseURL}/v1.1/api/My/Event/Registered`,
             {
                 method: "GET",
                 headers: {
@@ -142,7 +142,7 @@ async function loadRegisteredEvents() {
 }
 
 function fetchName() {
-    const token = localStorage.getItem("mpp-widgets_AuthToken");
+    const token = localStorage.getItem("mpp-widgets_JwtToken");
     const payload = JSON.parse(atob(token.split(".")[1]));
     const accountDiv = document.getElementById("my_account_name");
     const nameTitle = accountDiv.querySelector(".dtq-card-title");
@@ -190,10 +190,10 @@ function formatMeetingDate(startISO, endISO) {
 
 async function loadMyGroups() {
     try {
-        const jwtToken = localStorage.getItem("mpp-widgets_AuthToken");
+        const jwtToken = localStorage.getItem("mpp-widgets_JwtToken");
 
         const response = await fetch(
-            "https://mobileserverdev.calvaryftl.org/api/My/V2/Group",
+            `${baseURL}/api/My/V2/Group`,
             {
                 method: "GET",
                 headers: {
@@ -236,7 +236,7 @@ async function loadMyGroups() {
             const newSlide = document.createElement('div');
             newSlide.className = `dsm_card_carousel_child dsm_card_carousel_child_${index} grp_cls swiper-slide`;
             newSlide.innerHTML = `
-                <a target="_blank" href="https://calvaryftlbeta.cloudapps.ministryplatform.cloud/apps-2025.4.3.2/grouplife/${Group_ID}">
+                <a target="_blank" href="https://calvaryftlbeta.cloudapps.ministryplatform.cloud/connect/group/${Group_ID}">
                 <div class="et_pb_module_inner">
                 <div class="dsm_card_wrapper et_pb_text_align_left et_pb_bg_layout_light">
                     <h6 class="dsm_card_title et_pb_module_header">${Group_Name}</h6>
@@ -353,10 +353,10 @@ function groupCarouselNavigation() {
 
 async function loadMyGivings(){
   try{
-    const jwtToken = localStorage.getItem("mpp-widgets_AuthToken");
+    const jwtToken = localStorage.getItem("mpp-widgets_JwtToken");
 
     const response = await fetch(
-      "https://mobileserverdev.calvaryftl.org/api/My/GivingYearly",
+      `${baseURL}/api/My/GivingYearly`,
       {
         method: "GET",
         headers: {
@@ -528,7 +528,8 @@ async function loadMyGivings(){
           for (const [month, amount] of Object.entries(data)) {
             if (month.toLowerCase() === 'total') continue; 
             const bgColor = colors[index % 2];
-            const formattedAmount = amount < 0 ? `-$${Math.abs(amount)}` : `$${amount}`;
+            // const formattedAmount = amount < 0 ? `-$${Math.abs(amount)}` : `$${amount}`;
+            const formattedAmount = amount < 0 ? `-$${Math.abs(amount).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}` : `$${amount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
             html += `
             <div style="display: flex; justify-content: space-between; font-size: 10px; font-weight: 600; line-height: 16px; margin-bottom: 4px;">
             <span style="color: #374151; text-transform: uppercase">${month}</span>
@@ -536,7 +537,8 @@ async function loadMyGivings(){
             </div>`;
             index++;
           }
-          const formattedTotal = total < 0 ? `-$${Math.abs(total)}` : `$${total}`;
+          // const formattedTotal = total < 0 ? `-$${Math.abs(total)}` : `$${total}`;
+          const formattedTotal = total < 0 ? `-$${Math.abs(total).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}` : `$${total.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
 
           html += `<div style="display: flex; justify-content: space-between; font-weight: 600; gap: 10px; margin-top: 8px;">
             <span style="color: #374151; font-size: 10px; line-height: 16px" >TOTAL</span>
