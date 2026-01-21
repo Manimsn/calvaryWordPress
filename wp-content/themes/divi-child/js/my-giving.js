@@ -16,8 +16,8 @@ function renderGivingData(data, ytd = false) {
 
       const date = new Date(donation.Donation_Date);
       const formattedDate = `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
-      const amount = Number(donation.Amount).toFixed(2);
-      const formattedAmount = amount < 0 ? `-$${Math.abs(amount).toFixed(2)}` : `$${amount}`;
+      const amount = Number(donation.Amount);
+      const formattedAmount = amount < 0 ? `-$${Math.abs(amount).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}` : `$${amount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
 
       item.innerHTML = `
         <div class="transaction-date">${formattedDate}</div>
@@ -54,12 +54,12 @@ function renderGivingData(data, ytd = false) {
 
 async function loadMyGivings() {
   try {
-    const jwtToken = localStorage.getItem("mpp-widgets_AuthToken");
+    const jwtToken = localStorage.getItem("mpp-widgets_JwtToken");
     console.log("JWT Token", jwtToken);
 
 
     const response = await fetch(
-      "https://mobileserverdev.calvaryftl.org/api/My/FilteredGiving",
+      `${baseURL}/api/My/FilteredGiving`,
       {
         method: "GET",
         headers: {
@@ -294,7 +294,6 @@ submitBtn.addEventListener('click', async () => {
     }
 
     const today = new Date();
-
     if (selectedRadio.value === 'lastYear') {
       const lastYear = today.getFullYear() - 1;
       startDate = new Date(lastYear, 0, 1);
@@ -317,10 +316,10 @@ submitBtn.addEventListener('click', async () => {
     end: formattedEnd,
   });
 
-  const url = `https://mobileserverdev.calvaryftl.org/api/My/FilteredGiving?${params.toString()}`;
+  const url = `${baseURL}/api/My/FilteredGiving?${params.toString()}`;
 
   try {
-    const jwtToken = localStorage.getItem("mpp-widgets_AuthToken");
+    const jwtToken = localStorage.getItem("mpp-widgets_JwtToken");
     const response = await fetch(url, {
       method: "GET",
       headers: {
@@ -431,7 +430,7 @@ document.addEventListener("DOMContentLoaded", function () {
   if (history.scrollRestoration) {
     history.scrollRestoration = 'manual';
   }
-
+ 
   setTimeout(() => {
     globalThis.scrollTo({ top: 0, left: 0, behavior: "smooth" });
   }, 500);
@@ -440,10 +439,10 @@ document.addEventListener("DOMContentLoaded", function () {
 let url;
 async function loadMyStatement(selectedYear) {
   try {
-    const jwtToken = localStorage.getItem("mpp-widgets_AuthToken");
+    const jwtToken = localStorage.getItem("mpp-widgets_JwtToken");
 
     const response = await fetch(
-      `https://mobileserverdev.calvaryftl.org/v1.0/api/My/YearlyStatement?year=${selectedYear}`,
+      `${baseURL}/v1.0/api/My/YearlyStatement?year=${selectedYear}`,
       {
         method: "GET",
         headers: {
@@ -461,10 +460,10 @@ async function loadMyStatement(selectedYear) {
 
     const monthlyData = await response.json();
     console.log("statement - ", monthlyData);
-
+    
     document.getElementById("statment_chart").style.display = 'block';
     url = monthlyData.url;
-    document.querySelectorAll('.download_button').forEach(button => {
+    document.querySelectorAll('.download_button').forEach(button =>{
       button.style.pointerEvents = Number(monthlyData.Total_Amount) == 0 ? 'none' : 'auto';
       button.style.opacity = Number(monthlyData.Total_Amount) == 0 ? 0.5 : 1;
     })
@@ -566,7 +565,7 @@ async function loadMyStatement(selectedYear) {
         borderColor: '#D1D5DB',
         position: 'back',
         strokeDashArray: 0,
-        padding: { top: 30, bottom: 10 },
+        padding: {top: 30, bottom: 10},
       },
       xaxis: {
         categories: categories,
@@ -670,7 +669,7 @@ async function loadMyStatement(selectedYear) {
     const chartContainer = document.getElementById('statment_chart');
     const chart = new ApexCharts(chartContainer, options);
     chart.render();
-    chart.addEventListener('dataPointMouseEnter', function (event, chartContext, { dataPointIndex }) {
+    chart.addEventListener('dataPointMouseEnter', function(event, chartContext, { dataPointIndex }) {
       const tooltipEl = document.querySelector('.apexcharts-tooltip');
       if (!tooltipEl || !chartContainer) return;
 
@@ -709,11 +708,11 @@ function applyPathClasses() {
 
 document.querySelectorAll('.download_button.mobile, .download_button.desktop')
   .forEach(button => {
-    button.addEventListener('click', function () {
+    button.addEventListener('click', function() {
       if (url != "File not found. Please contact Calvary team") {
         document.querySelector('.download_button.mobile').href = url;
         document.querySelector('.download_button.desktop').href = url;
-        if (!document.getElementById('statementSuccessMessage')) {
+        if(!document.getElementById('statementSuccessMessage')){
           const statementErrorDiv = document.getElementById('statementErrorDiv');
           const sucSymbol = document.createElement('div');
           sucSymbol.classList.add('sucSymbol');
@@ -722,7 +721,7 @@ document.querySelectorAll('.download_button.mobile, .download_button.desktop')
           statementSuccessMessage.textContent = "Successfully downloaded";
           statementErrorDiv.appendChild(sucSymbol);
           statementErrorDiv.appendChild(statementSuccessMessage);
-          setTimeout(() => {
+          setTimeout(()=>{
             statementErrorDiv.removeChild(sucSymbol);
             statementErrorDiv.removeChild(statementSuccessMessage);
           }, 5000)
@@ -730,7 +729,7 @@ document.querySelectorAll('.download_button.mobile, .download_button.desktop')
       } else {
         document.querySelector('.download_button.mobile').removeAttribute("href");
         document.querySelector('.download_button.desktop').removeAttribute("href");
-        if (!document.getElementById('statementErrorMessage')) {
+        if(!document.getElementById('statementErrorMessage')){
           const statementErrorDiv = document.getElementById('statementErrorDiv');
           const errSymbol = document.createElement('div');
           errSymbol.classList.add('errSymbol');
@@ -740,7 +739,7 @@ document.querySelectorAll('.download_button.mobile, .download_button.desktop')
           statementErrorMessage.textContent = "Oops! Encountered an issue. Try again later or contact WebHelp@CalvaryFTL.org";
           statementErrorDiv.appendChild(errSymbol);
           statementErrorDiv.appendChild(statementErrorMessage);
-          setTimeout(() => {
+          setTimeout(()=>{
             statementErrorDiv.removeChild(errSymbol);
             statementErrorDiv.removeChild(statementErrorMessage);
           }, 5000)
@@ -775,7 +774,7 @@ for (let i = 0; i < 4; i++) {
     document.getElementById('statementErrorDiv').innerHTML = '';
     await loadMyStatement(selectedYear);
   });
-  if (i == 0)
+  if(i==0)
     option.classList.add('active');
 }
 
@@ -784,9 +783,9 @@ selected.addEventListener('click', () => {
   select_year.style.display = isOpen ? 'none' : 'block';
   selected.classList.toggle('open', !isOpen);
   selected.classList.toggle('active');
-  if (isOpen) {
+  if(isOpen){
     select_year.querySelectorAll('.option').forEach(o => {
-      if (selected.textContent == o.textContent)
+      if(selected.textContent == o.textContent)
         o.classList.add('active')
     });
   }
@@ -795,52 +794,19 @@ selected.addEventListener('click', () => {
 document.addEventListener('click', (e) => {
   if (!e.target.closest('.custom-dropdown')) {
     const isOpen = select_year.style.display === 'block';
-    if (isOpen) {
+    if(isOpen){
       select_year.style.display = 'none';
       selected.classList.remove('open');
       selected.classList.toggle('active');
       select_year.querySelectorAll('.option').forEach(o => {
-        if (selected.textContent == o.textContent)
+        if(selected.textContent == o.textContent)
           o.classList.add('active')
       });
     }
   }
 });
 
-document.getElementById('options').addEventListener('mouseenter', () => {
+document.getElementById('options').addEventListener('mouseenter',()=>{
   document.getElementById('options').querySelectorAll('.option')
     .forEach(o => o.classList.remove('active'));
-});
-
-// window.addEventListener('load', () => {
-//   const container = document.querySelector('.statment_chart_div');
-//   const track = document.querySelector('.scrollbar-track');
-//   const thumb = document.querySelector('.scrollbar-thumb');
-
-//   if (!container || !track || !thumb) return; // safety check
-
-//   function updateThumb() {
-//     const scrollWidth = container.scrollWidth;
-//     const clientWidth = container.clientWidth;
-//     const scrollLeft = container.scrollLeft;
-//     const trackWidth = track.offsetWidth;
-
-//     if (scrollWidth <= clientWidth) {
-//       thumb.style.display = 'none';
-//       return;
-//     } else {
-//       thumb.style.display = 'block';
-//     }
-
-//     const thumbWidth = (clientWidth / scrollWidth) * trackWidth;
-//     const maxThumbLeft = trackWidth - thumbWidth;
-//     const thumbLeft = (scrollLeft / (scrollWidth - clientWidth)) * maxThumbLeft;
-
-//     thumb.style.width = `${thumbWidth}px`;
-//     thumb.style.transform = `translateX(${thumbLeft}px)`;
-//   }
-
-//   container.addEventListener('scroll', () => requestAnimationFrame(updateThumb));
-//   window.addEventListener('resize', updateThumb);
-//   updateThumb();
-// });
+})
