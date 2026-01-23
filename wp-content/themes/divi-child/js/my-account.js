@@ -1,4 +1,4 @@
-console.log("my-account js loaded");
+console.log("Name chnage");
 let groupSize = 0;
 async function loadRegisteredEvents() {
     try {
@@ -145,10 +145,16 @@ function fetchName() {
     const token = localStorage.getItem("mpp-widgets_JwtToken");
     const payload = JSON.parse(atob(token.split(".")[1]));
     const accountDiv = document.getElementById("my_account_name");
-    const nameTitle = accountDiv.querySelector(".dtq-card-title");
+    // const nameTitle = accountDiv.querySelector(".dtq-card-title");
     console.log("Payload:", payload);
     let UserName = payload.Nickname || payload.FirstName || "User";
-    nameTitle.innerHTML = "Hello, " + UserName + "!";
+    // nameTitle.innerHTML = "Hello, " + UserName + "!";    
+    
+    // Update MY ACCOUNT text if element exists
+    const myAccountText = document.querySelector(".et_pb_text_inner p");
+    if (myAccountText && myAccountText.textContent.trim() === "MY ACCOUNT") {
+        myAccountText.innerHTML = "Hello, " + UserName + "!";
+    }
 }
 
 function formatMeetingDate(startISO, endISO) {
