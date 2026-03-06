@@ -41,10 +41,93 @@ let ph_email = "";
 let profileImageCamera = null;
 const token = localStorage.getItem("mpp-widgets_JwtToken");
 
-// Cropper.js instance
-let cropperInstance = null;
-let currentCropFile = null;
-let currentImageURL = null;
+let cropModuleLoadPromise = null;
+
+function ensureCropModuleLoaded() {
+  if (window.ProfileCrop) {
+    return Promise.resolve(window.ProfileCrop);
+  }
+
+  if (cropModuleLoadPromise) {
+    return cropModuleLoadPromise;
+  }
+
+  cropModuleLoadPromise = new Promise((resolve, reject) => {
+    const script = document.createElement('script');
+    script.src = '/wp-content/themes/divi-child/js/edit-profile/crop-profile-image.js';
+    script.async = true;
+    script.onload = () => {
+      if (window.ProfileCrop) {
+        resolve(window.ProfileCrop);
+      } else {
+        reject(new Error('ProfileCrop module loaded but not available'));
+      }
+    };
+    script.onerror = () => reject(new Error('Failed to load crop-profile-image.js'));
+    document.head.appendChild(script);
+  });
+
+  return cropModuleLoadPromise;
+}
+
+function initializeCropModuleBridge() {
+  if (!window.ProfileCrop || window.ProfileCrop._epBridgeInitialized) {
+    return;
+  }
+
+  window.ProfileCrop.init({
+    compressImage,
+    onApply: (finalFile) => {
+      uploadedProfileFile = finalFile;
+      hasChanges = true;
+      document.getElementById("profileMessage").style.visibility = "hidden";
+
+      const profileContainer = document.querySelector('.profile-photo-container');
+      const initialsDiv = profileContainer?.querySelector('.initials-avatar');
+      if (initialsDiv) initialsDiv.remove();
+
+      const profilePhoto = document.getElementById('profilePhoto');
+      const imageURL = URL.createObjectURL(finalFile);
+      profilePhoto.src = imageURL;
+      profilePhoto.style.display = "block";
+      profilePhoto.onload = () => URL.revokeObjectURL(imageURL);
+    },
+    afterClose: () => {
+      if (typeof $.magnificPopup !== 'undefined') {
+        $.magnificPopup.close();
+      }
+    },
+    onError: (message) => {
+      alert(message);
+    },
+  });
+
+  window.ProfileCrop._epBridgeInitialized = true;
+}
+
+function openCropModal(imageFile) {
+  ensureCropModuleLoaded()
+    .then(() => {
+      initializeCropModuleBridge();
+      window.ProfileCrop.open(imageFile);
+    })
+    .catch((error) => {
+      console.error('Failed to open crop modal:', error);
+      alert('Unable to load image crop functionality. Please refresh and try again.');
+    });
+}
+
+function closeCropModal() {
+  if (window.ProfileCrop) {
+    window.ProfileCrop.close();
+  }
+}
+
+function applyCrop() {
+  if (window.ProfileCrop) {
+    window.ProfileCrop.apply();
+  }
+}
 
 // Page-level loader: create once and provide show/hide helpers
 function ensurePageLoader() {
@@ -1794,6 +1877,14 @@ const isIOS = (() => {
 // Initialize file input and crop modal after DOM loads
 function initializeFileInputAndCropModal() {
   const cameraLabel = document.querySelector('.camera-icon');
+
+  ensureCropModuleLoaded()
+    .then(() => {
+      initializeCropModuleBridge();
+    })
+    .catch((error) => {
+      console.error('Failed to initialize crop module:', error);
+    });
   
   if (!cameraLabel) {
     console.error('Camera label not found');
@@ -1851,65 +1942,6 @@ function initializeFileInputAndCropModal() {
   } else {
     console.error('File input not found or not created');
   }
-  
-  // Attach crop modal event listeners
-  const rotateBtn = document.getElementById('rotateBtn');
-  const zoomSlider = document.getElementById('zoomSlider');
-  const cropApply = document.getElementById('cropApply');
-  const cropCancel = document.getElementById('cropCancel');
-  const cropCloseBtn = document.getElementById('cropCloseBtn');
-  const cropModal = document.getElementById('cropModal');
-  
-  if (!cropModal) {
-    console.error('Crop modal not found in DOM');
-  } else {
-    console.log('Crop modal found in DOM');
-  }
-  
-  // Rotate button (90° clockwise)
-  if (rotateBtn) {
-    rotateBtn.addEventListener('click', () => {
-      if (cropperInstance) {
-        cropperInstance.rotate(90);
-      }
-    });
-  }
-  
-  // Zoom slider
-  if (zoomSlider) {
-    zoomSlider.addEventListener('input', (e) => {
-      if (cropperInstance) {
-        const value = parseFloat(e.target.value);
-        cropperInstance.zoomTo(value);
-      }
-    });
-  }
-  
-  // Apply button
-  if (cropApply) {
-    cropApply.addEventListener('click', applyCrop);
-  }
-  
-  // Cancel button
-  if (cropCancel) {
-    cropCancel.addEventListener('click', closeCropModal);
-  }
-  
-  // Close button (X)
-  if (cropCloseBtn) {
-    cropCloseBtn.addEventListener('click', closeCropModal);
-  }
-  
-  // Close on overlay click
-  if (cropModal) {
-    cropModal.addEventListener('click', (e) => {
-      if (e.target.id === 'cropModal') {
-        closeCropModal();
-      }
-    });
-  }
-  
-  console.log('Crop modal event listeners attached');
 }
 
 // Run camera icon initialization immediately (don't wait for DOMContentLoaded)
@@ -2146,166 +2178,4 @@ function compressImage(file, maxWidth = 1024, quality = 0.7) {
   });
 }
 
-// ========== CROP MODAL FUNCTIONS (Gmail-style) ==========
-
-function openCropModal(imageFile) {
-  console.log('openCropModal called with file:', imageFile.name);
-  
-  const cropModal = document.getElementById('cropModal');
-  const imageToCrop = document.getElementById('imageToCrop');
-  
-  if (!cropModal) {
-    console.error('Crop modal element not found in DOM!');
-    alert('Crop modal not found. Please ensure the modal HTML is added to your page.');
-    return;
-  }
-  
-  if (!imageToCrop) {
-    console.error('Image to crop element not found!');
-    return;
-  }
-  
-  console.log('Crop modal elements found, initializing...');
-  
-  currentCropFile = imageFile;
-  
-  // Set image source
-  currentImageURL = URL.createObjectURL(imageFile);
-  imageToCrop.src = currentImageURL;
-  cropModal.style.display = 'flex';
-  
-  console.log('Crop modal displayed');
-  
-  // Initialize Cropper.js
-  imageToCrop.onload = () => {
-    console.log('Image loaded, initializing Cropper.js...');
-    
-    // Destroy existing instance if any
-    if (cropperInstance) {
-      cropperInstance.destroy();
-    }
-    
-    cropperInstance = new Cropper(imageToCrop, {
-      aspectRatio: 1, // Square crop for circular profile
-      viewMode: 1,
-      dragMode: 'move', // Allow dragging to reposition
-      autoCropArea: 0.65,
-      restore: false,
-      guides: false,
-      center: true,
-      highlight: false,
-      cropBoxMovable: false, // Fixed crop area (Gmail-style)
-      cropBoxResizable: false, // Fixed size
-      toggleDragModeOnDblclick: false,
-      minContainerWidth: 300,
-      minContainerHeight: 300,
-      background: false,
-      zoomOnWheel: false,
-      ready: function() {
-        console.log('Cropper.js ready');
-        // Set initial zoom to fit
-        const imageData = this.cropper.getImageData();
-        const containerData = this.cropper.getContainerData();
-        const minZoom = Math.max(
-          containerData.width / imageData.naturalWidth,
-          containerData.height / imageData.naturalHeight
-        );
-        const zoomSlider = document.getElementById('zoomSlider');
-        if (zoomSlider) {
-          zoomSlider.min = minZoom;
-          zoomSlider.max = minZoom * 3;
-          zoomSlider.value = minZoom;
-          zoomSlider.step = 0.01;
-        }
-      }
-    });
-    
-    // Don't revoke URL here - Cropper.js still needs it
-  };
-}
-
-function closeCropModal() {
-  const cropModal = document.getElementById('cropModal');
-  const imageToCrop = document.getElementById('imageToCrop');
-  
-  if (cropperInstance) {
-    cropperInstance.destroy();
-    cropperInstance = null;
-  }
-  
-  // Revoke the blob URL to free up memory
-  if (currentImageURL) {
-    URL.revokeObjectURL(currentImageURL);
-    currentImageURL = null;
-  }
-  
-  // Clear the image src
-  if (imageToCrop) {
-    imageToCrop.src = '';
-  }
-  
-  if (cropModal) {
-    cropModal.style.display = 'none';
-  }
-  
-  currentCropFile = null;
-}
-
-async function applyCrop() {
-  if (!cropperInstance) return;
-  
-  const croppedCanvas = cropperInstance.getCroppedCanvas({
-    width: 800,
-    height: 800,
-    imageSmoothingEnabled: true,
-    imageSmoothingQuality: 'high',
-  });
-  
-  if (!croppedCanvas) {
-    console.error('Failed to get cropped canvas');
-    return;
-  }
-  
-  croppedCanvas.toBlob(async (blob) => {
-    if (!blob) {
-      console.error('Failed to create blob from canvas');
-      return;
-    }
-    
-    const croppedFile = new File([blob], 'profile-photo.jpg', {
-      type: 'image/jpeg'
-    });
-    
-    // Compress if needed
-    let finalFile = croppedFile;
-    if (croppedFile.size > 1 * 1024 * 1024) {
-      finalFile = await compressImage(croppedFile, 1024, 0.7);
-      console.log('Compressed size:', finalFile.size / 1024, 'KB');
-    }
-    
-    // Set to profile photo
-    uploadedProfileFile = finalFile;
-    hasChanges = true;
-    document.getElementById("profileMessage").style.visibility = "hidden";
-    
-    // Remove initials if any
-    const profileContainer = document.querySelector('.profile-photo-container');
-    const initialsDiv = profileContainer?.querySelector('.initials-avatar');
-    if (initialsDiv) initialsDiv.remove();
-    
-    const profilePhoto = document.getElementById('profilePhoto');
-    const imageURL = URL.createObjectURL(finalFile);
-    profilePhoto.src = imageURL;
-    profilePhoto.style.display = "block";
-    
-    profilePhoto.onload = () => URL.revokeObjectURL(imageURL);
-    
-    // Close crop modal
-    closeCropModal();
-    
-    // Close parent modal if exists (magnificPopup)
-    if (typeof $.magnificPopup !== 'undefined') {
-      $.magnificPopup.close();
-    }
-  }, 'image/jpeg', 0.9);
-}
+// Crop logic moved to /js/Edit-Profile/crop-profile-image.js
