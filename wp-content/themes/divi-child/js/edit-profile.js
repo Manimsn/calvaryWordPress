@@ -1890,22 +1890,30 @@ function initializeFileInputAndCropModal() {
     console.error('Camera label not found');
     return;
   }
+
+  // Keep a stable trigger target so DIVI's popup binding can always find it.
+  cameraLabel.id = "cameraModal";
+
+  if (isIOS) {
+    cameraLabel.style.touchAction = 'manipulation';
+    cameraLabel.style.webkitTapHighlightColor = 'transparent';
+
+    // iOS Safari can drop synthetic clicks on transformed/overlayed elements.
+    // This forces a reliable click path for Magnific Popup.
+    if (!cameraLabel.dataset.iosPopupFallbackBound) {
+      cameraLabel.addEventListener('touchend', function (event) {
+        if (event.cancelable) event.preventDefault();
+        cameraLabel.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+      }, { passive: false });
+      cameraLabel.dataset.iosPopupFallbackBound = '1';
+    }
+  }
   
   // Create or get file input
   let fileInput = document.getElementById('fileInput');
   
-  if (isIOS && !fileInput) {
-    const input = document.createElement('input');
-    input.type = "file";
-    input.id = "fileInput";
-    input.accept = "image/*";
-    input.style.display = 'none';
-    cameraLabel.appendChild(input);
-    fileInput = input;
-  } else if (!isIOS) {
-    // For desktop, set ID for DIVI's magnificPopup to work
-    cameraLabel.id = "cameraModal";
-  }
+  // Do not inject a hidden iOS input into the camera icon. It can hijack taps and
+  // skip the first modal. Upload flow remains inside the first modal's button.
   
   // Attach file input event listener for iOS
   if (fileInput) {
