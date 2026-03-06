@@ -1,3 +1,4 @@
+console.log("QA CAN PROCEED");
 const login = document.getElementById("loginButton");
 const inputElement = document.getElementById("loginInput");
 const errorDiv = document.getElementById("inputError");
@@ -11,6 +12,9 @@ let signUpPayload = {
 };
 let timeoutDidnotReceiveMessage;
 let userNameForgotPass = false;
+let isLoading = false;
+const baseURL = "https://mobileserveruat.calvaryftl.org";
+const dbURL = "https://mybeta.calvaryftl.org";
 
 function validateEmail(email) {
   const re = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -84,6 +88,8 @@ function onBlurvalidatePhone() {
 }
 
 async function handleLogin() {
+  if(isLoading) return;
+  isLoading = true;
   onBlurvalidatePhone();
   const input = document.getElementById("loginInput");
   const continueBtn = document.getElementById("continueButton");
@@ -109,7 +115,7 @@ async function handleLogin() {
 
   try {
     const response = await fetch(
-      "https://mobileserverdev.calvaryftl.org/v1.2/api/Login",
+      `${baseURL}/v1.2/api/Login`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -118,7 +124,7 @@ async function handleLogin() {
     );
 
     const text = await response.text();
-        
+
     if (!response.ok) {
       console.log(response);
       if (response.status === 404) {
@@ -157,6 +163,11 @@ async function handleLogin() {
       document.getElementById("signInButton").disabled = true;
       document.getElementById("userValueDisplay").innerText = value;
       phone_email = value;
+      if(phone_email.includes("@")){
+        document.querySelectorAll("#loginCodeMessage .mailText").forEach(el => el.style.display = "contents") ;
+      } else {
+        document.querySelectorAll("#loginCodeMessage .mailText").forEach(el => el.style.display = "none");
+      }
       // Hide initial login form
       // document.querySelector("img").style.display = "none";
       // document.querySelector("h2").style.display = "none";
@@ -177,8 +188,8 @@ async function handleLogin() {
           setupOtpListeners();
         //   window.otpListenersAttached = true;
         // }
+        }
       }
-    }
     else {
       // Password prompt
       document.getElementById("exPasswordForm").style.display = "flex";
@@ -193,6 +204,7 @@ async function handleLogin() {
     continueBtn.disabled = false;
     continueBtn.innerText = "CONTINUE";
   }
+  isLoading = false;
 }
 
 function checkshowLoginForm(event) {
@@ -291,6 +303,8 @@ function setupOtpListeners() {
 }
 
 async function verifyOtp() {
+  if(isLoading) return;
+  isLoading = true;
   const signInBtn = document.getElementById("signInButton");
   const otpInputs = document.querySelectorAll(".otpInputBox");
   const Phone_Email = document
@@ -314,7 +328,7 @@ async function verifyOtp() {
 
   try {
     const response = await fetch(
-      "https://mobileserverdev.calvaryftl.org/v1.2/api/LoginCode/Confirm",
+      `${baseURL}/v1.2/api/LoginCode/Confirm`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -332,7 +346,7 @@ async function verifyOtp() {
       console.log("✅ OTP Verified:", data);
 
       document.getElementById("setPasswordForm").style.display = "flex";
-      document.getElementById("otpSection").style.display = "none";
+        document.getElementById("otpSection").style.display = "none";
       phone_email = Phone_Email;
 
     } else {
@@ -364,6 +378,7 @@ async function verifyOtp() {
   signInBtn.disabled = false;
   signInBtn.classList.remove("button-loading");
   signInBtn.innerText = "VERIFY";
+  isLoading = false;
 }
 
 function validateInputEmail() {
@@ -540,6 +555,8 @@ function setupSecondaryOtpListeners() {
 }
 
 async function verifySecondaryContact() {
+  if(isLoading) return;
+  isLoading = true;
   const email_input = document.getElementById("secondaryContactInputEmail");
   const phone_input = document.getElementById("secondaryContactInputPhone");
   const addButton = document.getElementById("addButton");
@@ -565,7 +582,7 @@ async function verifySecondaryContact() {
 
   try {
     const response = await fetch(
-      "https://mobileserverdev.calvaryftl.org/api/My/SecondaryContact",
+      `${baseURL}/api/My/SecondaryContact`,
       {
         method: "POST",
         headers: {
@@ -602,6 +619,11 @@ async function verifySecondaryContact() {
       document.getElementById("secondaryContactForm").style.display = "none";
       document.getElementById("secondaryotpSection").style.display = "flex";
       timeoutDidnotReceiveMessage = setTimeout(showSCDidnotReceiveMessage, 10000);
+      if(input_value.includes("@")){
+        document.querySelectorAll("#secondaryContactCodeMessage .mailText").forEach(el => el.style.display = "contents") ;
+      } else {
+        document.querySelectorAll("#secondaryContactCodeMessage .mailText").forEach(el => el.style.display = "none") ;
+      }
       document.getElementById("secondaryValueDisplay").innerText = input_value;
 
       // Focus OTP box
@@ -624,6 +646,7 @@ async function verifySecondaryContact() {
     addButton.classList.remove("button-loading");
     addButton.innerText = isEmail ? "add email address" : "add cell phone number";
   }
+  isLoading = false;
 }
 
 function showLoginForm() {
@@ -673,7 +696,7 @@ async function resendOtp() {
 
   try {
     const response = await fetch(
-      "https://mobileserverdev.calvaryftl.org/api/LoginCode",
+      `${baseURL}/api/LoginCode`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -966,7 +989,7 @@ function resetLoginModalState() {
   }, 900); // 1000 milliseconds = 1 second
 
   const AccessToken = localStorage.getItem("mpp-widgets_AuthToken");
-  const valid = isAccessTokenValid(AccessToken, "https://mybeta.calvaryftl.org/ministryplatformapi/oauth", "https://mybeta.calvaryftl.org/ministryplatformapi/oauth/resources");
+  const valid = isAccessTokenValid(AccessToken, `${dbURL}/ministryplatformapi/oauth`, `${dbURL}/ministryplatformapi/oauth/resources`);
   const reloadUrlPath = ["/events/", "/custom-form-2/", "/opportunity/"]
   if(reloadUrlPath.includes(window.location.pathname) && valid){
     window.location.reload();
@@ -1229,6 +1252,8 @@ function checkSignupInputs() {
 
 async function submitSignup(event) {
   event.preventDefault();
+  if(isLoading) return;
+  isLoading = true;
   const firstName = document.getElementById("firstNameInput");
   const lastName = document.getElementById("lastNameInput");
   const emailInput = document.getElementById("emailInput");
@@ -1263,7 +1288,7 @@ async function submitSignup(event) {
 
   try {
     const response = await fetch(
-      "https://mobileserverdev.calvaryftl.org/api/SignupCode",
+      `${baseURL}/api/SignupCode`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -1307,6 +1332,11 @@ async function submitSignup(event) {
       document.getElementById("signupSection").style.display = "none";
       document.getElementById("signupotpSection").style.display = "flex";
       timeoutDidnotReceiveMessage = setTimeout(showSUDidnotReceiveMessage,10000);
+      if(email_phone.includes("@")){
+        document.querySelectorAll("#signupCodeMessage .mailText").forEach(el => el.style.display = "contents");
+      } else {
+        document.querySelectorAll("#signupCodeMessage .mailText").forEach(el => el.style.display = "none");
+      }
       document.getElementById("signupUserValueDisplay").innerText = email_phone;
       errorFirstName.style.visibility = 'hidden';
       firstNameErrorText.innerText = "";
@@ -1339,6 +1369,7 @@ async function submitSignup(event) {
     signUpButton.innerText = "CONTINUE";
     alert("An error occurred while submitting your signup. Please try again.");
   }
+  isLoading = false;
 }
 
 function showSignupForm() {
@@ -1500,7 +1531,7 @@ async function resendSignUpOtp() {
 
   try {
     const response = await fetch(
-      "https://mobileserverdev.calvaryftl.org/api/SignupCode",
+      `${baseURL}/api/SignupCode`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -1564,6 +1595,8 @@ async function resendSignUpOtp() {
 }
 
 async function verifySingupOtp() {
+  if(isLoading) return;
+  isLoading = true;
   const signUpOtpBtn = document.getElementById("signupOTPButton");
   const signUpotpInputs = document.querySelectorAll(".signupotpInputBox");
 
@@ -1604,7 +1637,7 @@ async function verifySingupOtp() {
 
   try {
     const response = await fetch(
-      "https://mobileserverdev.calvaryftl.org/v1.2/api/SignUpCode/Confirm",
+      `${baseURL}/v1.2/api/SignUpCode/Confirm`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -1617,7 +1650,7 @@ async function verifySingupOtp() {
       signUpPayload.Last_Name = lastNameValue;
       signUpPayload.code.Phone_Email = email_phone;
       document.getElementById("signUpPasswordForm").style.display = "flex";
-      document.getElementById("signupotpSection").style.display = "none";
+        document.getElementById("signupotpSection").style.display = "none";
     } else {
       console.log("✅ OTP failed:", response);
       // Error: invalid OTP
@@ -1651,6 +1684,7 @@ async function verifySingupOtp() {
   signUpOtpBtn.disabled = false;
   signUpOtpBtn.classList.remove("button-loading");
   signUpOtpBtn.innerText = "SIGN IN";
+  isLoading = false;
 }
 
 function showAddSecondaryContactForm() {
@@ -1686,6 +1720,8 @@ function showAddSecondaryContactForm() {
 }
 
 async function secodaryLoginverifyOtp() {
+  if(isLoading) return;
+  isLoading = true;
   const secondaryLoginOtpBtn = document.getElementById("secondaryOTPButton");
   const secondaryLoginotpInputs = document.querySelectorAll(
     ".secondaryotpInputBox"
@@ -1725,7 +1761,7 @@ async function secodaryLoginverifyOtp() {
 
   try {
     const response = await fetch(
-      "https://mobileserverdev.calvaryftl.org/api/My/SecondaryContact/Confirm",
+      `${baseURL}/api/My/SecondaryContact/Confirm`,
       {
         method: "PUT",
         headers: {
@@ -1803,7 +1839,7 @@ async function secodaryLoginverifyOtp() {
     secondaryLoginOtpBtn.innerText = "VERIFY";
     return;
   }
-
+  isLoading = false;
   console.log("secodaryLoginverifyOtp", payload);
 }
 
@@ -1838,7 +1874,7 @@ async function resendSecondaryLoginOtp() {
 
   try {
     const response = await fetch(
-      "https://mobileserverdev.calvaryftl.org/api/My/SecondaryContact",
+      `${baseURL}/api/My/SecondaryContact`,
       {
         method: "POST",
         headers: {
@@ -1918,35 +1954,35 @@ function closeModal() {
 }
 
 function hideMobileLoginBtn() {
-  document.querySelectorAll("#menu-item-42971").forEach((el) => {
+  document.querySelectorAll("#menu-item-42990").forEach((el) => {
     el.style.setProperty("display", "none", "important");
   });
-  document.querySelectorAll("#menu-item-43017").forEach((el) => {
+  document.querySelectorAll("#menu-item-43013").forEach((el) => {
     el.style.setProperty("display", "block", "important");
     el.style.setProperty("padding-top", "10px");
     el.style.setProperty("border-top", "2px solid white");
   });
-  document.querySelectorAll("#menu-item-43016").forEach((el) => {
+  document.querySelectorAll("#menu-item-43015").forEach((el) => {
     el.style.setProperty("display", "block", "important");
   });
-  document.querySelectorAll("#menu-item-42887").forEach((el) => {
+  document.querySelectorAll("#menu-item-43005").forEach((el) => {
     el.style.setProperty("padding-bottom", "10px");
   });
-  document.querySelectorAll("#menu-item-43730").forEach((el) => {
+  document.querySelectorAll("#menu-item-43014").forEach((el) => {
     el.style.setProperty("display", "block", "important");
   });
 }
 function showMobileLoginBtn() {
-  document.querySelectorAll("#menu-item-42971").forEach((el) => {
+  document.querySelectorAll("#menu-item-42990").forEach((el) => {
     el.style.setProperty("display", "block", "important");
   });
-  document.querySelectorAll("#menu-item-43017").forEach((el) => {
+  document.querySelectorAll("#menu-item-43013").forEach((el) => {
     el.style.setProperty("display", "none", "important");
   });
-  document.querySelectorAll("#menu-item-43016").forEach((el) => {
+  document.querySelectorAll("#menu-item-43015").forEach((el) => {
     el.style.setProperty("display", "none", "important");
   });
-  document.querySelectorAll("#menu-item-43730").forEach((el) => {
+  document.querySelectorAll("#menu-item-43014").forEach((el) => {
     el.style.setProperty("display", "none", "important");
   });
 }
@@ -2035,10 +2071,11 @@ function userifyDiviMobileHamburger(initials) {
         img.style.borderRadius = "50%";
         img.style.height = "100%";
         img.style.width = "100%";
+        img.style.objectFit = "cover";
         avatar.appendChild(img);
     }
     else{
-      avatar.textContent = initials || "";
+    avatar.textContent = initials || "";
     }
 
     const dropdownIcon = document.createElement("span");
@@ -2087,7 +2124,7 @@ function cleanupUserifyDiviMobileHamburger() {
 async function updateUserHeaderUI() {
   const token = localStorage.getItem("mpp-widgets_JwtToken");
   const AccessToken = localStorage.getItem("mpp-widgets_AuthToken");
-  const valid = isAccessTokenValid(AccessToken, "https://mybeta.calvaryftl.org/ministryplatformapi/oauth", "https://mybeta.calvaryftl.org/ministryplatformapi/oauth/resources");
+  const valid = isAccessTokenValid(AccessToken, `${dbURL}/ministryplatformapi/oauth`, `${dbURL}/ministryplatformapi/oauth/resources`);
   if (valid) {
   const loginButton = document.getElementById("loginButton");
   const userInfo = document.getElementById("user-info");
@@ -2099,7 +2136,7 @@ async function updateUserHeaderUI() {
       console.log("Decoded JWT payload:", payload);
 
       const response = await fetch(
-        "https://mobileserverdev.calvaryftl.org/api/My/Contact",
+        `${baseURL}/api/My/Contact`,
         {
           method: "GET",
           headers: {
@@ -2125,21 +2162,21 @@ async function updateUserHeaderUI() {
         userifyDiviMobileHamburger(text.Web_Image_URL);
       }
       else {
-        const firstName = payload.FirstName || "";
-        const lastName = payload.LastName || "";
-        const email = payload.UserName || "";
+      const firstName = payload.FirstName || "";
+      const lastName = payload.LastName || "";
+      const email = payload.UserName || "";
 
-        const initials =
-          firstName && lastName
+      const initials =
+        firstName && lastName
             ? `${firstName.charAt(0).toUpperCase()}${lastName.charAt(0).toUpperCase()}`
-            : email.charAt(0).toUpperCase();
+          : email.charAt(0).toUpperCase();
 
-        if (userInfo) {
-          userInfo.style.display = "flex";
-          userAvatar.textContent = initials;
-        }
-        // 🔹 Make the mobile hamburger show the avatar but keep Divi's menu toggle
-        userifyDiviMobileHamburger(initials);
+      if (userInfo) {
+        userInfo.style.display = "flex";
+        userAvatar.textContent = initials;
+      }
+      // 🔹 Make the mobile hamburger show the avatar but keep Divi's menu toggle
+      userifyDiviMobileHamburger(initials);
       }
       // Update UI
       if (loginButton) loginButton.style.display = "none";
@@ -2151,14 +2188,16 @@ async function updateUserHeaderUI() {
     }
     loginButton.style.visibility = "visible";
   }
+
   }
   else {
     // Remove token from local storage
     localStorage.removeItem("mpp-widgets_AuthToken");
     localStorage.removeItem("mpp-widgets_JwtToken");
     localStorage.removeItem("mpp-widgets_ExpiresAfter");
-    const path = window.location.pathname;
-    const redirectUrlPath = ["/my-account/", "/my-contributions/", "/my-giving/", "/baptism-certificate/", "/my-grouplife/", "/my-household/", "/volunteer-requirements/", "/forms-docs", "/edit-profile/"]
+    localStorage.removeItem("primaryContact");
+      const path = window.location.pathname;
+    const redirectUrlPath = ["/my-account/", "/my-contributions/", "/my-giving/", "/baptism-certificate/", "/my-grouplife/", "/my-household/", "/volunteer-requirements/", "/forms-docs/", "/edit-profile/", "/my-account-page/", "/my-giving-page/"]
     if(redirectUrlPath.includes(path)){
       const token = localStorage.getItem("mpp-widgets_AuthToken"); 
       if (!token) {
@@ -2167,7 +2206,7 @@ async function updateUserHeaderUI() {
     }
   }
   const path = window.location.pathname;
-  const redirectUrlPath = ["/my-account/", "/my-contributions/", "/my-giving/", "/baptism-certificate/", "/my-grouplife/", "/my-household/", "/volunteer-requirements/", "/forms-docs", "/edit-profile/"]
+  const redirectUrlPath = ["/my-account/", "/my-contributions/", "/my-giving/", "/baptism-certificate/", "/my-grouplife/", "/my-household/", "/volunteer-requirements/", "/forms-docs/", "/edit-profile/", "/my-account-page/", "/my-giving-page/"]
   if(redirectUrlPath.includes(path)){
     const token = localStorage.getItem("mpp-widgets_AuthToken"); 
     if (!token) {
@@ -2180,6 +2219,22 @@ async function updateUserHeaderUI() {
     showLogoutModal();
   }
 
+  const email_phone = localStorage.getItem('Email_Phone');
+  if( email_phone != null){
+    console.log("forceLogout reached");
+    jQuery(window).on("load", function () {
+    setTimeout(() => {
+      jQuery("#loginButton").trigger("click");
+      jQuery("#menu-item-42990").trigger("click");
+      }, 400);
+    });
+
+    document.getElementById("loginInput").value = email_phone;
+    document.getElementById("continueButton").disabled = false;
+    onBlurvalidatePhone();
+    localStorage.removeItem('Email_Phone');
+    return;
+  }
 }
 
 document.addEventListener("DOMContentLoaded", updateUserHeaderUI);
@@ -2197,17 +2252,20 @@ function showLogoutModal() {
           z-index: 999 !important;
         }
         .et_pb_column--with-menu,
+        .et_pb_row.et_pb_row_0_tb_header.custom-menu-row.et_pb_sticky_module.et_pb_equal_columns.et_pb_row--with-menu.et_pb_row_1-4_1-2_1-4,
         .et_pb_row.et_pb_row_3_tb_header.et_pb_equal_columns.et_pb_gutters1.et_pb_row--with-menu {
           z-index: 1 !important;
         }
       `;
   document.head.appendChild(style);
   document.getElementById("logoutModal").style.display = "flex";
+  lockScroll();
 }
 
 function closeLogoutModal() {
   document.getElementById("logoutModal").style.display = "none";
   const existingStyle = document.getElementById("remove-zindex-style");
+  unlockScroll();
   if (existingStyle) {
     existingStyle.remove();
   }
@@ -2226,6 +2284,7 @@ function handleLogout() {
   localStorage.removeItem("mpp-widgets_AuthToken");
   localStorage.removeItem("mpp-widgets_JwtToken");
   localStorage.removeItem("mpp-widgets_ExpiresAfter");
+  localStorage.removeItem("primaryContact");
 
   // Update UI
   if (loginButton) loginButton.style.display = "inline-block";
@@ -2238,10 +2297,10 @@ function handleLogout() {
     $('ul#mobile_menu2 li.menu-item-has-children').removeClass('dt-open');
     $('ul#mobile_menu2 li.menu-item-has-children .sub-menu').removeClass('visible');
   });
-  const redirectUrlPath = ["/my-account/", "/my-contributions/", "/my-giving/", "/baptism-certificate/", "/my-grouplife/", "/my-household/", "/volunteer-requirements/", "/forms-docs", "/edit-profile/"]
+  const redirectUrlPath = ["/my-account/", "/my-contributions/", "/my-giving/", "/baptism-certificate/", "/my-grouplife/", "/my-household/", "/volunteer-requirements/", "/forms-docs/", "/edit-profile/", "/my-account-page/", "/my-giving-page/"]
   const reloadUrlPath = ["/events/", "/custom-form-2/", "/opportunity/"]
   if(redirectUrlPath.includes(window.location.pathname)){
-    localStorage.setItem('showLogoutModal', "true")
+    if(localStorage.getItem('Email_Phone') === null) localStorage.setItem('showLogoutModal', "true")
     window.location.replace('/');
     return;
   }
@@ -2274,7 +2333,7 @@ document.addEventListener(
   "click",
   function (e) {
     const logoutClick = e.target.closest(
-      "#menu-item-43016, #menu-item-43016 a"
+      "#menu-item-43015, #menu-item-43015 a"
     );
     if (!logoutClick) return;
     e.preventDefault(); // stop "#" navigation
@@ -2327,12 +2386,12 @@ function userInfo() {
 document.getElementById('user-info')?.addEventListener('click', userInfo);
 
 const megaMenuItem = document.querySelector('.mega-menu');
- 
+
 if (megaMenuItem) {
   megaMenuItem.addEventListener('mouseenter', () => {
     megaMenuItem.classList.add('active');
   });
- 
+
   megaMenuItem.addEventListener('mouseleave', () => {
     megaMenuItem.classList.remove('active');
   });
@@ -2360,7 +2419,6 @@ document.querySelectorAll(".toggle-visibility").forEach((button) => {
     const input = container.querySelector("#passwordInput")|| container.querySelector("#exPasswordInput") || container.querySelector("#setPasswordInput") || container.querySelector("#setPasswordConfirmInput") || container.querySelector("#signUpPasswordInput") || container.querySelector("#signUpPasswordConfirmInput");
     const eyeIcon = button.querySelector(".eyeIcon");
     const value = input.value.trim();
-    console.log(value);
 
     if (value === "") {
       input.type = "password";
@@ -2439,6 +2497,7 @@ function validateUsernamePasswordInput() {
 }
 
 async function handleUsernameLogin() {
+  if(isLoading) return;
   let usernameValue = usernameInput.value.trim();
   let passwordValue = passwordInput.value.trim();
 
@@ -2452,7 +2511,7 @@ async function handleUsernameLogin() {
 
   try {
     const response = await fetch(
-      "https://mobileserverdev.calvaryftl.org/v1.2/api/LoginUsername",
+      `${baseURL}/v1.2/api/LoginUsername`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -2497,9 +2556,12 @@ async function handleUsernameLogin() {
     usernameSignInBtn.innerText = "SIGN IN";
     usernameSignInBtn.classList.remove("button-loading");
   }
+  isLoading = false;
 }
 
 async function handleExPasswordLogin() {
+  if(isLoading) return;
+  isLoading = true;
   let exPasswordValue = exPasswordInput.value.trim();
 
   // Start sending
@@ -2509,7 +2571,7 @@ async function handleExPasswordLogin() {
 
   try {
     const response = await fetch(
-      "https://mobileserverdev.calvaryftl.org/v1.2/api/LoginPassword",
+      `${baseURL}/v1.2/api/LoginPassword`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -2531,7 +2593,7 @@ async function handleExPasswordLogin() {
 
       // Save JWT Token
       const token = JSON.parse(atob(data.AccessToken.split(".")[1]));
-
+      localStorage.setItem("primaryContact", phone_email.includes('@'));
       localStorage.setItem("mpp-widgets_AuthToken", data.AccessToken);
       localStorage.setItem("mpp-widgets_JwtToken", data.JwtToken);
       localStorage.setItem("mpp-widgets_ExpiresAfter", new Date(token.exp * 1000));
@@ -2600,6 +2662,7 @@ async function handleExPasswordLogin() {
     exPasswordSignInBtn.innerText = "SIGN IN";
     exPasswordSignInBtn.classList.remove("button-loading");
   }
+  isLoading = false;
 }
 
 // Set Password functionality
@@ -2657,6 +2720,8 @@ function validateSetPasswordInput(){
 }
 
 async function handleSetPasswordLogin() {
+  if(isLoading) return;
+  isLoading = true;
   const password = setPasswordInput.value.trim();
   const confirmPassword = setPasswordConfirmInput.value.trim();
 
@@ -2667,7 +2732,7 @@ async function handleSetPasswordLogin() {
 
   try {
     const response = await fetch(
-      "https://mobileserverdev.calvaryftl.org/v1.2/api/Login/SetPassword",
+      `${baseURL}/v1.2/api/Login/SetPassword`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -2701,6 +2766,7 @@ async function handleSetPasswordLogin() {
     setPasswordBtn.innerText = forgotPasswordFlow ? "UPDATE PASSWORD" : "SET PASSWORD";
     setPasswordBtn.classList.remove("button-loading");
   }
+  isLoading = false;
 }
 
 document.getElementById("reLoginButton")?.addEventListener("click", function() {
@@ -2767,6 +2833,8 @@ function validateSignUpPasswordInput(){
 }
 
 async function handleSignUpPasswordLogin() {
+  if(isLoading) return;
+  isLoading = true;
   const password = signUpPasswordInput.value.trim();
   const confirmPassword = signUpPasswordConfirmInput.value.trim();
 
@@ -2787,7 +2855,7 @@ async function handleSignUpPasswordLogin() {
 
   try {
     const response = await fetch(
-      "https://mobileserverdev.calvaryftl.org/v1.2/api/Login/NewAccount",
+      `${baseURL}/v1.2/api/Login/NewAccount`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -2811,7 +2879,7 @@ async function handleSignUpPasswordLogin() {
 
       // Save JWT Token
       const token = JSON.parse(atob(data.AccessToken.split(".")[1]));
-
+      localStorage.setItem("primaryContact", payload.code.Phone_Email.includes('@'));
       localStorage.setItem("mpp-widgets_AuthToken", data.AccessToken);
       localStorage.setItem("mpp-widgets_JwtToken", data.JwtToken);
       localStorage.setItem("mpp-widgets_ExpiresAfter", new Date(token.exp * 1000));
@@ -2870,7 +2938,7 @@ async function handleSignUpPasswordLogin() {
     signUpPasswordBtn.innerText = "SIGN IN";
     signUpPasswordBtn.classList.remove("button-loading");
   }
-
+  isLoading = false;
 }
 document.getElementById('exPasswordForgotPassword').addEventListener('click', handleResetPassword_EmailPhone);
 
@@ -2892,7 +2960,7 @@ async function handleResetPassword_EmailPhone(){
     forgotPasswordFlow = true;
     forgotPasswordClick = true;
     const response = await fetch(
-      "https://mobileserverdev.calvaryftl.org/api/LoginCode",
+      `${baseURL}/api/LoginCode`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -2912,6 +2980,16 @@ async function handleResetPassword_EmailPhone(){
       document.getElementById("resetPasswordOtpSection").style.display = "flex";
       timeoutDidnotReceiveMessage = setTimeout(showRPDidnotReceiveMessage, 10000);
       document.getElementById("resetPasswordValueDisplay").innerText = phone_email;
+      if(phone_email.includes("@")){        
+        document.querySelectorAll("#resetPasswordMessage .mailText").forEach(el => {
+          el.style.display = "contents";
+        });
+      }
+      else {        
+        document.querySelectorAll("#resetPasswordMessage .mailText").forEach(el => {
+          el.style.display = "none";
+        });
+      }
       error2.innerText = "";
       exPasswordErrorDiv.style.visibility = "hidden";
       document.getElementById("exPasswordForm").style.display = "none";
@@ -2998,6 +3076,8 @@ function onBlurvalidateResetPasswordPhone() {
 }
 
 async function handleResetPassword(){
+  if(isLoading) return;
+  isLoading = true;
   onBlurvalidateResetPasswordPhone();
   const input = document.getElementById("resetPasswordInput");
   const continueBtn = document.getElementById("resetPasswordContinueButton");
@@ -3022,7 +3102,7 @@ async function handleResetPassword(){
 
   try {
     const response = await fetch(
-      "https://mobileserverdev.calvaryftl.org/api/LoginCode",
+      `${baseURL}/v1.2/api/LoginCode?isWeb=true`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -3049,6 +3129,11 @@ async function handleResetPassword(){
       document.getElementById("resetPasswordButton").disabled = true;
       document.getElementById("resetPasswordValueDisplay").innerText = value;
       phone_email = value;
+      if(phone_email.includes("@")){        
+        document.querySelectorAll("#resetPasswordMessage .mailText").forEach(el => el.style.display = "contents");
+      } else {
+        document.querySelectorAll("#resetPasswordMessage .mailText").forEach(el => el.style.display = "none");
+      }
       document.getElementById("resetPasswordForm").style.display = "none";
       error.style.visibility = 'hidden';
       errorDivText.innerText = "";
@@ -3076,6 +3161,7 @@ async function handleResetPassword(){
   continueBtn.disabled = false;
   continueBtn.classList.remove("button-loading");
   continueBtn.innerText = "CONTINUE";
+  isLoading = false;
 }
 
 function checkresetOtpAndToggleButton() {
@@ -3167,6 +3253,8 @@ function setupResetOtpListeners() {
 }
 
 async function verifyResetPasswordOtp() {
+  if(isLoading) return;
+  isLoading = true;
   const signInBtn = document.getElementById("resetPasswordButton");
   const otpInputs = document.querySelectorAll(".resetotpInputBox");
   const Phone_Email = document
@@ -3190,7 +3278,7 @@ async function verifyResetPasswordOtp() {
 
   try {
     const response = await fetch(
-      "https://mobileserverdev.calvaryftl.org/v1.2/api/LoginCode/Confirm",
+      `${baseURL}/v1.2/api/LoginCode/Confirm`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -3242,6 +3330,7 @@ async function verifyResetPasswordOtp() {
   signInBtn.disabled = false;
   signInBtn.classList.remove("button-loading");
   signInBtn.innerText = "VERIFY";
+  isLoading = false;
 }
 
 let isRPResending = false;
@@ -3259,7 +3348,7 @@ async function resendResetPasswordOtp() {
 
   try {
     const response = await fetch(
-      "https://mobileserverdev.calvaryftl.org/api/LoginCode",
+      `${baseURL}/api/LoginCode`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -3333,7 +3422,6 @@ function checkshowResetPasswordForm(event) {
 }
 
 function showResetPasswordForm() {
-  console.log("showResetPasswordForm");
 
   // Username/password forgot password flow
   if(userNameForgotPass){
@@ -3423,3 +3511,87 @@ function isAccessTokenValid(token, expectedIssuer, expectedAudience) {
     return false;
   }
 }
+
+async function refetchProfileImage(token) {
+  try {
+      const userInfo = document.getElementById("user-info");
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      const userAvatar = document.getElementById("user-avatar");
+      const loginButton = document.getElementById("loginButton");
+
+      console.log("Decoded JWT payload:", payload);
+
+      const response = await fetch(
+        `${baseURL}/api/My/Contact`,
+        { method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        }});
+
+      const text = await response.json();
+      
+      if(text.Web_Image_URL != null){
+        document.querySelectorAll('#user-avatar-mbl').forEach(container => {
+          let img = container.querySelector('img');
+          if (img) img.src = text.Web_Image_URL;
+          else {
+            container.innerHTML = "";
+            img = document.createElement('img');
+            img.src = text.Web_Image_URL;
+            img.style.borderRadius = "50%";
+            img.style.height = "100%";
+            img.style.width = "100%";
+            container.appendChild(img);
+          }
+        });
+        document.querySelectorAll('#user-avatar').forEach(container => {
+          let img = container.querySelector('img');
+          if (img) img.src = text.Web_Image_URL;
+          else {
+            container.innerHTML = "";
+            img = document.createElement('img');
+            img.src = text.Web_Image_URL;
+            img.style.borderRadius = "50%";
+            img.style.height = "100%";
+            img.style.width = "100%";
+            container.appendChild(img);
+          }
+        });
+      }
+      else {
+        const firstName = payload.FirstName || "";
+        const lastName = payload.LastName || "";
+        const email = payload.UserName || "";
+        const initials =
+          firstName && lastName
+              ? `${firstName.charAt(0).toUpperCase()}${lastName.charAt(0).toUpperCase()}`
+            : email.charAt(0).toUpperCase();
+        if (userInfo) {
+          userInfo.style.display = "flex";
+          userAvatar.textContent = initials;
+        }
+        userifyDiviMobileHamburger(initials);
+      }
+      if (loginButton) loginButton.style.display = "none";
+      hideMobileLoginBtn();
+
+    } catch (error) {
+      console.error("Invalid JWT token", error);
+    }
+}
+async function myBackHandler() {
+  jQuery('ul#mobile_menu2').css('display', 'none');
+  const token = localStorage.getItem("mpp-widgets_JwtToken");
+  if(token) await refetchProfileImage(token);
+}
+
+window.addEventListener('popstate', myBackHandler);
+
+window.addEventListener('pageshow', function (e) {
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      myBackHandler();
+    });
+  });
+});

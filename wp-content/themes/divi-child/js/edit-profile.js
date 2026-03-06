@@ -11,8 +11,8 @@ let prefixInput = document.getElementById("prefixBtn");
 let suffixInput = document.getElementById("suffixBtn");
 let maritalStatusInput = document.getElementById("maritalStatusBtn");
 let profileMessage = document.getElementById("profileMessage");
-let inputErrorFirstName = document.getElementById("inputErrorFirstName");
-let inputErrorLastName = document.getElementById("inputErrorLastName");
+let inputErrorFirstName = document.getElementById("inputErrorFirstNameEP");
+let inputErrorLastName = document.getElementById("inputErrorLastNameEP");
 
 // Profile Data Variables
 let genderID = null;
@@ -71,11 +71,13 @@ function showPageLoader() {
   ensurePageLoader();
   const l = document.getElementById('pageLoader');
   if (l) l.style.display = 'flex';
+  lockScroll();
 }
 
 function hidePageLoader() {
   const l = document.getElementById('pageLoader');
   if (l) l.style.display = 'none';
+  unlockScroll();
 }
 
 const style = document.createElement("style");
@@ -98,6 +100,8 @@ style.innerHTML = `
     z-index: 1 !important;
   }
 `;
+
+
 
 function updateName(name, punctuation = "!") {
   const oval = document.getElementById("nameOval");
@@ -140,8 +144,8 @@ function createCustomDropdown({ dropdownId, buttonId, listId, data, selectedItem
     const option = document.createElement("div");
     option.classList.add("dropdownItem");
     option.textContent = item.name;
-    option.tabIndex = 0;
     option.dataset.id = item.id;
+    option.tabIndex = 0;
     dropdownList.appendChild(option);
 
     // Highlight the selected one
@@ -181,7 +185,7 @@ function createCustomDropdown({ dropdownId, buttonId, listId, data, selectedItem
     });
 
     option.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") {
+      if(e.key === "Enter"){
         const currentBtn = dropdown.querySelector(`#${buttonId}`) || dropdownBtn;
         currentBtn.classList.remove("placeholder");
 
@@ -209,16 +213,24 @@ function createCustomDropdown({ dropdownId, buttonId, listId, data, selectedItem
           }
         }
       }
-    });
+    })
   });
 
-  // Clean old listeners
+  // Make init idempotent: remove/replace old handlers so re-calling this function
+  // (e.g., after a save -> reload) doesn't add duplicate listeners that
+  // toggle the dropdown multiple times.
   if (!dropdown || !dropdownBtn || !dropdownList) return;
 
   // Remove previously attached document click handler for this dropdown (if any)
   if (dropdown._docClickHandler) {
     document.removeEventListener('click', dropdown._docClickHandler);
     dropdown._docClickHandler = null;
+  }
+
+  // Remove previously attached keydown handler for this dropdown (if any)
+  if (dropdown._docKeyHandler) {
+    document.removeEventListener('keydown', dropdown._docKeyHandler);
+    dropdown._docKeyHandler = null;
   }
 
   // Remove previously attached mouseenter handler for this list (if any)
@@ -250,9 +262,7 @@ function createCustomDropdown({ dropdownId, buttonId, listId, data, selectedItem
           };
         }
       }
-
       if (currentSelected) {
-        // apply active state to items
         dropdownList.querySelectorAll('.dropdownItem').forEach(o => {
           o.classList.toggle('active', o.dataset.id === String(currentSelected.id));
         });
@@ -279,6 +289,50 @@ function createCustomDropdown({ dropdownId, buttonId, listId, data, selectedItem
     }
   });
 
+   btn.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter' || e.key !== 'Escape' || e.key !== 'Space') {
+      dropdown.classList.toggle('open');
+  
+      // Ensure initial load items are restored
+      if (dropdown.classList.contains('open')) {
+        // If there's a currently selected item, make sure the list scrolls to it
+        if (!currentSelected) {
+          const activeEl = dropdownList.querySelector('.dropdownItem.active');
+          if (activeEl) {
+            currentSelected = {
+              id: activeEl.dataset.id,
+              name: activeEl.textContent.trim()
+            };
+          }
+        }
+        if (currentSelected) {
+          dropdownList.querySelectorAll('.dropdownItem').forEach(o => {
+            o.classList.toggle('active', o.dataset.id === String(currentSelected.id));
+          });
+  
+          // scroll the selected item into view rather than always jumping to top
+          const target = dropdownList.querySelector(`.dropdownItem[data-id="${currentSelected.id}"]`);
+          if (target) {
+            // prefer nearest block so it stays within view
+            try {
+              target.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+            } catch (e) {
+              // fallback
+              dropdownList.scrollTop = target.offsetTop;
+            }
+            // ensure keyboard focus follows
+            target.focus();
+          } else {
+            dropdownList.scrollTop = 0;
+          }
+        } else {
+          // no selection -> show top
+          dropdownList.scrollTop = 0;
+        }
+      }
+    }
+  });
+
   // Close dropdown if clicked outside — store handler reference so it can be removed next init
   const docHandler = (e) => {
     if (!btn.contains(e.target)) {
@@ -286,7 +340,18 @@ function createCustomDropdown({ dropdownId, buttonId, listId, data, selectedItem
     }
   };
   document.addEventListener('click', docHandler);
+
+  // Close on Escape — create a named handler so it can be removed on re-init
+  const keyHandler = (e) => {
+    if (e.key === 'Escape' || e.key === 'Esc') {
+      dropdown.classList.remove('open');
+    }
+  };
+  document.addEventListener('keydown', keyHandler);
+
+  // store handlers so they can be removed next time createCustomDropdown runs
   dropdown._docClickHandler = docHandler;
+  dropdown._docKeyHandler = keyHandler;
 
   // Remove active highlight on hover — store handler reference
   const mouseEnterHandler = () => {
@@ -427,6 +492,9 @@ function showEPForm() {
 
   document.getElementById("codeMessage").style.display="none";
   clearTimeout(timeoutDidnotReceiveMessage);
+  document.querySelectorAll('.submitButtonDiv h5').forEach(el => {
+    el.style.pointerEvents = 'auto';
+  });
 }
 
 function showDidnotReceiveMessage(){
@@ -456,7 +524,8 @@ function changePlaceholder(IconId) {
     label.textContent = "Enter the new cell phone number"
   } else if (IconId === 'emailIcon') {
     phoneEmailInput.placeholder = 'sampleuser@yourdomain.com';
-    label.textContent = "Enter the new email address"
+    label.textContent = "Enter the new email address";
+    phoneEmailInput.removeAttribute('maxlength');
   }
 }
 
@@ -468,7 +537,7 @@ function validateEmail(email) {
 function validateInput() {
   let input = phoneEmailInput.value.trim();
   let isValid = false;
-
+  
   if (input === "") {
     codeBtn.disabled = true;
     inputErrorDivText.textContent = "";
@@ -668,13 +737,6 @@ function formatDateForPayload(date) {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
 }
 
-function showLDidnotReceiveMessage(){
-  document.getElementById("loginCodeMessage").style.display="block";
-  document.querySelectorAll('.submitButtonDiv h5').forEach(el => {
-  el.style.pointerEvents = 'none';
-  });
-}
-
 function checkOtpAndToggleButton() {
   const otpInputs = document.querySelectorAll(".otpInputBoxEP");
   const verifyBtn = document.getElementById("verifyButton");
@@ -839,6 +901,17 @@ function closeNoChangesModal() {
   }
 }
 
+function closeForceLogoutModal() {
+  document.getElementById("forceLogoutDiv").style.display = "none";
+  unlockScroll();
+  const existingStyle = document.getElementById("removeZindexStyle");
+  if (existingStyle)
+    existingStyle.remove();
+
+  document.getElementById("logout-btn")?.click();
+  document.getElementById("menu-item-43015")?.click();
+}
+
 document
   .querySelector("#noChangesDiv.modal-overlay")
   .addEventListener("click", function (e) {
@@ -877,7 +950,7 @@ async function loadProfile() {
       console.log("Decoded JWT payload:", payload);
 
       const response = await fetch(
-        "https://mobileserverdev.calvaryftl.org/api/My/Contact",
+        `${baseURL}/api/My/Contact`,
         {
           method: "GET",
           headers: {
@@ -889,6 +962,7 @@ async function loadProfile() {
       const data = await response.json();
       console.log("My profile",data);
       originalProfile = JSON.parse(JSON.stringify(data));
+      originalProfile.Web_Image_URL = null;
       console.log(originalProfile);
       if (response.ok) {
         // Populate profile fields
@@ -922,7 +996,12 @@ async function loadProfile() {
 
         if (maritalStatusEl) maritalStatusEl.classList.add("active");
 
-        nickNameVar = data.Nickname;
+        if (!data.Nickname) {
+          nickNameVar = data.First_Name;
+        }
+        else {
+          nickNameVar = data.Nickname;
+        }
         updateName(nickNameVar);
         updateProfilePhoto(data,payload);
         formatDate(data.Date_of_Birth) ? birthdayInput.value = formatDate(data.Date_of_Birth) : birthdayInput.value = "";
@@ -979,10 +1058,10 @@ async function fetchData() {
   try {
     // Fetch all APIs in parallel
     const [genderRes, prefixRes, suffixRes, maritalStatusRes] = await Promise.all([
-      fetch("https://mobileserverdev.calvaryftl.org/api/Gender"),
-      fetch("https://mobileserverdev.calvaryftl.org/api/Prefix"),
-      fetch("https://mobileserverdev.calvaryftl.org/api/Suffix"),
-      fetch("https://mobileserverdev.calvaryftl.org/api/MaritalStatus"),
+      fetch(`${baseURL}/api/Gender`),
+      fetch(`${baseURL}/api/Prefix`),
+      fetch(`${baseURL}/api/Suffix`),
+      fetch(`${baseURL}/api/MaritalStatus`),
     ]);
 
     const [GenderData, PrefixData, SuffixData, MaritalStatusData] = await Promise.all([
@@ -1063,6 +1142,8 @@ async function fetchData() {
 async function updateProfile() {
   const token = localStorage.getItem("mpp-widgets_JwtToken");
   if (!token) return;
+  const primaryContact = localStorage.getItem("primaryContact");
+  let forceLogout = false;
 
   let image = null;
   const payload = { Contact: originalProfile };
@@ -1143,7 +1224,16 @@ async function updateProfile() {
       payload.Contact[key] = newValue;
       hasChanges = true;
       console.log("select changed", input);
-      
+      if(primaryContact != null && key == 'Email_Address' && primaryContact === 'true'){
+        console.log("reached email condition");
+        forceLogout = true;
+        localStorage.setItem('Email_Phone', newValue);
+      }
+      if(primaryContact != null && key == 'Mobile_Phone' && primaryContact === "false"){
+        console.log("reached phone condition");
+        forceLogout = true;
+        localStorage.setItem('Email_Phone', newValue);
+      }
     }
   });
 
@@ -1164,12 +1254,12 @@ async function updateProfile() {
   if(!firstNameInput.value.trim() && window.getComputedStyle(inputErrorFirstName).display === 'none'){
     inputErrorFirstName.style.setProperty('display', 'flex', 'important');
     inputErrorFirstName.style.visibility = 'visible';
-    document.querySelector('#inputErrorFirstName .errorText').textContent = 'First name is required.';
+    document.querySelector('#inputErrorFirstNameEP .errorText').textContent = 'First Name is required.';
   }
   if(!lastNameInput.value.trim() && window.getComputedStyle(inputErrorLastName).display === 'none'){
     inputErrorLastName.style.setProperty('display', 'flex', 'important');
     inputErrorLastName.style.visibility = 'visible';
-    document.querySelector('#inputErrorLastName .errorText').textContent = 'Last name is required.';
+    document.querySelector('#inputErrorLastNameEP .errorText').textContent = 'Last Name is required.';
   }
   if(!lastNameInput.value.trim() || !firstNameInput.value.trim()) return;
 
@@ -1189,7 +1279,7 @@ async function updateProfile() {
   btnContent.innerText = "";
 
   try{
-    const response = await fetch("https://mobileserverdev.calvaryftl.org/api/My/Profile", {
+    const response = await fetch(`${baseURL}/v1.3/api/CurrentUser/Profile?isWeb=true`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -1208,22 +1298,55 @@ async function updateProfile() {
       btnContent.innerText = "SAVE";
       hasChanges = false;
       loadProfile();
-      console.log(document.querySelectorAll('#user-avatar-mbl img'));
-      
-      document.querySelectorAll('#user-avatar-mbl img').forEach((item)=>{
-        console.log('reached', result.Web_Image_URL);
-        item.src = result.Web_Image_URL;
-      })
-      document.querySelectorAll('#user-avatar img').forEach((item)=>{
-        console.log('reached', result.Web_Image_URL);
-        item.src = result.Web_Image_URL;
-      })
+
+      if(result.Web_Image_URL){
+        document.querySelectorAll('#user-avatar-mbl').forEach(container => {
+          let img = container.querySelector('img');
+          if (img) img.src = result.Web_Image_URL;
+          else {
+            container.innerHTML = "";
+            img = document.createElement('img');
+            img.src = result.Web_Image_URL;
+            img.style.borderRadius = "50%";
+            img.style.height = "100%";
+            img.style.width = "100%";
+            container.appendChild(img);
+          }
+        });
+        
+        document.querySelectorAll('#user-avatar').forEach(container => {
+          let img = container.querySelector('img');
+          if (img) img.src = result.Web_Image_URL;
+          else {
+            container.innerHTML = "";
+            img = document.createElement('img');
+            img.src = result.Web_Image_URL;
+            img.style.borderRadius = "50%";
+            img.style.height = "100%";
+            img.style.width = "100%";
+            container.appendChild(img);
+          }
+        });
+      }
+
+      // force logout
+      if(forceLogout){
+        console.log("reached force logout");
+        document.head.appendChild(style);
+        lockScroll();
+        const logoutDiv = document.getElementById("forceLogoutDiv")
+        logoutDiv.style.display = "flex";
+        const logoutMessage = logoutDiv.querySelector("h3");
+        const email = localStorage.getItem('Email_Phone').includes('@');
+        logoutMessage.textContent = `You've changed your ${email ? "email address" : "phone number"}. Login again to continue.`;
+      }
     }
-    else
+    else{
       showMessage("error", "Something went wrong. Please try again later.");
       saveBtn.disabled = false;
       saveLoader.style.display = "none";
       btnContent.innerText = "SAVE";
+    }
   }catch(err){
     console.error("Error preparing payload:", err);
     showMessage("error", "Something went wrong. Please try again later.");
@@ -1244,9 +1367,24 @@ async function handleVerification() {
   inputErrorDivText.innerText = "";
   phoneEmailInput.style.borderColor = "#D1D5DB";
 
+  if(emailAddress.value.toLowerCase() == value.toLowerCase() || phoneNumber.value == value){
+    phoneEmailInput.style.borderColor = "#B91C1C";
+    inputErrorDiv.style.visibility = 'visible';
+    inputErrorDivText.innerText = 
+    iconId == 'emailIcon' ? 
+      "The entered email address matches the current email address" : 
+      "The entered cell phone number matches the current cell phone number";
+    codeBtn.disabled = true;
+    codeBtn.innerText = "SEND VERIFICATION CODE";
+    codeBtn.classList.remove("button-loading");
+    codeBtn.style.border = "1px solid white";
+    codeBtn.style.color = "white";
+    return;
+  }
+
   try {
     const response = await fetch(
-      "https://mobileserverdev.calvaryftl.org/api/ProfileCode?isWeb=true",
+      `${baseURL}/v1.2/api/ProfileCode?isWeb=true`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json",
@@ -1275,6 +1413,11 @@ async function handleVerification() {
       document.getElementById("verifyButton").disabled = true;
       document.getElementById("userValueDisplayEP").innerText = value;
       ph_email = value;
+      if(ph_email.includes("@")){        
+        document.querySelectorAll("#codeMessage .mailText").forEach(el => el.style.display = "contents");
+      } else {
+        document.querySelectorAll("#codeMessage .mailText").forEach(el => el.style.display = "none");
+      }
       document.getElementById("verificationForm").style.display = "none";
       // input.style.display = "none";
       // codeBtn.style.display = "none";
@@ -1317,7 +1460,7 @@ async function resendOtp() {
 
   try {
     const response = await fetch(
-      "https://mobileserverdev.calvaryftl.org/api/ProfileCode",
+      `${baseURL}/api/ProfileCode`,
       {
         method: "POST",
         headers: { 
@@ -1412,7 +1555,7 @@ async function verifyOtp() {
 
   try {
     const response = await fetch(
-      "https://mobileserverdev.calvaryftl.org/api/ProfileCode/Confirm",
+      `${baseURL}/api/ProfileCode/Confirm`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -1486,31 +1629,56 @@ function handleBeforeUnload(event) {
     // event.returnValue = '';
   }
 }
+function backWithAwait() {
+  return new Promise((resolve) => {
+    const handler = () => {
+      window.removeEventListener('popstate', handler);
+      resolve();
+    };
+    window.addEventListener('popstate', handler);
+    history.back();
+  });
+}
 
 document.getElementById("save").addEventListener("click", updateProfile);
-document.getElementById("cancel").addEventListener("click", ()=> {
+document.getElementById("cancel").addEventListener("click", async ()=> {
+  const cancelBtn = document.getElementById("cancel");
+  const cancelLoader = document.querySelector("#cancel .fa-spinner");
+  const btnContent = document.querySelector("#cancel .btn-text");
+
+  cancelBtn.disabled = true;
+  cancelLoader.style.display = "inline-block";
+  btnContent.innerText = "";
   cancelCheck = true;
-  history.back()
+  // history.back();
+  await backWithAwait();
+  cancelBtn.disabled = false;
+  cancelLoader.style.display = "none";
+  btnContent.innerText = "CANCEL";
 });
 
 document.addEventListener("DOMContentLoaded", function () {
     loadProfile();  
     firstNameInput.addEventListener('input', () => {
-      // Show required error when empty (validateName hides on empty)
+      const raw = firstNameInput.value || "";
+      const sanitized = raw.replace(/[^a-zA-Z.,'’‘ -]/g, '');
+      if (sanitized !== raw) {
+        firstNameInput.value = sanitized;
+      }
       if (!firstNameInput.value.trim()) {
-        const errorText = document.querySelector('#inputErrorFirstName .errorText');
+        const errorText = document.querySelector('#inputErrorFirstNameEP .errorText');
         inputErrorFirstName.style.setProperty('display', 'flex', 'important');
-        errorText.textContent = 'First name is required.';
+        errorText.textContent = 'First Name is required.';
         inputErrorFirstName.style.visibility = 'visible';
         firstNameInput.style.borderColor = "#B91C1C";
         document.getElementById("save").disabled = true;
       } else if(firstNameInput.value.length === 25){
-        const errorText = document.querySelector('#inputErrorFirstName .errorText');
+        const errorText = document.querySelector('#inputErrorFirstNameEP .errorText');
         inputErrorFirstName.style.setProperty('display', 'flex', 'important');
         errorText.textContent = 'You’ve reached the 25-character limit';
         inputErrorFirstName.style.visibility = 'visible';
       } else{
-        const errorText = document.querySelector('#inputErrorFirstName .errorText');
+        const errorText = document.querySelector('#inputErrorFirstNameEP .errorText');
         inputErrorFirstName.style.removeProperty('display');
         errorText.textContent = '';
         inputErrorFirstName.style.visibility = 'hidden';
@@ -1526,21 +1694,25 @@ document.addEventListener("DOMContentLoaded", function () {
     });
     
     lastNameInput.addEventListener('input', () => {
-      // Show required error when empty
+      const raw = lastNameInput.value || "";
+      const sanitized = raw.replace(/[^a-zA-Z.,'’‘ -]/g, '');
+      if (sanitized !== raw) {
+        lastNameInput.value = sanitized;
+      }
       if (!lastNameInput.value.trim()) {
-        const errorText = document.querySelector('#inputErrorLastName .errorText');
+        const errorText = document.querySelector('#inputErrorLastNameEP .errorText');
         inputErrorLastName.style.setProperty('display', 'flex', 'important');
-        errorText.textContent = 'Last name is required.';
+        errorText.textContent = 'Last Name is required.';
         inputErrorLastName.style.visibility= 'visible';
         lastNameInput.style.borderColor = "#B91C1C";
         document.getElementById("save").disabled = true;
       } else if(lastNameInput.value.length === 25){
-        const errorText = document.querySelector('#inputErrorLastName .errorText');
+        const errorText = document.querySelector('#inputErrorLastNameEP .errorText');
         inputErrorLastName.style.setProperty('display', 'flex', 'important');
         errorText.textContent = 'You’ve reached the 25-character limit';
         inputErrorLastName.style.visibility = 'visible';
       } else{
-        const errorText = document.querySelector('#inputErrorLastName .errorText');
+        const errorText = document.querySelector('#inputErrorLastNameEP .errorText');
         inputErrorLastName.style.removeProperty('display');
         errorText.textContent = '';
         inputErrorLastName.style.visibility = 'hidden';
@@ -1556,7 +1728,6 @@ document.addEventListener("DOMContentLoaded", function () {
     
     if (middleNameInput) {
       middleNameInput.addEventListener('input', () => {
-        // enforce allowed characters and 25-char limit
         validateName('middleNameInput', 'inputErrorMiddleName', 25);
         if (originalProfile && (originalProfile.Middle_Name || '') !== middleNameInput.value.trim()) {
           hasChanges = true;
@@ -1576,7 +1747,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       });
     }
-    // Birthday change/input should mark unsaved changes when different from original
+    
     if (birthdayInput) {
       const _birthdayChanged = () => {
         const val = (birthdayInput.value || '').trim();
@@ -1608,15 +1779,15 @@ window.addEventListener('resize', () => updateName(nickNameVar));
 
 window.addEventListener('beforeunload', handleBeforeUnload);
 
-const isMobile = (() => {
+const isIOS = (() => {
   const ua = navigator.userAgent || navigator.vendor || window.opera;
-  if (/android|iphone|ipod|blackberry|iemobile|opera mini/i.test(ua)) return true;
+  if (/iphone|ipod|blackberry|iemobile|opera mini/i.test(ua)) return true;
   if (/iPad/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) return true;
   return false;
 })();
 
 const cameraLabel = document.querySelector('.camera-icon');
-if (isMobile) {
+if (isIOS) {
   const input = document.createElement('input');
   input.type = "file";
   input.id = "fileInput";
@@ -1630,26 +1801,26 @@ const fileInput = document.getElementById('fileInput');
 // Watch for file uploads
 fileInput.addEventListener('change', async (event) => {
   const file = event.target.files[0];
-  if (!file) return;
-
-  let finalFile = file;
-  const sizeMB = file.size / (1024 * 1024);
-  if (sizeMB > 1) {
-    console.log(`⚠️ Image too large (${sizeMB.toFixed(2)} MB) — compressing...`);
-    finalFile = await compressImage(file, 1024, 0.7);
-    const compressedSize = (finalFile.size / 1024 / 1024).toFixed(2);
-    console.log(`✅ Compressed to ${compressedSize} MB`);
-  } else {
-    console.log(`✅ Image OK (${sizeMB.toFixed(2)} MB)`);
+  if(!file) return;
+  if (!file.type.startsWith('image/')) {
+    showMessage("error", "Please upload an image.");
+    event.target.value = '';
+    $.magnificPopup.close();
+    return;
   }
-
-  uploadedProfileFile = finalFile;
+  let compressed = file;
+  if (file.size > 1 * 1024 * 1024) {
+    compressed = await compressImage(file, 1024, 0.7);
+    console.log('Compressed size:', compressed.size / 1024, 'KB');
+  }
+  uploadedProfileFile = compressed;
   hasChanges = true;
+  document.getElementById("profileMessage").style.visibility = "hidden";
   // Remove initials if any
   const initialsDiv = profileContainer.querySelector('.initials-avatar');
   if (initialsDiv) initialsDiv.remove();
 
-  const imageURL = URL.createObjectURL(finalFile);
+  const imageURL = URL.createObjectURL(compressed);
   profilePhoto.src = imageURL;
   profilePhoto.style.display = "block";
 
@@ -1722,32 +1893,74 @@ function handleCameraError(error){
   document.getElementById('photoModal').appendChild(messageEl);
   document.getElementById('videoDiv').style.display = 'none';
 }
+const isMobile = (() => {
+  const ua = navigator.userAgent || navigator.vendor || window.opera;
+  const isAndroid = /Android/i.test(ua);
+  const isIOS = /iPhone|iPad|iPod/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  return isAndroid || isIOS;
+})();
+
+// const androidfileInput = document.getElementById('androidfileInput');
+// Watch for file uploads
 
 document.getElementById('openCamera').addEventListener('click', async function(){
-  await startCamera();
-  document.getElementById('selectPhotoOption').style.display = 'none';
-  document.getElementById('photoModal').style.display = 'block';
+  if(isMobile) {
+    const optionsDiv = document.getElementById("selectPhotoOption");
+    const input = document.createElement('input');
+    input.type = "file";
+    input.id = "androidfileInput";
+    input.accept = "image/*";
+    input.style.display = 'none';
+    input.capture = "user";
+    optionsDiv.appendChild(input);
+
+    input.addEventListener('change', async (event) => {
+      const file = event.target.files[0];
+      if(!file) return;
+      if (!file.type.startsWith('image/')) {
+        showMessage("error", "Please upload an image.");
+        event.target.value = '';
+        $.magnificPopup.close();
+        return;
+      }
+      let compressed = file;
+      if (file.size > 1 * 1024 * 1024) {
+        compressed = await compressImage(file, 1024, 0.7);
+        console.log('Compressed size:', compressed.size / 1024, 'KB');
+      }
+      uploadedProfileFile = compressed; 
+      hasChanges = true;
+      document.getElementById("profileMessage").style.visibility = "hidden";
+
+      // Remove initials if any
+      const initialsDiv = profileContainer.querySelector('.initials-avatar');
+      if (initialsDiv) initialsDiv.remove();
+
+      const imageURL = URL.createObjectURL(compressed);
+      profilePhoto.src = imageURL;
+      profilePhoto.style.display = "block";
+
+      profilePhoto.onload = () => URL.revokeObjectURL(imageURL);
+      $.magnificPopup.close();
+    });
+    input.click();
+  }
+  else{
+    await startCamera();
+    document.getElementById('selectPhotoOption').style.display = 'none';
+    document.getElementById('photoModal').style.display = 'block';
+  }
 })
 
-takePhotoBtn.addEventListener('click', async (e) => {
+takePhotoBtn.addEventListener('click', (e) => {
   e.preventDefault();
 
   canvas.width = video.videoWidth;
   canvas.height = video.videoHeight;
   ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-  const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/jpeg', 1.0));
-  const file = new File([blob], 'captured-photo.jpg', { type: 'image/jpeg' });
 
-  console.log('Original size:', (file.size / 1024 / 1024).toFixed(2), 'MB');
-
-  let finalFile = file;
-  if (file.size > 1 * 1024 * 1024) {
-    console.log('⚠️ Compressing photo...');
-    finalFile = await compressImage(file, 1024, 0.7);
-  }
-  photoPreview.src = URL.createObjectURL(finalFile);
-  // const imageDataUrl = canvas.toDataURL('image/png');
-  // photoPreview.src = imageDataUrl;
+  const imageDataUrl = canvas.toDataURL('image/png');
+  photoPreview.src = imageDataUrl;
   photoPreview.style.display = 'block';
   video.style.display = 'none';
 
@@ -1771,16 +1984,24 @@ retakeBtn.addEventListener('click', async (e) => {
   await startCamera();
 });
 
-usePhotoBtn.addEventListener('click', () => {
+usePhotoBtn.addEventListener('click', async () => {
   const finalImage = photoPreview.src;
-  profilePhoto.src = finalImage;
 
   hasChanges = true;
-
+  let compressed = finalImage;
+   if (finalImage.size > 1 * 1024 * 1024) {
+    compressed = await compressImage(file, 1024, 0.7);
+    console.log('Compressed size:', compressed.size / 1024, 'KB');
+  }
   console.log('✅ Photo confirmed!');
-  console.log('Image data URL:', finalImage);
-  profileImageCamera = finalImage;
+  console.log('Image data URL:', compressed);
+  profileImageCamera = compressed;
+  document.getElementById("profileMessage").style.visibility = "hidden";
 
+  const initialsDiv = profileContainer.querySelector('.initials-avatar');
+  if (initialsDiv) initialsDiv.remove();
+  profilePhoto.src = compressed;
+  profilePhoto.style.display = "block";
   photoPreview.style.display = 'block';
   retakeBtn.style.display = 'none';
   usePhotoBtn.style.display = 'none';
@@ -1800,13 +2021,13 @@ function compressImage(file, maxWidth = 1024, quality = 0.7) {
       ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
       canvas.toBlob(
         (blob) => {
-          if (!blob) return reject('Compression failed.');
+          if (!blob) return reject('Compression failed');
           resolve(new File([blob], file.name, { type: 'image/jpeg' }));
         },
         'image/jpeg',
         quality
       );
     };
-    img.onerror = (err) => reject(err);
+    img.onerror = reject;
   });
 }

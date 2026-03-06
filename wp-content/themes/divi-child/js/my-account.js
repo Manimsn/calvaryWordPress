@@ -1,4 +1,4 @@
-console.log("Name chnage");
+console.log("Name V321");
 let groupSize = 0;
 async function loadRegisteredEvents() {
     try {
@@ -151,9 +151,55 @@ function fetchName() {
     // nameTitle.innerHTML = "Hello, " + UserName + "!";    
     
     // Update MY ACCOUNT text if element exists
-    const myAccountText = document.querySelector(".et_pb_text_inner p");
+    const myTitleDiv = document.getElementById("my-title");
+    const myAccountText = myTitleDiv.querySelector(".et_pb_text_inner");
     if (myAccountText && myAccountText.textContent.trim() === "MY ACCOUNT") {
-        myAccountText.innerHTML = "Hello, " + UserName + "!";
+        // Determine character limit based on screen width
+        let charLimit;
+        if (window.innerWidth < 768) {
+            // Mobile: < 768px
+            charLimit = 15;
+        } else if (window.innerWidth < 1024) {
+            // Tablet: 768px to 1023px
+            charLimit = 20;
+        } else {
+            // Desktop: >= 1024px
+            charLimit = 30;
+        }
+        
+        // Truncate username if longer than the character limit
+        let displayName = UserName;
+        if (UserName.length > charLimit) {
+            displayName = UserName.substring(0, charLimit) + "...";
+        }
+        
+        myAccountText.innerHTML = "Hello, " + displayName + "!";
+        
+        // Dynamically adjust the width based on username width
+        if (myTitleDiv) {
+            const textInnerDiv = myAccountText.parentElement;
+            
+            // // Apply CSS to prevent wrapping and show ellipsis if needed
+            // myAccountText.style.whiteSpace = 'nowrap';
+            // myAccountText.style.display = 'block';
+            
+            // // Temporarily set to auto to get natural width
+            // textInnerDiv.style.width = 'auto';
+            // myTitleDiv.style.width = 'auto';
+            
+            // // Force reflow and measure the actual content width
+            // setTimeout(() => {
+            //     const naturalWidth = textInnerDiv.offsetWidth;
+            //     const scrollWidth = textInnerDiv.scrollWidth;
+                
+            //     // Use the larger of offsetWidth or scrollWidth to ensure all content fits including "!"
+            //     const finalWidth = Math.max(naturalWidth, scrollWidth) + 18; // Add 18px buffer for safety
+                
+            //     // Apply the calculated width
+            //     textInnerDiv.style.width = finalWidth + "px";
+            //     myTitleDiv.style.width = finalWidth + "px";
+            // }, 0);
+        }
     }
 }
 
@@ -181,14 +227,14 @@ function formatMeetingDate(startISO, endISO) {
     };
 
     const startTime = getHourMinutePeriod(start);
-    const endTime = getHourMinutePeriod(end);
+    // const endTime = getHourMinutePeriod(end);
 
     let startStr = startTime.hour;
     if (startTime.minute) startStr += `:${startTime.minute}`;
-    let endStr = endTime.hour;
-    if (endTime.minute) endStr += `:${endTime.minute}`;
+    // let endStr = endTime.hour;
+    // if (endTime.minute) endStr += `:${endTime.minute}`;
 
-    const timeStr = `${startStr}-${endStr}${endTime.period}`;
+    const timeStr = `${startStr}${startTime.period}`;
 
     return `${dateStr}, ${timeStr}`;
 
@@ -242,7 +288,7 @@ async function loadMyGroups() {
             const newSlide = document.createElement('div');
             newSlide.className = `dsm_card_carousel_child dsm_card_carousel_child_${index} grp_cls swiper-slide`;
             newSlide.innerHTML = `
-                <a target="_blank" href="https://calvaryftlbeta.cloudapps.ministryplatform.cloud/connect/group/${Group_ID}">
+                ${IsLeader == true ? `<a target="_blank" href="https://calvaryftlbeta.cloudapps.ministryplatform.cloud/connect/group/${Group_ID}">`: ""}
                 <div class="et_pb_module_inner">
                 <div class="dsm_card_wrapper et_pb_text_align_left et_pb_bg_layout_light">
                     <h6 class="dsm_card_title et_pb_module_header">${Group_Name}</h6>

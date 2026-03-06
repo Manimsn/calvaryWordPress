@@ -1,5 +1,5 @@
 function renderGivingData(data, ytd = false) {
-  console.log("COMMA CHANGES V2")
+  console.log("NEW TITLE")
   //Total Contribution
   const totalAmnt = document.getElementById('total_contribution');
   const amnt = data.TotalAmount || 0;
@@ -24,6 +24,7 @@ function renderGivingData(data, ytd = false) {
       item.innerHTML = `
         <div class="transaction-date">${formattedDate}</div>
         <div class="transaction-name">${donation.Payment_Type || 'N/A'}</div>
+        <div class="transaction-type">${donation.Statement_Header || 'N/A'}</div>
         <div class="transaction-amount">${formattedAmount}</div>
       `;
 
@@ -812,3 +813,108 @@ document.getElementById('options').addEventListener('mouseenter',()=>{
   document.getElementById('options').querySelectorAll('.option')
     .forEach(o => o.classList.remove('active'));
 })
+
+
+
+// .transaction-container h2 {
+//   font-weight: 700;
+//   font-family: 'Poppins',sans-serif;
+//   font-size: 28px;
+//   line-height: 36px;  
+//   text-align: left;
+//   color: black;
+// }
+
+// #transaction-list {
+//   max-height: 320px;
+//  overflow: auto;
+//   -webkit-overflow-scrolling: auto;
+//   font-family: 'Poppins',sans-serif;
+//   color: black;
+//   padding-right: 36px;
+//   display: none;
+// }
+
+// #transaction-list::-webkit-scrollbar {
+//   width: 4px;   
+//   height: 8px; 
+// }
+
+// #transaction-list::-webkit-scrollbar-thumb {
+//   background: #00B4EF80; 
+//   border-radius: 4px;
+// }
+
+// #transaction-list::-webkit-scrollbar-button {
+//   display: none;
+//   width: 0;
+//   height: 0;
+// }
+
+// .transaction-item {
+//   display: flex;
+//   justify-content: space-between;
+//   padding: 12px 0;
+//   border-bottom: 1px solid #000;
+//   font-size: 18px;
+//   line-height: 28px;
+//   font-weight: 500;
+//   align-items: center;
+// }
+
+// .transaction-item:last-child {
+//   border-bottom: none;
+// }
+
+// .transaction-date,
+// .transaction-name,
+// .transaction-amount,
+// .transaction-type {
+//   flex: 1;
+//   text-align: left;
+//   font-family: 'Poppins',sans-serif !important;
+//   width: 25%;
+// }
+
+// .transaction-name {
+//    flex: 1;
+//   word-wrap: break-word;
+// }
+
+// .transaction-amount {
+//   text-align: right;
+//   font-weight: 700;
+//   font-size: 20px;
+//   line-height: 28px;
+// }
+
+// @media (max-width: 767px){
+//   .transaction-item {
+//     font-size:14px;
+//     line-height: 16px;
+//   }
+//   #transaction-list {
+//     max-height: 245px !important;
+//     padding-right: 4%;
+//   }
+//   .transaction-container h2 {
+//     font-size: 20px;
+//     line-height:28px;
+// 		font-weight: 600;
+//   }
+//   .transaction-amount {
+//     font-size:14px;
+//     line-height: 16px;
+//   }
+//   .transaction-name {
+//     padding-left: 0 !important;
+//  }
+//   #transaction-title{
+// 	text-align: center;    
+//   }
+// }
+
+// .transaction-date { flex: 1; }
+// .transaction-name { flex: 2; }
+// .transaction-amount { flex: 1; }
+// .transaction-type { flex: 1}
