@@ -2433,7 +2433,10 @@ function userInfo(event) {
 document.addEventListener('click', function(event) {
   const userInfoClick = event.target.closest('#user-info');
   if (userInfoClick) {
-    event.preventDefault(); // Prevent any default behavior
+    // Don't prevent default if clicking on a link
+    if (!event.target.closest('#user-dropdown-menu a')) {
+      event.preventDefault(); // Prevent any default behavior only if not clicking a link
+    }
     userInfo(event);
   }
 });
