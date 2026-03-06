@@ -1,256 +1,279 @@
 <script>
-    jQuery(function ($) {
-        var $accordion = $('#my_events_list_accordion');
-        if (!$accordion.length) return;
+  jQuery(function ($) {
+    var $accordion = $("#my_events_list_accordion");
+    if (!$accordion.length) return;
 
-        // Ensure initial display matches classes
-        $accordion.find('.et_pb_toggle').each(function () {
-            var $t = $(this);
-            var $c = $t.find('.et_pb_toggle_content').first();
-            if ($t.hasClass('et_pb_toggle_open')) $c.show(); else $c.hide();
-        });
-
-        // Remove any previous handlers added by this script to avoid duplicates
-        $accordion.off('click.myAccordion', '.et_pb_toggle_title');
-
-        $accordion.on('click.myAccordion', '.et_pb_toggle_title', function (e) {
-            e.preventDefault();
-            e.stopImmediatePropagation();
-
-            // ignore clicks on interactive children
-            if ($(e.target).closest('a, button, input, textarea, label, [role="button"]').length) return;
-
-            var $title = $(this);
-            var $toggle = $title.closest('.et_pb_toggle');
-            var $content = $toggle.find('.et_pb_toggle_content').first();
-
-            // guard: don't re-run while animating
-            if ($toggle.hasClass('animating')) return;
-
-            // mark animating on this toggle (and optionally on accordion)
-            $toggle.addClass('animating');
-
-            if ($toggle.hasClass('et_pb_toggle_open')) {
-                // close this
-                $content.stop(true, true).slideUp(400, function () {
-                    $toggle.removeClass('et_pb_toggle_open').addClass('et_pb_toggle_close').removeClass('animating');
-                });
-            } else {
-                // close others first
-                $accordion.find('.et_pb_toggle.et_pb_toggle_open').each(function () {
-                    var $other = $(this);
-                    var $otherContent = $other.find('.et_pb_toggle_content').first();
-                    if ($other.is($toggle)) return;
-                    $other.addClass('animating');
-                    $otherContent.stop(true, true).slideUp(400, function () {
-                        $other.removeClass('et_pb_toggle_open').addClass('et_pb_toggle_close').removeClass('animating');
-                    });
-                });
-
-                // open clicked one
-                $content.stop(true, true).slideDown(400, function () {
-                    $toggle.removeClass('et_pb_toggle_close').addClass('et_pb_toggle_open').removeClass('animating');
-                });
-            }
-        });
+    // Ensure initial display matches classes
+    $accordion.find(".et_pb_toggle").each(function () {
+      var $t = $(this);
+      var $c = $t.find(".et_pb_toggle_content").first();
+      if ($t.hasClass("et_pb_toggle_open")) $c.show();
+      else $c.hide();
     });
-</script>
 
+    // Remove any previous handlers added by this script to avoid duplicates
+    $accordion.off("click.myAccordion", ".et_pb_toggle_title");
+
+    $accordion.on("click.myAccordion", ".et_pb_toggle_title", function (e) {
+      e.preventDefault();
+      e.stopImmediatePropagation();
+
+      // ignore clicks on interactive children
+      if (
+        $(e.target).closest(
+          'a, button, input, textarea, label, [role="button"]',
+        ).length
+      )
+        return;
+
+      var $title = $(this);
+      var $toggle = $title.closest(".et_pb_toggle");
+      var $content = $toggle.find(".et_pb_toggle_content").first();
+
+      // guard: don't re-run while animating
+      if ($toggle.hasClass("animating")) return;
+
+      // mark animating on this toggle (and optionally on accordion)
+      $toggle.addClass("animating");
+
+      if ($toggle.hasClass("et_pb_toggle_open")) {
+        // close this
+        $content.stop(true, true).slideUp(400, function () {
+          $toggle
+            .removeClass("et_pb_toggle_open")
+            .addClass("et_pb_toggle_close")
+            .removeClass("animating");
+        });
+      } else {
+        // close others first
+        $accordion.find(".et_pb_toggle.et_pb_toggle_open").each(function () {
+          var $other = $(this);
+          var $otherContent = $other.find(".et_pb_toggle_content").first();
+          if ($other.is($toggle)) return;
+          $other.addClass("animating");
+          $otherContent.stop(true, true).slideUp(400, function () {
+            $other
+              .removeClass("et_pb_toggle_open")
+              .addClass("et_pb_toggle_close")
+              .removeClass("animating");
+          });
+        });
+
+        // open clicked one
+        $content.stop(true, true).slideDown(400, function () {
+          $toggle
+            .removeClass("et_pb_toggle_close")
+            .addClass("et_pb_toggle_open")
+            .removeClass("animating");
+        });
+      }
+    });
+  });
+</script>
 
 <script>
-    setTimeout(function () {
-        jQuery(document).ready(function () {
-            jQuery('li.menu-item-has-children').click(function () {
-                if (jQuery('li.menu-item-has-children').hasClass('dt-open')) {
-                    jQuery('li.menu-item-has-children').removeClass('dt-open');
-                    jQuery('li.menu-item-has-children .sub-menu').removeClass('visible');
-                    jQuery(this).addClass('dt-open');
-                    jQuery(this).find('.sub-menu').addClass('visible');
-                }
-            });
-        });
-    }, 500);
+  setTimeout(function () {
+    jQuery(document).ready(function () {
+      jQuery("li.menu-item-has-children").click(function () {
+        if (jQuery("li.menu-item-has-children").hasClass("dt-open")) {
+          jQuery("li.menu-item-has-children").removeClass("dt-open");
+          jQuery("li.menu-item-has-children .sub-menu").removeClass("visible");
+          jQuery(this).addClass("dt-open");
+          jQuery(this).find(".sub-menu").addClass("visible");
+        }
+      });
+    });
+  }, 500);
 </script>
-
 
 <!-- jQuery To Collapse The Divi Mobile Menu Submenus  -->
 <script>
-    jQuery(function ($) {
-        $(document).ready(function () {
-            $("body ul.et_mobile_menu li.menu-item-has-children, body ul.et_mobile_menu  li.page_item_has_children").append('<a href="#" class="mobile-toggle"></a>');
-            $('ul.et_mobile_menu li.menu-item-has-children .mobile-toggle, ul.et_mobile_menu li.page_item_has_children .mobile-toggle').click(function (event) {
-                event.preventDefault();
-                $(this).parent('li').toggleClass('dt-open');
-                $(this).parent('li').find('ul.children').first().toggleClass('visible');
-                $(this).parent('li').find('ul.sub-menu').first().toggleClass('visible');
-            });
-            iconFINAL = 'P';
-            $('body ul.et_mobile_menu li.menu-item-has-children, body ul.et_mobile_menu li.page_item_has_children').attr('data-icon', iconFINAL);
-            $('.mobile-toggle').on('mouseover', function () {
-                $(this).parent().addClass('is-hover');
-            }).on('mouseout', function () {
-                $(this).parent().removeClass('is-hover');
-            })
+  jQuery(function ($) {
+    $(document).ready(function () {
+      $(
+        "body ul.et_mobile_menu li.menu-item-has-children, body ul.et_mobile_menu  li.page_item_has_children",
+      ).append('<a href="#" class="mobile-toggle"></a>');
+      $(
+        "ul.et_mobile_menu li.menu-item-has-children .mobile-toggle, ul.et_mobile_menu li.page_item_has_children .mobile-toggle",
+      ).click(function (event) {
+        event.preventDefault();
+        $(this).parent("li").toggleClass("dt-open");
+        $(this).parent("li").find("ul.children").first().toggleClass("visible");
+        $(this).parent("li").find("ul.sub-menu").first().toggleClass("visible");
+      });
+      iconFINAL = "P";
+      $(
+        "body ul.et_mobile_menu li.menu-item-has-children, body ul.et_mobile_menu li.page_item_has_children",
+      ).attr("data-icon", iconFINAL);
+      $(".mobile-toggle")
+        .on("mouseover", function () {
+          $(this).parent().addClass("is-hover");
+        })
+        .on("mouseout", function () {
+          $(this).parent().removeClass("is-hover");
         });
-    }); 
+    });
+  });
 </script>
 <!-- jQuery To Collapse The Divi Mobile Menu Submenus  -->
 
 <script src="https://my.calvaryftl.org/widgets/Content/at.js"></script>
 
 <script>
-    (function ($) {
-        $(document).ready(function () {
-            $('.et-show-more-toggle').on('click', function (e) {
-                e.preventDefault();
+  (function ($) {
+    $(document).ready(function () {
+      $(".et-show-more-toggle").on("click", function (e) {
+        e.preventDefault();
 
-                // Slide toggle for the hidden content in the second row
-                $('.et-show-more-content').slideToggle(300);
+        // Slide toggle for the hidden content in the second row
+        $(".et-show-more-content").slideToggle(300);
 
-                // Toggle button text between "View More" and "View Less"
-                $(this).toggleClass('et-show-more-toggle_active icon-switch');
-                if ($(this).hasClass('et-show-more-toggle_active')) {
-                    $(this).text('see less'); // Change to 'View Less'
-                } else {
-                    $(this).text('see more'); // Change back to 'View More'
-                }
-            });
-        });
-    })(jQuery);
+        // Toggle button text between "View More" and "View Less"
+        $(this).toggleClass("et-show-more-toggle_active icon-switch");
+        if ($(this).hasClass("et-show-more-toggle_active")) {
+          $(this).text("see less"); // Change to 'View Less'
+        } else {
+          $(this).text("see more"); // Change back to 'View More'
+        }
+      });
+    });
+  })(jQuery);
 </script>
-<!--<script src="https://altauth.calvary2024dev.wpenginepowered.com/app/altauth.js"></script> MCG -->
+<!--<script src="https://altauth.calvary2024stg.wpenginepowered.com/app/altauth.js"></script> MCG -->
 
 <!--<script src="https://widgets.blackpulp.com/resources/calvaryftl/loader.js"></script> MCG -->
 
-
 <script>
-    jQuery(function ($) {
-        // Cache selectors for efficiency
-        var $document = $(document);
-        var updateMoreLinkText = function () {
-            // Define custom text in one place for easy updates
-            var customText = 'View Page';
-            $(".et_pb_posts .more-link, .et_pb_blog_grid .more-link").text(customText);
-        };
+  jQuery(function ($) {
+    // Cache selectors for efficiency
+    var $document = $(document);
+    var updateMoreLinkText = function () {
+      // Define custom text in one place for easy updates
+      var customText = "View Page";
+      $(".et_pb_posts .more-link, .et_pb_blog_grid .more-link").text(
+        customText,
+      );
+    };
 
-        // Initial update on document ready
-        updateMoreLinkText();
+    // Initial update on document ready
+    updateMoreLinkText();
 
-        // Use event delegation for handling AJAX-loaded content
-        $document.on('ajaxSuccess', function () {
-            updateMoreLinkText();
-        });
-
+    // Use event delegation for handling AJAX-loaded content
+    $document.on("ajaxSuccess", function () {
+      updateMoreLinkText();
     });
+  });
 </script>
 
 <!-- Include Luxon -->
 <script src="https://cdn.jsdelivr.net/npm/luxon@3/build/global/luxon.min.js"></script>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const saturdayContainer = document.querySelector("#saturday-schedule-container");
-        const sundayContainer = document.querySelector("#sunday-schedule-container");
-        if (!saturdayContainer || !sundayContainer) return;
+  document.addEventListener("DOMContentLoaded", function () {
+    const saturdayContainer = document.querySelector(
+      "#saturday-schedule-container",
+    );
+    const sundayContainer = document.querySelectorAll(
+      "#sunday-schedule-container",
+    );
+    // 	const adhocContainer = document.querySelector("#adhoc-schedule-container");
 
-        const { DateTime } = luxon;
+    if (!saturdayContainer || !sundayContainer) return;
+    // 	  if (!saturdayContainer || !sundayContainer || !adhocContainer) return;
 
-        // Get current time in Eastern Time
-        const now = DateTime.now().setZone("America/New_York");
+    const { DateTime } = luxon;
 
-        // Get current weekday: 6 = Saturday, 7 = Sunday
-        const day = now.weekday;
+    // Get current time in Eastern Time
+    const now = DateTime.now().setZone("America/New_York");
 
-        // Define time windows
-        const saturdayStart = now.set({ hour: 17, minute: 45 });
-        const saturdayEnd = now.set({ hour: 19, minute: 15 });
-        const sundayStart = now.set({ hour: 8, minute: 45 });
-        const sundayEnd = now.set({ hour: 12, minute: 15 });
+    // Get current weekday: 6 = Saturday, 7 = Sunday
+    const day = now.weekday;
 
-        // Determine visibility
-        const showSaturday = day === 6 && now >= saturdayStart && now <= saturdayEnd;
-        const showSunday = day === 7 && now >= sundayStart && now <= sundayEnd;
+    // Define time windows
+    const saturdayStart = now.set({ hour: 17, minute: 45 });
+    const saturdayEnd = now.set({ hour: 19, minute: 15 });
+    const sundayStart = now.set({ hour: 8, minute: 45 });
+    const sundayEnd = now.set({ hour: 12, minute: 15 });
+    //     const adhocStart = now.set({ hour: 8, minute: 45 });
+    //     const adhocEnd = now.set({ hour: 12, minute: 00 });
 
-        saturdayContainer.style.display = showSaturday ? "block" : "none";
-        sundayContainer.style.display = showSunday ? "block" : "none";
+    // Determine visibility
+    const showSaturday =
+      day === 6 && now >= saturdayStart && now <= saturdayEnd;
+    const showSunday = day === 7 && now >= sundayStart && now <= sundayEnd;
+    // 	const showAdhoc = day === 3 && now >= adhocStart && now <= adhocEnd;
 
-        // Debug logs
-        console.log("Current ET Time:", now.toString());
-        console.log("Today is:", day === 5 ? "Saturday" : day === 7 ? "Sunday" : "Other");
-        console.log("Show Saturday:", showSaturday);
-        console.log("Show Sunday:", showSunday);
-    });
+    // 	const showAdhoc = day >= 1 && day <= 6; // Monday–Saturday all day
+
+    saturdayContainer.style.display = showSaturday ? "block" : "none";
+    //     sundayContainer.style.display = showSunday ? "block" : "none";
+    sundayContainer.forEach(
+      (el) => (el.style.display = showSunday ? "block" : "none"),
+    );
+    // 	adhocContainer.style.display = showAdhoc ? "block" : "none";
+  });
 </script>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        let isDragging = false;
+  document.addEventListener("DOMContentLoaded", function () {
+    let isDragging = false;
 
-        // Select all popups (or adjust this to a specific one)
-        const popups = document.querySelectorAll('.dsm-popup');
+    // Select all popups (or adjust this to a specific one)
+    const popups = document.querySelectorAll(".dsm-popup");
 
-        if (popups.length === 0) return;
+    if (popups.length === 0) return;
 
-        popups.forEach(popup => {
-            // When user starts dragging inside the popup
-            popup.addEventListener('mousedown', () => {
-                isDragging = true;
-            });
-        });
-
-        // When mouse is released, stop dragging after short delay
-        document.addEventListener('mouseup', () => {
-            setTimeout(() => {
-                isDragging = false;
-            }, 100);
-        });
-
-        // Prevent ONLY outside clicks during drag
-        document.addEventListener('click', function (e) {
-            if (isDragging) {
-                // Check if the click is outside all popups
-                let clickedInsidePopup = false;
-                popups.forEach(popup => {
-                    if (popup.contains(e.target)) {
-                        clickedInsidePopup = true;
-                    }
-                });
-
-                // If clicked outside while dragging, stop it
-                if (!clickedInsidePopup) {
-                    e.stopImmediatePropagation();
-                    e.preventDefault();
-                }
-            }
-        }, true); // Capture phase
+    popups.forEach((popup) => {
+      // When user starts dragging inside the popup
+      popup.addEventListener("mousedown", () => {
+        isDragging = true;
+      });
     });
+
+    // When mouse is released, stop dragging after short delay
+    document.addEventListener("mouseup", () => {
+      setTimeout(() => {
+        isDragging = false;
+      }, 100);
+    });
+
+    // Prevent ONLY outside clicks during drag
+    document.addEventListener(
+      "click",
+      function (e) {
+        if (isDragging) {
+          // Check if the click is outside all popups
+          let clickedInsidePopup = false;
+          popups.forEach((popup) => {
+            if (popup.contains(e.target)) {
+              clickedInsidePopup = true;
+            }
+          });
+
+          // If clicked outside while dragging, stop it
+          if (!clickedInsidePopup) {
+            e.stopImmediatePropagation();
+            e.preventDefault();
+          }
+        }
+      },
+      true,
+    ); // Capture phase
+  });
 </script>
 
-<script>
-    jQuery(function ($) {
-        $('.et_pb_toggle_title').click(function () {
-            var $toggle = $(this).closest('.et_pb_toggle');
-
-            //     if (!$toggle.hasClass('et_pb_accordion_toggling')) {
-            var $accordion = $toggle.closest('.et_pb_accordion');
-            if ($toggle.hasClass('et_pb_toggle_open')) {
-                //         $accordion.addClass('et_pb_accordion_toggling');
-                $toggle.find('.et_pb_toggle_content').slideToggle(700, function () {
-                    $toggle.removeClass('et_pb_toggle_open').addClass('et_pb_toggle_close');
-                });
-                //       }
-                //       setTimeout(function(){ 
-                //         $accordion.removeClass('et_pb_accordion_toggling'); 
-                //       }, 750);
-            }
-        });
-    });
-</script>
-
-
-<link rel="stylesheet" href="https://unpkg.com/swiper@7/swiper-bundle.min.css" />
+<link
+  rel="stylesheet"
+  href="https://unpkg.com/swiper@7/swiper-bundle.min.css"
+/>
 <script src="https://unpkg.com/swiper@7/swiper-bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 <script src="https://cdn.jsdelivr.net/npm/air-datepicker@3.6.0/air-datepicker.min.js"></script>
-<link href="https://cdn.jsdelivr.net/npm/air-datepicker@3.6.0/air-datepicker.min.css" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link
+  href="https://cdn.jsdelivr.net/npm/air-datepicker@3.6.0/air-datepicker.min.css"
+  rel="stylesheet"
+/>
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+/>
