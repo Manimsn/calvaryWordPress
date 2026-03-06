@@ -2086,6 +2086,14 @@ function userifyDiviMobileHamburger(initials) {
     overlay.appendChild(dropdownIcon);
     wrapper.appendChild(overlay);
 
+    // Add click listener to toggle mobile menu icon
+    bar.addEventListener("click", function() {
+      // Toggle icon immediately on click
+      const currentIcon = dropdownIcon.textContent;
+      dropdownIcon.textContent = currentIcon === "▼" ? "▲" : "▼";
+      console.log('Mobile menu icon toggled to:', dropdownIcon.textContent);
+    });
+
     // Mark as done
     bar.dataset.userified = "1";
   });
@@ -2378,12 +2386,77 @@ document.addEventListener("keydown", function (e) {
   }
 });
 
-function userInfo() {
-  const userDropdownmenu = document.getElementById("user-dropdown-menu");
-  userDropdownmenu.style.display =
-  window.getComputedStyle(userDropdownmenu).display === "none" ? "block" : "none";
+function userInfo(event) {
+  // Find the closest #user-info element (for event delegation)
+  const userInfoElement = event.target.closest('#user-info');
+  if (!userInfoElement) return;
+  
+  // Don't toggle if clicking on dropdown menu items
+  if (event.target.closest('#user-dropdown-menu a')) {
+    console.log('Clicked on dropdown link, not toggling');
+    return;
+  }
+  
+  const userDropdownmenu = userInfoElement.querySelector("#user-dropdown-menu");
+  const dropdownIcon = userInfoElement.querySelector("#dropdown-icon");
+  
+  if (!userDropdownmenu) {
+    console.log('No dropdown menu found in this user-info');
+    return;
+  }
+  
+  // Add a class to track toggle state (to override CSS hover)
+  const isOpen = userInfoElement.classList.contains('dropdown-open');
+  
+  console.log('Toggling dropdown. Currently open:', isOpen);
+  
+  if (isOpen) {
+    // Close dropdown
+    userInfoElement.classList.remove('dropdown-open');
+    userDropdownmenu.style.setProperty('display', 'none', 'important');
+    if (dropdownIcon) {
+      dropdownIcon.textContent = "▼";
+      console.log('Icon changed to ▼');
+    }
+  } else {
+    // Open dropdown
+    userInfoElement.classList.add('dropdown-open');
+    userDropdownmenu.style.setProperty('display', 'block', 'important');
+    if (dropdownIcon) {
+      dropdownIcon.textContent = "▲";
+      console.log('Icon changed to ▲');
+    }
+  }
 }
-document.getElementById('user-info')?.addEventListener('click', userInfo);
+
+// Use event delegation on document to catch all #user-info clicks (desktop and mobile)
+document.addEventListener('click', function(event) {
+  const userInfoClick = event.target.closest('#user-info');
+  if (userInfoClick) {
+    event.preventDefault(); // Prevent any default behavior
+    userInfo(event);
+  }
+});
+
+// Close dropdown when clicking outside
+document.addEventListener('click', function(event) {
+  const userInfoElements = document.querySelectorAll('#user-info');
+  userInfoElements.forEach(userInfoElement => {
+    if (!userInfoElement.contains(event.target) && userInfoElement.classList.contains('dropdown-open')) {
+      const userDropdownmenu = userInfoElement.querySelector('#user-dropdown-menu');
+      const dropdownIcon = userInfoElement.querySelector('#dropdown-icon');
+      
+      userInfoElement.classList.remove('dropdown-open');
+      if (userDropdownmenu) {
+        userDropdownmenu.style.setProperty('display', 'none', 'important');
+      }
+      if (dropdownIcon) {
+        dropdownIcon.textContent = "▼";
+      }
+      console.log('Closed dropdown (clicked outside)');
+    }
+  });
+});
 
 const megaMenuItem = document.querySelector('.mega-menu');
 
@@ -3595,3 +3668,4 @@ window.addEventListener('pageshow', function (e) {
     });
   });
 });
+// ppp
