@@ -41,6 +41,11 @@ let ph_email = "";
 let profileImageCamera = null;
 const token = localStorage.getItem("mpp-widgets_JwtToken");
 
+// Cropper.js instance
+let cropperInstance = null;
+let currentCropFile = null;
+let currentImageURL = null;
+
 // Page-level loader: create once and provide show/hide helpers
 function ensurePageLoader() {
   if (document.getElementById('pageLoader')) return;
@@ -1658,6 +1663,9 @@ document.getElementById("cancel").addEventListener("click", async ()=> {
 });
 
 document.addEventListener("DOMContentLoaded", function () {
+    // Initialize crop modal and file input handlers
+    initializeFileInputAndCropModal();
+    
     loadProfile();  
     firstNameInput.addEventListener('input', () => {
       const raw = firstNameInput.value || "";
@@ -1786,47 +1794,125 @@ const isIOS = (() => {
   return false;
 })();
 
-const cameraLabel = document.querySelector('.camera-icon');
-if (isIOS) {
-  const input = document.createElement('input');
-  input.type = "file";
-  input.id = "fileInput";
-  input.accept = "image/*";
-  input.style.display = 'none';
-  cameraLabel.appendChild(input);
-} else {
-  cameraLabel.id = "cameraModal";
-}
-const fileInput = document.getElementById('fileInput');
-// Watch for file uploads
-fileInput.addEventListener('change', async (event) => {
-  const file = event.target.files[0];
-  if(!file) return;
-  if (!file.type.startsWith('image/')) {
-    showMessage("error", "Please upload an image.");
-    event.target.value = '';
-    $.magnificPopup.close();
+// Initialize file input and crop modal after DOM loads
+function initializeFileInputAndCropModal() {
+  const cameraLabel = document.querySelector('.camera-icon');
+  
+  if (!cameraLabel) {
+    console.error('Camera label not found');
     return;
   }
-  let compressed = file;
-  if (file.size > 1 * 1024 * 1024) {
-    compressed = await compressImage(file, 1024, 0.7);
-    console.log('Compressed size:', compressed.size / 1024, 'KB');
+  
+  // Create or get file input
+  let fileInput = document.getElementById('fileInput');
+  
+  if (isIOS && !fileInput) {
+    const input = document.createElement('input');
+    input.type = "file";
+    input.id = "fileInput";
+    input.accept = "image/*";
+    input.style.display = 'none';
+    cameraLabel.appendChild(input);
+    fileInput = input;
+  } else if (!isIOS) {
+    cameraLabel.id = "cameraModal";
   }
-  uploadedProfileFile = compressed;
-  hasChanges = true;
-  document.getElementById("profileMessage").style.visibility = "hidden";
-  // Remove initials if any
-  const initialsDiv = profileContainer.querySelector('.initials-avatar');
-  if (initialsDiv) initialsDiv.remove();
-
-  const imageURL = URL.createObjectURL(compressed);
-  profilePhoto.src = imageURL;
-  profilePhoto.style.display = "block";
-
-  profilePhoto.onload = () => URL.revokeObjectURL(imageURL);
-  $.magnificPopup.close();
-});
+  
+  // Attach file input event listener
+  if (fileInput) {
+    fileInput.addEventListener('change', async (event) => {
+      const file = event.target.files[0];
+      if(!file) return;
+      
+      console.log('File selected:', file.name, file.type);
+      
+      if (!file.type.startsWith('image/')) {
+        showMessage("error", "Please upload an image.");
+        event.target.value = '';
+        if (typeof $.magnificPopup !== 'undefined') {
+          $.magnificPopup.close();
+        }
+        return;
+      }
+      
+      console.log('Opening crop modal...');
+      
+      // CLOSE magnificPopup FIRST before opening crop modal
+      if (typeof $.magnificPopup !== 'undefined') {
+        $.magnificPopup.close();
+      }
+      
+      // Small delay to ensure magnificPopup closes completely
+      setTimeout(() => {
+        openCropModal(file);
+      }, 100);
+      
+      event.target.value = ''; // Reset input
+    });
+    console.log('File input event listener attached');
+  } else {
+    console.error('File input not found or not created');
+  }
+  
+  // Attach crop modal event listeners
+  const rotateBtn = document.getElementById('rotateBtn');
+  const zoomSlider = document.getElementById('zoomSlider');
+  const cropApply = document.getElementById('cropApply');
+  const cropCancel = document.getElementById('cropCancel');
+  const cropCloseBtn = document.getElementById('cropCloseBtn');
+  const cropModal = document.getElementById('cropModal');
+  
+  if (!cropModal) {
+    console.error('Crop modal not found in DOM');
+  } else {
+    console.log('Crop modal found in DOM');
+  }
+  
+  // Rotate button (90° clockwise)
+  if (rotateBtn) {
+    rotateBtn.addEventListener('click', () => {
+      if (cropperInstance) {
+        cropperInstance.rotate(90);
+      }
+    });
+  }
+  
+  // Zoom slider
+  if (zoomSlider) {
+    zoomSlider.addEventListener('input', (e) => {
+      if (cropperInstance) {
+        const value = parseFloat(e.target.value);
+        cropperInstance.zoomTo(value);
+      }
+    });
+  }
+  
+  // Apply button
+  if (cropApply) {
+    cropApply.addEventListener('click', applyCrop);
+  }
+  
+  // Cancel button
+  if (cropCancel) {
+    cropCancel.addEventListener('click', closeCropModal);
+  }
+  
+  // Close button (X)
+  if (cropCloseBtn) {
+    cropCloseBtn.addEventListener('click', closeCropModal);
+  }
+  
+  // Close on overlay click
+  if (cropModal) {
+    cropModal.addEventListener('click', (e) => {
+      if (e.target.id === 'cropModal') {
+        closeCropModal();
+      }
+    });
+  }
+  
+  console.log('Crop modal event listeners attached');
+}
 
 const video = document.getElementById('video');
 const takePhotoBtn = document.getElementById('takePhoto');
@@ -1923,25 +2009,16 @@ document.getElementById('openCamera').addEventListener('click', async function()
         $.magnificPopup.close();
         return;
       }
-      let compressed = file;
-      if (file.size > 1 * 1024 * 1024) {
-        compressed = await compressImage(file, 1024, 0.7);
-        console.log('Compressed size:', compressed.size / 1024, 'KB');
-      }
-      uploadedProfileFile = compressed; 
-      hasChanges = true;
-      document.getElementById("profileMessage").style.visibility = "hidden";
-
-      // Remove initials if any
-      const initialsDiv = profileContainer.querySelector('.initials-avatar');
-      if (initialsDiv) initialsDiv.remove();
-
-      const imageURL = URL.createObjectURL(compressed);
-      profilePhoto.src = imageURL;
-      profilePhoto.style.display = "block";
-
-      profilePhoto.onload = () => URL.revokeObjectURL(imageURL);
+      
+      // Close magnificPopup FIRST
       $.magnificPopup.close();
+      
+      // Small delay to ensure magnificPopup closes completely
+      setTimeout(() => {
+        openCropModal(file);
+      }, 100);
+      
+      event.target.value = ''; // Reset input
     });
     input.click();
   }
@@ -1987,25 +2064,25 @@ retakeBtn.addEventListener('click', async (e) => {
 usePhotoBtn.addEventListener('click', async () => {
   const finalImage = photoPreview.src;
 
-  hasChanges = true;
-  let compressed = finalImage;
-   if (finalImage.size > 1 * 1024 * 1024) {
-    compressed = await compressImage(file, 1024, 0.7);
-    console.log('Compressed size:', compressed.size / 1024, 'KB');
-  }
   console.log('✅ Photo confirmed!');
-  console.log('Image data URL:', compressed);
-  profileImageCamera = compressed;
-  document.getElementById("profileMessage").style.visibility = "hidden";
-
-  const initialsDiv = profileContainer.querySelector('.initials-avatar');
-  if (initialsDiv) initialsDiv.remove();
-  profilePhoto.src = compressed;
-  profilePhoto.style.display = "block";
-  photoPreview.style.display = 'block';
+  
+  // Convert data URL to File
+  const response = await fetch(finalImage);
+  const blob = await response.blob();
+  const file = new File([blob], 'camera-photo.jpg', { type: 'image/jpeg' });
+  
+  // Close camera modal
+  photoPreview.style.display = 'none';
   retakeBtn.style.display = 'none';
   usePhotoBtn.style.display = 'none';
+  video.style.display = 'block';
+  takePhotoBtn.style.display = 'inline-block';
   $.magnificPopup.close();
+  
+  // Small delay to ensure magnificPopup closes completely
+  setTimeout(() => {
+    openCropModal(file);
+  }, 100);
 });
 
 function compressImage(file, maxWidth = 1024, quality = 0.7) {
@@ -2030,4 +2107,177 @@ function compressImage(file, maxWidth = 1024, quality = 0.7) {
     };
     img.onerror = reject;
   });
+}
+
+// ========== CROP MODAL FUNCTIONS (Gmail-style) ==========
+
+function openCropModal(imageFile) {
+  console.log('openCropModal called with file:', imageFile.name);
+  
+  const cropModal = document.getElementById('cropModal');
+  const imageToCrop = document.getElementById('imageToCrop');
+  
+  if (!cropModal) {
+    console.error('Crop modal element not found in DOM!');
+    alert('Crop modal not found. Please ensure the modal HTML is added to your page.');
+    return;
+  }
+  
+  if (!imageToCrop) {
+    console.error('Image to crop element not found!');
+    return;
+  }
+  
+  console.log('Crop modal elements found, initializing...');
+  
+  currentCropFile = imageFile;
+  
+  // Set image source
+  currentImageURL = URL.createObjectURL(imageFile);
+  imageToCrop.src = currentImageURL;
+  cropModal.style.display = 'flex';
+  
+  console.log('Crop modal displayed');
+  
+  // Adjust button text for mobile
+  const isMobileView = window.innerWidth <= 768;
+  const applyBtn = document.getElementById('cropApply');
+  if (applyBtn && isMobileView) {
+    applyBtn.textContent = 'Set as Photo';
+  } else if (applyBtn) {
+    applyBtn.textContent = 'Set as profile photo';
+  }
+  
+  // Initialize Cropper.js
+  imageToCrop.onload = () => {
+    console.log('Image loaded, initializing Cropper.js...');
+    
+    // Destroy existing instance if any
+    if (cropperInstance) {
+      cropperInstance.destroy();
+    }
+    
+    cropperInstance = new Cropper(imageToCrop, {
+      aspectRatio: 1, // Square crop for circular profile
+      viewMode: 1,
+      dragMode: 'move', // Allow dragging to reposition
+      autoCropArea: 0.65,
+      restore: false,
+      guides: false,
+      center: true,
+      highlight: false,
+      cropBoxMovable: false, // Fixed crop area (Gmail-style)
+      cropBoxResizable: false, // Fixed size
+      toggleDragModeOnDblclick: false,
+      minContainerWidth: 300,
+      minContainerHeight: 300,
+      background: false,
+      zoomOnWheel: false,
+      ready: function() {
+        console.log('Cropper.js ready');
+        // Set initial zoom to fit
+        const imageData = this.cropper.getImageData();
+        const containerData = this.cropper.getContainerData();
+        const minZoom = Math.max(
+          containerData.width / imageData.naturalWidth,
+          containerData.height / imageData.naturalHeight
+        );
+        const zoomSlider = document.getElementById('zoomSlider');
+        if (zoomSlider) {
+          zoomSlider.min = minZoom;
+          zoomSlider.max = minZoom * 3;
+          zoomSlider.value = minZoom;
+          zoomSlider.step = 0.01;
+        }
+      }
+    });
+    
+    // Don't revoke URL here - Cropper.js still needs it
+  };
+}
+
+function closeCropModal() {
+  const cropModal = document.getElementById('cropModal');
+  const imageToCrop = document.getElementById('imageToCrop');
+  
+  if (cropperInstance) {
+    cropperInstance.destroy();
+    cropperInstance = null;
+  }
+  
+  // Revoke the blob URL to free up memory
+  if (currentImageURL) {
+    URL.revokeObjectURL(currentImageURL);
+    currentImageURL = null;
+  }
+  
+  // Clear the image src
+  if (imageToCrop) {
+    imageToCrop.src = '';
+  }
+  
+  if (cropModal) {
+    cropModal.style.display = 'none';
+  }
+  
+  currentCropFile = null;
+}
+
+async function applyCrop() {
+  if (!cropperInstance) return;
+  
+  const croppedCanvas = cropperInstance.getCroppedCanvas({
+    width: 800,
+    height: 800,
+    imageSmoothingEnabled: true,
+    imageSmoothingQuality: 'high',
+  });
+  
+  if (!croppedCanvas) {
+    console.error('Failed to get cropped canvas');
+    return;
+  }
+  
+  croppedCanvas.toBlob(async (blob) => {
+    if (!blob) {
+      console.error('Failed to create blob from canvas');
+      return;
+    }
+    
+    const croppedFile = new File([blob], 'profile-photo.jpg', {
+      type: 'image/jpeg'
+    });
+    
+    // Compress if needed
+    let finalFile = croppedFile;
+    if (croppedFile.size > 1 * 1024 * 1024) {
+      finalFile = await compressImage(croppedFile, 1024, 0.7);
+      console.log('Compressed size:', finalFile.size / 1024, 'KB');
+    }
+    
+    // Set to profile photo
+    uploadedProfileFile = finalFile;
+    hasChanges = true;
+    document.getElementById("profileMessage").style.visibility = "hidden";
+    
+    // Remove initials if any
+    const profileContainer = document.querySelector('.profile-photo-container');
+    const initialsDiv = profileContainer?.querySelector('.initials-avatar');
+    if (initialsDiv) initialsDiv.remove();
+    
+    const profilePhoto = document.getElementById('profilePhoto');
+    const imageURL = URL.createObjectURL(finalFile);
+    profilePhoto.src = imageURL;
+    profilePhoto.style.display = "block";
+    
+    profilePhoto.onload = () => URL.revokeObjectURL(imageURL);
+    
+    // Close crop modal
+    closeCropModal();
+    
+    // Close parent modal if exists (magnificPopup)
+    if (typeof $.magnificPopup !== 'undefined') {
+      $.magnificPopup.close();
+    }
+  }, 'image/jpeg', 0.9);
 }
