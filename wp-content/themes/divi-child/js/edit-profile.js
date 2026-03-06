@@ -1663,9 +1663,6 @@ document.getElementById("cancel").addEventListener("click", async ()=> {
 });
 
 document.addEventListener("DOMContentLoaded", function () {
-    // Initialize crop modal and file input handlers
-    initializeFileInputAndCropModal();
-    
     loadProfile();  
     firstNameInput.addEventListener('input', () => {
       const raw = firstNameInput.value || "";
@@ -1815,10 +1812,11 @@ function initializeFileInputAndCropModal() {
     cameraLabel.appendChild(input);
     fileInput = input;
   } else if (!isIOS) {
+    // For desktop, set ID for DIVI's magnificPopup to work
     cameraLabel.id = "cameraModal";
   }
   
-  // Attach file input event listener
+  // Attach file input event listener for iOS
   if (fileInput) {
     fileInput.addEventListener('change', async (event) => {
       const file = event.target.files[0];
@@ -1913,6 +1911,45 @@ function initializeFileInputAndCropModal() {
   
   console.log('Crop modal event listeners attached');
 }
+
+// Run camera icon initialization immediately (don't wait for DOMContentLoaded)
+// This allows DIVI's magnificPopup to find the #cameraModal element early
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initializeFileInputAndCropModal);
+} else {
+  // DOM already loaded, run immediately
+  initializeFileInputAndCropModal();
+}
+
+// ========== PHOTO UPLOAD BUTTON HANDLER ==========
+// Handle "Upload Image" button click in photo selection modal
+document.getElementById('uploadImage')?.addEventListener('click', function() {
+  const fileInput = document.createElement('input');
+  fileInput.type = 'file';
+  fileInput.accept = 'image/*';
+  
+  fileInput.addEventListener('change', async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    if (!file.type.startsWith('image/')) {
+      showMessage("error", "Please upload an image.");
+      return;
+    }
+    
+    // Close magnificPopup
+    if (typeof $.magnificPopup !== 'undefined') {
+      $.magnificPopup.close();
+    }
+    
+    // Small delay then open crop modal
+    setTimeout(() => {
+      openCropModal(file);
+    }, 100);
+  });
+  
+  fileInput.click();
+});
 
 const video = document.getElementById('video');
 const takePhotoBtn = document.getElementById('takePhoto');
@@ -2138,15 +2175,6 @@ function openCropModal(imageFile) {
   cropModal.style.display = 'flex';
   
   console.log('Crop modal displayed');
-  
-  // Adjust button text for mobile
-  const isMobileView = window.innerWidth <= 768;
-  const applyBtn = document.getElementById('cropApply');
-  if (applyBtn && isMobileView) {
-    applyBtn.textContent = 'Set as Photo';
-  } else if (applyBtn) {
-    applyBtn.textContent = 'Set as profile photo';
-  }
   
   // Initialize Cropper.js
   imageToCrop.onload = () => {

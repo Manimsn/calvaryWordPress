@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+  <body>
+    <!-- Crop Modal (Gmail-style) -->
+    <div id="cropModal" class="crop-modal-overlay">
+      <div class="crop-modal-content">
+        <div class="crop-header">
+          <h3>Set profile photo</h3>
+          <button id="cropCloseBtn" class="crop-close-btn">×</button>
+        </div>
+
+        <div class="crop-container">
+          <img id="imageToCrop" alt="Image to crop" />
+        </div>
+
+        <div class="zoom-control">
+          <span class="zoom-label">−</span>
+          <input
+            type="range"
+            id="zoomSlider"
+            min="0"
+            max="100"
+            value="0"
+            step="1"
+          />
+          <span class="zoom-label">+</span>
+        </div>
+
+        <div class="rotate-control">
+          <button id="rotateBtn" class="rotate-icon-btn" type="button">
+            <i class="fa fa-rotate-right"></i> Rotate
+          </button>
+        </div>
+
+        <div class="crop-actions">
+          <button id="cropCancel" class="secondaryBtn" type="button">
+            Cancel
+          </button>
+          <button id="cropApply" class="primaryBtn" type="button">
+            Set as profile photo
+          </button>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
