@@ -290,7 +290,7 @@ async function loadMyGroups() {
             newSlide.innerHTML = `
                 ${IsLeader == true ? `<a target="_blank" href="https://calvaryftlbeta.cloudapps.ministryplatform.cloud/connect/group/${Group_ID}">`: ""}
                 <div class="et_pb_module_inner">
-                <div class="dsm_card_wrapper et_pb_text_align_left et_pb_bg_layout_light">
+                <div class="dsm_card_wrapper et_pb_text_align_left et_pb_bg_layout_light" style="padding-top: 0;">
                     <h6 class="dsm_card_title et_pb_module_header">${Group_Name}</h6>
                     <div class="dsm_card_carousel_child_subtitle">
                         ${next_meeting ? "NEXT MEETING:" : "NO UPCOMING MEETING"}
