@@ -236,6 +236,41 @@
   background: #1765cc;
 }
 
+/* Desktop/Laptop with short viewport height: reduce vertical footprint */
+@media (min-width: 769px) and (max-height: 820px) {
+  .crop-modal-overlay {
+    padding: 10px;
+  }
+
+  .crop-modal-content {
+    max-height: 86vh;
+    padding: 16px;
+  }
+
+  .crop-header {
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+  }
+
+  .crop-container {
+    height: min(34vh, 240px);
+    margin-bottom: 10px;
+  }
+
+  .zoom-control {
+    margin: 10px 0;
+  }
+
+  .rotate-control {
+    margin: 8px 0 12px 0;
+  }
+
+  .crop-actions {
+    padding-top: 10px;
+    gap: 8px;
+  }
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .crop-modal-overlay {
