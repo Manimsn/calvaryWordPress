@@ -2080,7 +2080,7 @@ function userifyDiviMobileHamburger(initials) {
 
     const dropdownIcon = document.createElement("span");
     dropdownIcon.id = "dropdown-icon";
-    dropdownIcon.textContent = "▼";
+    dropdownIcon.textContent = "▲";
 
     overlay.appendChild(avatar);
     overlay.appendChild(dropdownIcon);
@@ -2090,7 +2090,7 @@ function userifyDiviMobileHamburger(initials) {
     bar.addEventListener("click", function() {
       // Toggle icon immediately on click
       const currentIcon = dropdownIcon.textContent;
-      dropdownIcon.textContent = currentIcon === "▼" ? "▲" : "▼";
+      dropdownIcon.textContent = currentIcon === "▲" ? "▼" : "▲";
       console.log('Mobile menu icon toggled to:', dropdownIcon.textContent);
     });
 
@@ -2415,16 +2415,16 @@ function userInfo(event) {
     userInfoElement.classList.remove('dropdown-open');
     userDropdownmenu.style.setProperty('display', 'none', 'important');
     if (dropdownIcon) {
-      dropdownIcon.textContent = "▼";
-      console.log('Icon changed to ▼');
+      dropdownIcon.textContent = "▲";
+      console.log('Icon changed to ▲');
     }
   } else {
     // Open dropdown
     userInfoElement.classList.add('dropdown-open');
     userDropdownmenu.style.setProperty('display', 'block', 'important');
     if (dropdownIcon) {
-      dropdownIcon.textContent = "▲";
-      console.log('Icon changed to ▲');
+      dropdownIcon.textContent = "▼";
+      console.log('Icon changed to ▼');
     }
   }
 }
@@ -2454,7 +2454,7 @@ document.addEventListener('click', function(event) {
         userDropdownmenu.style.setProperty('display', 'none', 'important');
       }
       if (dropdownIcon) {
-        dropdownIcon.textContent = "▼";
+        dropdownIcon.textContent = "▲";
       }
       console.log('Closed dropdown (clicked outside)');
     }
@@ -3671,4 +3671,4 @@ window.addEventListener('pageshow', function (e) {
     });
   });
 });
-// ppp
+// check
