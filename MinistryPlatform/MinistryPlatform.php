@@ -259,7 +259,7 @@ class MP_API_SHORTCODES
         $name = isset($_GET['contactId']) ? urldecode(sanitize_text_field($_GET['contactId'])) : null;
 
         if (!$name) {
-            return '<p>No name provided in the URL.</p>';
+            return '<p>Loading...</p>';
         }
 
 
@@ -268,29 +268,22 @@ class MP_API_SHORTCODES
         // Final output string
         $output = '';
 
-        if ($mp->authenticate()) {
+        if ($mp->authenticate()) {          
 
-            // Step 1: Fetch Contact + Household
-
-            $user = $mp->table('dp_Users')
-                ->select('Contact_ID') // fetch only specific fields
-                ->filter("User_Name = '$name'")   // filter by email address (where $name holds the email)
-                // ->filter("User_Name = 'mikeg@calvaryftl.org'")   // filter by email address (where $name holds the email)
-                ->get();
-
-            $Contact_ID = $user[0]['Contact_ID'];
+            // echo '<script>console.log("dp_Users result:", ' . json_encode($user) . ');</script>';
+            // echo '<script>console.log("dp_Users result:", ' . json_encode($name) . ');</script>';         
 
             $contact = $mp->table('Contacts')
                 // ->select('Contact_ID, Household_ID') // fetch only specific fields
                 ->select('*') // fetch only specific fields
-                ->filter("Contact_ID = '$Contact_ID'")   // filter by email address (where $name holds the email)
+                ->filter("Contact_ID = '$name'")   // filter by email address (where $name holds the email)
                 ->get();
 
             $householdID = $contact[0]['Household_ID'];
 
 
-            $debugContact = '<pre>' . print_r($contact, true) . '</pre>';
-            $debugUser = '<pre>' . print_r($user, true) . '</pre>';
+            // $debugContact = '<pre>' . print_r($contact, true) . '</pre>';
+            // $debugUser = '<pre>' . print_r($user, true) . '</pre>';
 
             if (empty($contact)) {
                 return '<p>Contact not found for name: ' . esc_html($name) . '</p>';
