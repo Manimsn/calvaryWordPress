@@ -2143,7 +2143,7 @@ async function updateUserHeaderUI() {
       const payload = JSON.parse(atob(token.split(".")[1]));
       console.log("Decoded JWT payload:", payload);
 
-      const response = await fetch(
+      window.contactDataPromise = fetch(
         `${baseURL}/api/My/Contact`,
         {
           method: "GET",
@@ -2152,9 +2152,9 @@ async function updateUserHeaderUI() {
             Authorization: `Bearer ${token}`,
           }
         }
-      );
+      ).then(r => r.json());
 
-      const text = await response.json();
+      const text = await window.contactDataPromise;
       
       if(text.Web_Image_URL != null){
         userInfo.style.display = "flex";
