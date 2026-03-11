@@ -41,26 +41,8 @@ let ph_email = "";
 let profileImageCamera = null;
 const token = localStorage.getItem("mpp-widgets_JwtToken");
 
-function isUnsupportedImageFormat(file) {
-  if (!file) return false;
-
-  const fileName = (file.name || '').toLowerCase();
-  const mimeType = (file.type || '').toLowerCase();
-
-  const unsupportedExtensions = ['.tif', '.tiff', '.heif', '.heic', '.hvif'];
-  const unsupportedMimeHints = ['tif', 'tiff', 'heif', 'heic', 'hvif'];
-
-  const hasUnsupportedExtension = unsupportedExtensions.some((ext) => fileName.endsWith(ext));
-  const hasUnsupportedMime = unsupportedMimeHints.some((hint) => mimeType.includes(hint));
-
-  return hasUnsupportedExtension || hasUnsupportedMime;
-}
-
-function alertUnsupportedImageFormat() {
-  alert('TIFF and HVIF image formats are unsupported. Please upload JPG, PNG, or WEBP.');
-}
-
 let cropModuleLoadPromise = null;
+let firstModalModuleLoadPromise = null;
 
 function ensureCropModuleLoaded() {
   if (window.ProfileCrop) {
@@ -87,6 +69,33 @@ function ensureCropModuleLoaded() {
   });
 
   return cropModuleLoadPromise;
+}
+
+function ensureFirstModalModuleLoaded() {
+  if (window.ProfileFirstModal) {
+    return Promise.resolve(window.ProfileFirstModal);
+  }
+
+  if (firstModalModuleLoadPromise) {
+    return firstModalModuleLoadPromise;
+  }
+
+  firstModalModuleLoadPromise = new Promise((resolve, reject) => {
+    const script = document.createElement('script');
+    script.src = '/wp-content/themes/divi-child/js/edit-profile/first-modal-photo-actions.js';
+    script.async = true;
+    script.onload = () => {
+      if (window.ProfileFirstModal) {
+        resolve(window.ProfileFirstModal);
+      } else {
+        reject(new Error('ProfileFirstModal module loaded but not available'));
+      }
+    };
+    script.onerror = () => reject(new Error('Failed to load first-modal-photo-actions.js'));
+    document.head.appendChild(script);
+  });
+
+  return firstModalModuleLoadPromise;
 }
 
 function initializeCropModuleBridge() {
@@ -122,6 +131,19 @@ function initializeCropModuleBridge() {
   });
 
   window.ProfileCrop._epBridgeInitialized = true;
+}
+
+function initializeFirstModalModuleBridge() {
+  if (!window.ProfileFirstModal || window.ProfileFirstModal._epBridgeInitialized) {
+    return;
+  }
+
+  window.ProfileFirstModal.init({
+    openCropModal,
+    showMessage,
+  });
+
+  window.ProfileFirstModal._epBridgeInitialized = true;
 }
 
 function openCropModal(imageFile) {
@@ -716,7 +738,9 @@ function resetModalState() {
   document.querySelectorAll('.submitButtonDiv h5').forEach(el => {
     el.style.pointerEvents = 'auto';
   });
-  stopCamera();
+  if (window.ProfileFirstModal && typeof window.ProfileFirstModal.stopCamera === 'function') {
+    window.ProfileFirstModal.stopCamera();
+  }
 
   setTimeout(() => {
     // Reset form sections
@@ -1886,319 +1910,42 @@ window.addEventListener('resize', () => updateName(nickNameVar));
 
 window.addEventListener('beforeunload', handleBeforeUnload);
 
-const isIOS = (() => {
-  const ua = navigator.userAgent || navigator.vendor || window.opera;
-  if (/iphone|ipod|blackberry|iemobile|opera mini/i.test(ua)) return true;
-  if (/iPad/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) return true;
-  return false;
-})();
-
-// Initialize file input and crop modal after DOM loads
-function initializeFileInputAndCropModal() {
+function ensureCameraTriggerIdEarly() {
   const cameraLabel = document.querySelector('.camera-icon');
+  if (cameraLabel) {
+    cameraLabel.id = 'cameraModal';
+  }
+}
+
+function initializePhotoModules() {
+  // First modal must initialize independently so camera icon works even if crop module
+  // is delayed, and so DIVI can bind against #cameraModal reliably.
+  ensureCameraTriggerIdEarly();
+
+  ensureFirstModalModuleLoaded()
+    .then(() => {
+      initializeFirstModalModuleBridge();
+    })
+    .catch((error) => {
+      console.error('Failed to initialize first photo module:', error);
+    });
 
   ensureCropModuleLoaded()
     .then(() => {
       initializeCropModuleBridge();
     })
     .catch((error) => {
-      console.error('Failed to initialize crop module:', error);
+      console.error('Failed to initialize crop photo module:', error);
     });
-  
-  if (!cameraLabel) {
-    console.error('Camera label not found');
-    return;
-  }
-
-  // Keep a stable trigger target so DIVI's popup binding can always find it.
-  cameraLabel.id = "cameraModal";
-
-  if (isIOS) {
-    cameraLabel.style.touchAction = 'manipulation';
-    cameraLabel.style.webkitTapHighlightColor = 'transparent';
-
-    // iOS Safari can drop synthetic clicks on transformed/overlayed elements.
-    // This forces a reliable click path for Magnific Popup.
-    if (!cameraLabel.dataset.iosPopupFallbackBound) {
-      cameraLabel.addEventListener('touchend', function (event) {
-        if (event.cancelable) event.preventDefault();
-        cameraLabel.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
-      }, { passive: false });
-      cameraLabel.dataset.iosPopupFallbackBound = '1';
-    }
-  }
-  
-  // Create or get file input
-  let fileInput = document.getElementById('fileInput');
-  
-  // Do not inject a hidden iOS input into the camera icon. It can hijack taps and
-  // skip the first modal. Upload flow remains inside the first modal's button.
-  
-  // Attach file input event listener for iOS
-  if (fileInput) {
-    fileInput.addEventListener('change', async (event) => {
-      const file = event.target.files[0];
-      if(!file) return;
-
-      if (isUnsupportedImageFormat(file)) {
-        alertUnsupportedImageFormat();
-        event.target.value = '';
-        return;
-      }
-      
-      console.log('File selected:', file.name, file.type);
-      
-      if (!file.type.startsWith('image/')) {
-        showMessage("error", "Please upload an image.");
-        event.target.value = '';
-        if (typeof $.magnificPopup !== 'undefined') {
-          $.magnificPopup.close();
-        }
-        return;
-      }
-      
-      console.log('Opening crop modal...');
-      
-      // CLOSE magnificPopup FIRST before opening crop modal
-      if (typeof $.magnificPopup !== 'undefined') {
-        $.magnificPopup.close();
-      }
-      
-      // Small delay to ensure magnificPopup closes completely
-      setTimeout(() => {
-        openCropModal(file);
-      }, 100);
-      
-      event.target.value = ''; // Reset input
-    });
-    console.log('File input event listener attached');
-  } else {
-    console.error('File input not found or not created');
-  }
 }
 
-// Run camera icon initialization immediately (don't wait for DOMContentLoaded)
-// This allows DIVI's magnificPopup to find the #cameraModal element early
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initializeFileInputAndCropModal);
+  ensureCameraTriggerIdEarly();
+  document.addEventListener('DOMContentLoaded', initializePhotoModules);
 } else {
-  // DOM already loaded, run immediately
-  initializeFileInputAndCropModal();
+  ensureCameraTriggerIdEarly();
+  initializePhotoModules();
 }
-
-// ========== PHOTO UPLOAD BUTTON HANDLER ==========
-// Handle "Upload Image" button click in photo selection modal
-document.getElementById('uploadImage')?.addEventListener('click', function() {
-  const fileInput = document.createElement('input');
-  fileInput.type = 'file';
-  fileInput.accept = 'image/*';
-  
-  fileInput.addEventListener('change', async (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    if (isUnsupportedImageFormat(file)) {
-      alertUnsupportedImageFormat();
-      event.target.value = '';
-      return;
-    }
-    
-    if (!file.type.startsWith('image/')) {
-      showMessage("error", "Please upload an image.");
-      return;
-    }
-    
-    // Close magnificPopup
-    if (typeof $.magnificPopup !== 'undefined') {
-      $.magnificPopup.close();
-    }
-    
-    // Small delay then open crop modal
-    setTimeout(() => {
-      openCropModal(file);
-    }, 100);
-  });
-  
-  fileInput.click();
-});
-
-const video = document.getElementById('video');
-const takePhotoBtn = document.getElementById('takePhoto');
-const retakeBtn = document.getElementById('retakePhoto');
-const usePhotoBtn = document.getElementById('usePhoto');
-const canvas = document.getElementById('canvas');
-const photoPreview = document.getElementById('photoPreview');
-const ctx = canvas.getContext('2d');
-let stream = null;
-
-async function startCamera (){
-  try {
-    stream = await navigator.mediaDevices.getUserMedia({video: true, audio: false});
-    document.getElementById('video').srcObject = stream;
-    document.getElementById('videoDiv').style.display = 'flex';
-    const cameraErrorDiv = document.getElementById('errorCameraDiv');
-    if(cameraErrorDiv) cameraErrorDiv.style.display = 'none';
-  } catch (error) {
-    console.log(error);
-    handleCameraError(error);
-    return;
-  }
-}
-
-function stopCamera() {
-  if (stream) {
-    stream.getTracks().forEach(track => track.stop());
-    stream = null;
-    video.srcObject = null;
-    console.log('Camera stopped');
-  }
-}
-
-function handleCameraError(error){
-  console.error("Camera Error:", error);
-
-  const messageEl = document.createElement('div');
-  messageEl.id = 'errorCameraDiv'
-  messageEl.style = `
-    color: #c00;
-    padding: 12px 16px;
-    margin-top: 10px;
-    border-radius: 6px;
-    font-weight: 600;
-    margin: 30px;
-  `;
-
-  switch (error.name) {
-    case 'NotAllowedError':
-    case 'SecurityError':
-      messageEl.textContent = '🚫 Camera access denied. Please allow permission in your browser settings.';
-      break;
-    case 'NotFoundError':
-    case 'OverconstrainedError':
-      messageEl.textContent = '❌ No camera device found. Please connect a camera and try again.';
-      break;
-    case 'NotReadableError':
-      messageEl.textContent = '⚠️ Camera is already in use by another app.';
-      break;
-    default:
-      messageEl.textContent = '⚠️ Unable to access the camera. Please try again.';
-  }
-
-  document.getElementById('photoModal').appendChild(messageEl);
-  document.getElementById('videoDiv').style.display = 'none';
-}
-const isMobile = (() => {
-  const ua = navigator.userAgent || navigator.vendor || window.opera;
-  const isAndroid = /Android/i.test(ua);
-  const isIOS = /iPhone|iPad|iPod/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-  return isAndroid || isIOS;
-})();
-
-// const androidfileInput = document.getElementById('androidfileInput');
-// Watch for file uploads
-
-document.getElementById('openCamera').addEventListener('click', async function(){
-  if(isMobile) {
-    const optionsDiv = document.getElementById("selectPhotoOption");
-    const input = document.createElement('input');
-    input.type = "file";
-    input.id = "androidfileInput";
-    input.accept = "image/*";
-    input.style.display = 'none';
-    input.capture = "user";
-    optionsDiv.appendChild(input);
-
-    input.addEventListener('change', async (event) => {
-      const file = event.target.files[0];
-      if(!file) return;
-
-      if (isUnsupportedImageFormat(file)) {
-        alertUnsupportedImageFormat();
-        event.target.value = '';
-        return;
-      }
-
-      if (!file.type.startsWith('image/')) {
-        showMessage("error", "Please upload an image.");
-        event.target.value = '';
-        $.magnificPopup.close();
-        return;
-      }
-      
-      // Close magnificPopup FIRST
-      $.magnificPopup.close();
-      
-      // Small delay to ensure magnificPopup closes completely
-      setTimeout(() => {
-        openCropModal(file);
-      }, 100);
-      
-      event.target.value = ''; // Reset input
-    });
-    input.click();
-  }
-  else{
-    await startCamera();
-    document.getElementById('selectPhotoOption').style.display = 'none';
-    document.getElementById('photoModal').style.display = 'block';
-  }
-})
-
-takePhotoBtn.addEventListener('click', (e) => {
-  e.preventDefault();
-
-  canvas.width = video.videoWidth;
-  canvas.height = video.videoHeight;
-  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-  const imageDataUrl = canvas.toDataURL('image/png');
-  photoPreview.src = imageDataUrl;
-  photoPreview.style.display = 'block';
-  video.style.display = 'none';
-
-  takePhotoBtn.style.display = 'none';
-  retakeBtn.style.display = 'inline-block';
-  usePhotoBtn.style.display = 'inline-block';
-
-  stopCamera();
-});
-
-
-retakeBtn.addEventListener('click', async (e) => {
-  e.preventDefault();
-
-  photoPreview.style.display = 'none';
-  video.style.display = 'block';
-  takePhotoBtn.style.display = 'inline-block';
-  retakeBtn.style.display = 'none';
-  usePhotoBtn.style.display = 'none';
-
-  await startCamera();
-});
-
-usePhotoBtn.addEventListener('click', async () => {
-  const finalImage = photoPreview.src;
-
-  console.log('✅ Photo confirmed!');
-  
-  // Convert data URL to File
-  const response = await fetch(finalImage);
-  const blob = await response.blob();
-  const file = new File([blob], 'camera-photo.jpg', { type: 'image/jpeg' });
-  
-  // Close camera modal
-  photoPreview.style.display = 'none';
-  retakeBtn.style.display = 'none';
-  usePhotoBtn.style.display = 'none';
-  video.style.display = 'block';
-  takePhotoBtn.style.display = 'inline-block';
-  $.magnificPopup.close();
-  
-  // Small delay to ensure magnificPopup closes completely
-  setTimeout(() => {
-    openCropModal(file);
-  }, 100);
-});
 
 function compressImage(file, maxWidth = 1024, quality = 0.7) {
   return new Promise((resolve, reject) => {
@@ -2224,4 +1971,4 @@ function compressImage(file, maxWidth = 1024, quality = 0.7) {
   });
 }
 
-// Crop logic moved to /js/Edit-Profile/crop-profile-image.js
+// Crop logic moved to /js/Edit-Profile/crop-profile-image.js - rvised
