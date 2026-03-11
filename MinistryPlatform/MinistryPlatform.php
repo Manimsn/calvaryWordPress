@@ -2977,13 +2977,6 @@ window.performSearch = function() {
         <style>
             @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
 
-            #location-container,
-            .groups-header {
-
-                margin: 0 auto;
-                padding: 20px;
-            }
-
             .groups-container {
                 max-width: 1400px;
                 width: 100%;
@@ -3063,7 +3056,7 @@ window.performSearch = function() {
 
             .group-card-right {
                 flex: 1;
-                /* margin-left: 15px; */
+                margin-left: 15px;
                 height: 100%;
                 display: flex;
                 align-items: center;
@@ -3284,98 +3277,22 @@ window.performSearch = function() {
                 transform: translateX(25px);
             }
         </style>
+        <div id="toggle-switch" style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
+            <span id="toggle-label" style="font-weight: bold;">In Person</span>
+            <label class="switch">
+                <input type="checkbox" id="toggle-checkbox">
+                <span class="slider"></span>
+            </label>
+            <span id="toggle-label-off" style="font-weight: bold; color: #666;">Online</span>
+        </div>
 
         <div id="location-container">
             <p>Detecting your location...</p>
         </div>
 
-        <div style="display: flex; gap: 20px; height: 100vh;" class="groups-left-right">
-            <!-- Left side - Scrollable Groups List -->
-            <div style="flex: 60%; overflow-y: auto; padding-right: 10px;" id="groups-left">
-
-            </div>
-
-            <!-- Right side - Fixed Search & Filter -->
-            <div style="flex: 25%; position: sticky; top: 0; height: fit-content;">
-                <div style="background: #f9f9f9; padding: 20px; border-radius: 8px; border: 1px solid #ddd;">
-                    <h4 style="margin-top: 0;">Search & Filter</h4>
-
-                    <div style="position: relative; margin-bottom: 15px;">
-                        <input type="text" id="group-search" placeholder="Search groups..."
-                            style="width: 100%; padding: 12px 40px 12px 15px; border: 1px solid #ddd; border-radius: 25px; box-sizing: border-box;">
-                        <svg style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; color: #666; pointer-events: none;"
-                            fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd"
-                                d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-                                clip-rule="evenodd"></path>
-                        </svg>
-                    </div>
-
-                    <div style="margin-bottom: 15px;">
-                        <label for="congregation-filter"
-                            style="display: block; margin-bottom: 5px; font-weight: bold;">Campus</label>
-                        <select id="congregation-filter"
-                            style="width: 100%; padding: 12px 15px; border: 1px solid #ddd; border-radius: 5px; background: white; box-sizing: border-box;">
-                            <option value="">All Campuses</option>
-                        </select>
-                    </div>
-
-                    <div style="margin-bottom: 15px;">
-                        <label for="toggle-switch" style="display: block; margin-bottom: 5px; font-weight: bold;">Group
-                            Type</label>
-                        <div id="toggle-switch" style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px;">
-                            <span id="toggle-label" style="font-weight: bold;">In Person</span>
-                            <label class="switch">
-                                <input type="checkbox" id="toggle-checkbox">
-                                <span class="slider"></span>
-                            </label>
-                            <span id="toggle-label-off" style="font-weight: bold; color: #666;">Online</span>
-                        </div>
-                    </div>
-
-                    <div style="margin-bottom: 15px;">
-                        <label style="display: block; margin-bottom: 5px; font-weight: bold;">Sort By</label>
-                        <div style="display: flex; flex-direction: column; gap: 5px;">
-                            <label>
-                                <input type="radio" name="sort_by" value="distance" checked>
-                                Distance
-                            </label>
-                            <label>
-                                <input type="radio" name="sort_by" value="city_alphabetical">
-                                City Alphabetical
-                            </label>
-                            <label>
-                                <input type="radio" name="sort_by" value="campus">
-                                Campus
-                            </label>
-                        </div>
-                    </div>
-
-
-                    <div class="life-stage-container" id="life-stage-container">
-                        <!-- Life stage buttons will be dynamically added here -->
-                        <label for="congregation-filter"
-                            style="display: block; margin-bottom: 5px; font-weight: bold;">Campus</label>
-                        <select id="congregation-filter"
-                            style="width: 100%; padding: 12px 15px; border: 1px solid #ddd; border-radius: 5px; background: white; box-sizing: border-box;">
-                            <option value="">All Life Stage</option>
-                        </select>
-                    </div>
-                </div>
-                <div id="map" style="width: 100%; height: 400px; margin-top: 15px; border: 1px solid #ddd; border-radius: 8px;">
-                </div>
-            </div>
-        </div>
-        <!-- <div id="map" style="width: 100%; height: 400px; margin-top: 15px; border: 1px solid #ddd; border-radius: 8px;"></div> -->
-
         <script>
-            let map;
-            let mapMarkers = []; // Array to store map markers
-            let allGroups = []; // Global variable to store all groups
-
             document.addEventListener("DOMContentLoaded", function () {
                 const locationContainer = document.getElementById("location-container");
-                const groupsContainer = document.getElementById("groups-left");
 
                 // Ensure the toggle-checkbox exists before accessing it
                 const toggleCheckbox = document.getElementById("toggle-checkbox");
@@ -3384,17 +3301,6 @@ window.performSearch = function() {
                     locationContainer.innerHTML = "<p>Error: Toggle switch is missing. Please check the page setup.</p>";
                     return;
                 }
-
-                // Add event listener for sort options
-                const sortOptions = document.querySelectorAll('input[name="sort_by"]');
-                sortOptions.forEach(option => {
-                    option.addEventListener("change", () => {
-                        if (locationDetails) {
-                            const meetsOnline = toggleCheckbox.checked;
-                            queryGroups(locationDetails, meetsOnline);
-                        }
-                    });
-                });
 
                 // Function to fetch latitude and longitude from ZIP code
                 function fetchLatLongFromZip(zipCode) {
@@ -3438,169 +3344,124 @@ window.performSearch = function() {
                         .then(data => {
                             console.log("Groups querys:", data);
                             if (data.success && data.groups) {
-                                allGroups = data.groups; // Store the fetched groups in the global variable
-                                renderGroups(allGroups); // Render all groups initially
+                                const groupsHtml = `
+                                <div style="display: flex; gap: 20px; height: 80vh;">
+        <!-- Left side - Scrollable Groups List -->
+        <div style="flex: 75%; overflow-y: auto; padding-right: 10px;">
+                <div class="groups-container">
+                    <div class="groups-card-grid">
+            ` + data.groups.map(group => {
+                                    const groupId = group.Group_ID; // Correct variable declaration
+                                    const timeDisplay = group.Meeting_Day_ID || "N/A"; // Replace with actual logic if needed
+                                    const displayName = group.Display_Name || "N/A"; // Fallback if undefined
+                                    const lifeStage = group.Life_Stage || "N/A"; // Fallback if undefined
+                                    const locationName = group.Location_Name || "N/A"; // Fallback if undefined
+                                    const Latitude = group.Latitude || "N/A"; // Fallback if undefined
+                                    const Longitude = group.Longitude || "N/A"; // Fallback if undefined
+                                    const CongregationName = group.Congregation_Name || "N/A"; // Fallback if undefined
+                                    const GroupName = group.Group_Name || "N/A"; // Fallback if undefined
+                                    const MeetsOnline = group.Meets_Online || "N/A"; // Fallback if undefined
+
+                                    const description = group.Description
+                                        ? (group.Description.length > 100
+                                            ? group.Description.substring(0, 100) + "..."
+                                            : group.Description)
+                                        : "N/A"; // Fallback if undefined
+
+                                    return `
+                    <div class='group-card'>
+                        <div class='group-card-top'>
+                            
+                            <div class='group-card-right'>
+                                <div class='group-card-title'>
+                                    ${GroupName}
+                                </div>
+                            </div>
+                        </div>
+                        <div class='group-card-location'>
+                            <div class='group-location-pill'>
+                                ${lifeStage}
+                            </div>
+                        </div>
+                        <div class='group-card-bottom'>
+                            <div class='group-card-datetime'>
+                                ${timeDisplay}
+                            </div>
+                            <div class='group-card-display-name'>
+                                ${displayName}
+                            </div>
+                            <div class='group-card-display-name'>
+                                ${lifeStage}
+                            </div>
+                            <div class='group-card-display-name'>
+                                ${locationName}
+                            </div>
+                            <div class='group-card-display-name'>
+                                ${Latitude} | ${Longitude} | ${MeetsOnline}
+                            </div>
+                            <div class='group-card-bottom-content'>
+                                <div class='group-card-description truncated'>
+                                    ${description}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                                }).join('') + `
+                    </div>
+                </div>
+                    </div>
+                    <!-- Right side - Fixed Search & Filter -->
+        <div style="flex: 25%; position: sticky; top: 0; height: fit-content;">
+            <div style="background: #f9f9f9; padding: 20px; border-radius: 8px; border: 1px solid #ddd;">
+                <h4 style="margin-top: 0;">Search & Filter</h4>
+                
+                <div style="position: relative; margin-bottom: 15px;">
+                    <input type="text" id="group-search" placeholder="Search groups..." 
+                           style="width: 100%; padding: 12px 40px 12px 15px; border: 1px solid #ddd; border-radius: 25px; box-sizing: border-box;">
+                    <svg style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; color: #666; pointer-events: none;" 
+                         fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path>
+                    </svg>
+                </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <label for="congregation-filter" style="display: block; margin-bottom: 5px; font-weight: bold;">Campus</label>
+                    <select id="congregation-filter" style="width: 100%; padding: 12px 15px; border: 1px solid #ddd; border-radius: 5px; background: white; box-sizing: border-box;">
+                        <option value="">All Campuses</option>
+                    </select>
+                </div>
+
+             <div style="margin-bottom: 15px;">
+    <label for="toggle-switch" style="display: block; margin-bottom: 5px; font-weight: bold;">Group Type</label>
+    <div id="toggle-switch" style="display: flex; align-items: center; gap: 10px;">
+        <span id="toggle-label" style="font-weight: bold;">In Person</span>
+        <label class="switch">
+            <input type="checkbox" id="toggle-checkbox">
+            <span class="slider"></span>
+        </label>
+        <span id="toggle-label-off" style="font-weight: bold; color: #666;">Online</span>
+    </div>
+</div>
+
+
+                <div class="life-stage-container" id="life-stage-container">
+                    <!-- Life stage buttons will be dynamically added here -->
+                </div>
+            </div>
+        </div>
+                </div>
+            `;
+
+                                locationContainer.innerHTML = `<h3>Groups:</h3>${groupsHtml}`;
                             } else {
-                                groupsContainer.innerHTML = `<p>No groups found.</p>`;
+                                locationContainer.innerHTML = `<p>No groups found.</p>`;
                             }
                         })
                         .catch(error => {
                             console.error("Error querying groups:", error);
-                            groupsContainer.innerHTML = `<p>Error querying groups.</p>`;
+                            locationContainer.innerHTML = `<p>Error querying groups.</p>`;
                         });
-                }
-
-                function filterGroups() {
-                    const selectedLifeStages = Array.from(document.querySelectorAll(".life-stage-button.selected"))
-                        .map(button => button.getAttribute("data-id"));
-
-                    // Filter the groups based on selected life stages
-                    const filteredGroups = selectedLifeStages.length > 0
-                        ? allGroups.filter(group => selectedLifeStages.includes(String(group.Life_Stage_ID)))
-                        : allGroups; // If no life stage is selected, show all groups
-
-                    renderGroups(filteredGroups); // Render the filtered groups
-                }
-
-                function renderGroups(groups) {
-                    const groupsContainer = document.getElementById("groups-left");
-
-                    if (groups.length === 0) {
-                        groupsContainer.innerHTML = `<p>No groups found.</p>`;
-                        return;
-                    }
-
-                    // Get the selected sort option
-                    const selectedSort = document.querySelector('input[name="sort_by"]:checked').value;
-
-                    // Sort groups based on the selected option
-                    if (selectedSort === "campus") {
-                        groups.sort((a, b) => {
-                            const nameA = (a.Congregation_Name || "N/A").toUpperCase();
-                            const nameB = (b.Congregation_Name || "N/A").toUpperCase();
-                            return nameA.localeCompare(nameB);
-                        });
-                    }
-
-                    // Clear existing markers and bounds
-                    if (map && mapMarkers) {
-                        mapMarkers.forEach(marker => map.removeLayer(marker));
-                        mapMarkers = [];
-                    }
-                    const bounds = L.latLngBounds();
-
-                    // Group names by latitude and longitude
-                    const groupedLocations = {};
-                    groups.forEach(group => {
-                        const latitude = parseFloat(group.Latitude);
-                        const longitude = parseFloat(group.Longitude);
-                        const groupName = group.Group_Name || "Unknown Group";
-
-                        if (!isNaN(latitude) && !isNaN(longitude)) {
-                            const key = `${latitude},${longitude}`;
-                            if (!groupedLocations[key]) {
-                                groupedLocations[key] = [];
-                            }
-                            groupedLocations[key].push(groupName);
-                        }
-                    });
-
-                    // Add markers for each unique location
-                    Object.keys(groupedLocations).forEach(key => {
-                        const [latitude, longitude] = key.split(",").map(coord => parseFloat(coord));
-                        const groupNames = groupedLocations[key];
-
-                        const popupContent = `
-        <div style="max-height: 200px; overflow-y: auto;">
-            <strong>Groups at this location:</strong>
-            <ul>
-                ${groupNames.map(name => `<li>${name}</li>`).join("")}
-            </ul>
-        </div>
-    `;
-
-                        const marker = L.marker([latitude, longitude])
-                            .addTo(map)
-                            .bindPopup(popupContent, {
-                                maxWidth: 300, // Set a maximum width for the popup
-                                keepInView: true, // Ensure the popup stays within the map boundaries
-                                autoPan: true // Enable auto-panning to keep the popup visible
-                            });
-
-                        marker.on("popupopen", () => {
-                            // Ensure the marker is visible when the popup is opened
-                            map.setView([latitude, longitude], map.getZoom(), { animate: true });
-                        });
-
-                        mapMarkers.push(marker);
-                        bounds.extend([latitude, longitude]);
-                    });
-
-                    // Adjust map bounds to fit all markers
-                    if (mapMarkers.length > 0) {
-                        map.fitBounds(bounds, { padding: [50, 50] });
-                    }
-
-                    // Render group cards in the left container
-                    const groupsHtml = `<div class="groups-container">
-            <div class="groups-card-grid">
-                ` + groups.map(group => {
-                        const groupId = group.Group_ID; // Correct variable declaration
-                        const timeDisplay = group.Meeting_Day_ID || "N/A"; // Replace with actual logic if needed
-                        const displayName = group.Display_Name || "N/A"; // Fallback if undefined
-                        const lifeStage = group.Life_Stage || "N/A"; // Fallback if undefined
-                        const locationName = group.Location_Name || "N/A"; // Fallback if undefined
-                        const Latitude = group.Latitude || "N/A"; // Fallback if undefined
-                        const Longitude = group.Longitude || "N/A"; // Fallback if undefined
-                        const CongregationName = group.Congregation_Name || "N/A"; // Fallback if undefined
-                        const GroupName = group.Group_Name || "N/A"; // Fallback if undefined
-                        const MeetsOnline = group.Meets_Online; // Fallback if undefined
-
-                        const description = group.Description
-                            ? (group.Description.length > 100
-                                ? group.Description.substring(0, 100) + "..."
-                                : group.Description)
-                            : "N/A"; // Fallback if undefined
-
-                        return `
-                <div class='group-card'>
-                    <div class='group-card-top'>
-                        <div class='group-card-right'>
-                            <div class='group-card-title'>
-                                ${GroupName}
-                            </div>
-                        </div>
-                    </div>
-                    <div class='group-card-location'>
-                        <div class='group-location-pill'>
-                            ${lifeStage}
-                        </div>
-                    </div>
-                    <div class='group-card-bottom'>
-                        <div class='group-card-datetime'>
-                            ${timeDisplay}
-                        </div>
-                        <div class='group-card-display-name'>
-                            ${displayName}
-                        </div>
-                        <div class='group-card-display-name'>
-                            ${locationName} | ${CongregationName}
-                        </div>
-                        <div class='group-card-display-name'>
-                            ${Latitude} | ${Longitude} | ${MeetsOnline}
-                        </div>
-                        <div class='group-card-bottom-content'>
-                            <div class='group-card-description truncated'>
-                                ${description}
-                            </div>
-                        </div>
-                    </div>
-                </div>`;
-                    }).join('') + `
-            </div>
-        </div>`;
-
-                    groupsContainer.innerHTML = `<h3 class="groups-header">Groups:</h3>${groupsHtml}`;
                 }
 
                 // Handle toggle switch changes
@@ -3639,92 +3500,6 @@ window.performSearch = function() {
                     locationContainer.innerHTML = "<p>Geolocation is not supported by your browser.</p>";
                 }
 
-                // Initialize the map with a static location
-                const mapContainer = document.getElementById("map");
-
-                function toggleMapVisibility() {
-                    if (toggleCheckbox.checked) {
-                        // "Online" is selected, hide the map
-                        if (mapContainer) {
-                            mapContainer.style.display = "none";
-                        }
-                    } else {
-                        // "In Person" is selected, show the map
-                        if (mapContainer) {
-                            mapContainer.style.display = "block";
-                        }
-                    }
-                }
-
-                // Initialize the map visibility based on the default toggle state
-                // toggleMapVisibility();
-
-                // Add an event listener to the toggle switch
-                // toggleCheckbox.addEventListener("change", toggleMapVisibility);
-
-                if (mapContainer) {
-                    // Initialize the map
-                    map = L.map("map", { zoomControl: false }).setView([26.332715, -80.212841], 10);
-
-                    // Add OpenStreetMap tiles
-                    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-                        maxZoom: 19,
-                        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                    }).addTo(map);
-
-                    // Add zoom controls to the bottom-right corner
-                    L.control.zoom({
-                        position: "bottomright" // Move zoom controls to the bottom-right corner
-                    }).addTo(map);
-                }
-
-                // Fetch and render life stages
-                function fetchAndRenderLifeStages() {
-                    const lifeStageContainer = document.getElementById("life-stage-container");
-
-                    // Fetch life stages from the API
-                    fetch("<?php echo admin_url('admin-ajax.php'); ?>", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/x-www-form-urlencoded"
-                        },
-                        body: "action=mpapi_get_life_stages"
-                    })
-                        .then(response => response.json())
-                        .then(data => {
-                            console.log("Life stages data:", data);
-
-                            if (Array.isArray(data) && data.length > 0) {
-                                lifeStageContainer.innerHTML = ""; // Clear existing content
-
-                                // Render each life stage as a button
-                                data.forEach(stage => {
-                                    const button = document.createElement("button");
-                                    button.className = "life-stage-button";
-                                    button.textContent = stage.Life_Stage;
-                                    button.setAttribute("data-id", stage.Life_Stage_ID);
-
-                                    // Add click event listener to toggle selection and filter groups
-                                    button.addEventListener("click", function () {
-                                        button.classList.toggle("selected"); // Toggle the "selected" class
-                                        filterGroups(); // Filter groups based on the selected life stages
-                                    });
-
-                                    lifeStageContainer.appendChild(button);
-                                });
-                            } else {
-                                lifeStageContainer.innerHTML = "<p>No life stages found.</p>";
-                            }
-                        })
-                        .catch(error => {
-                            console.error("Error fetching life stages:", error);
-                            lifeStageContainer.innerHTML = "<p>Error loading life stages.</p>";
-                        });
-                }
-
-                // Call the function to fetch and render life stages
-                fetchAndRenderLifeStages();
-
             });
         </script>
         <?php
@@ -3739,6 +3514,11 @@ window.performSearch = function() {
         $location = isset($_POST['location']) ? sanitize_text_field($_POST['location']) : '';
         $meetsOnline = isset($_POST['meets_online']) ? filter_var($_POST['meets_online'], FILTER_VALIDATE_BOOLEAN) : null;
 
+        if (empty($location)) {
+            echo json_encode(['success' => false, 'error' => 'Location is required.']);
+            wp_die();
+        }
+
         if ($meetsOnline === null) {
             echo json_encode(['success' => false, 'error' => 'Meets_Online value is required.']);
             wp_die();
@@ -3748,38 +3528,33 @@ window.performSearch = function() {
 
         if ($mp->authenticate()) {
             try {
-                $filter = "Groups.Group_Type_ID = 1 AND (Groups.End_Date IS NULL OR Groups.End_Date > GETDATE())";
-                $filter .= " AND Groups.Meets_Online = " . ($meetsOnline ? "1" : "0");
+                preg_match('/Latitude: ([\d.-]+), Longitude: ([\d.-]+)/', $location, $matches);
+                $latitude = isset($matches[1]) ? floatval($matches[1]) : null;
+                $longitude = isset($matches[2]) ? floatval($matches[2]) : null;
 
-                // Only apply the latitude and longitude filter if "In Person" is selected
-                if (!$meetsOnline && !empty($location)) {
-                    preg_match('/Latitude: ([\d.-]+), Longitude: ([\d.-]+)/', $location, $matches);
-                    $latitude = isset($matches[1]) ? floatval($matches[1]) : null;
-                    $longitude = isset($matches[2]) ? floatval($matches[2]) : null;
+                if ($latitude && $longitude) {
+                    $radiusInMiles = 10;
 
-                    if ($latitude && $longitude) {
-                        $radiusInMiles = 5;
+                    $filter = "Groups.Group_Type_ID = 1 AND (Groups.End_Date IS NULL OR Groups.End_Date > GETDATE())";
+                    $filter .= " AND Groups.Meets_Online = " . ($meetsOnline ? "1" : "0");
+                    $filter .= " AND (3959 * acos(
+                    cos(radians({$latitude})) *
+                    cos(radians(Congregation_ID_Table_Location_ID_Table_Address_ID_Table.Latitude)) *
+                    cos(radians(Congregation_ID_Table_Location_ID_Table_Address_ID_Table.Longitude) - radians({$longitude})) +
+                    sin(radians({$latitude})) *
+                    sin(radians(Congregation_ID_Table_Location_ID_Table_Address_ID_Table.Latitude))
+                )) <= {$radiusInMiles}";
 
-                        $filter .= " AND (3959 * acos(
-                        cos(radians({$latitude})) *
-                        cos(radians(Congregation_ID_Table_Location_ID_Table_Address_ID_Table.Latitude)) *
-                        cos(radians(Congregation_ID_Table_Location_ID_Table_Address_ID_Table.Longitude) - radians({$longitude})) +
-                        sin(radians({$latitude})) *
-                        sin(radians(Congregation_ID_Table_Location_ID_Table_Address_ID_Table.Latitude))
-                    )) <= {$radiusInMiles}";
-                    } else {
-                        echo json_encode(['success' => false, 'error' => 'Invalid location data']);
-                        wp_die();
-                    }
+                    $groups = $mp->table('Groups')
+                        ->select("Group_ID, Group_Name, Meets_Online, Congregation_ID_Table.Congregation_ID, Congregation_ID_Table.Congregation_Name, Primary_Contact_Table.[Display_Name], Life_Stage_ID_Table.Life_Stage, Congregation_ID_Table_Location_ID_Table.[Location_Name],
+                    Congregation_ID_Table_Location_ID_Table_Address_ID_Table.[City],Congregation_ID_Table_Location_ID_Table_Address_ID_Table.[Latitude], Congregation_ID_Table_Location_ID_Table_Address_ID_Table.[Longitude], *")
+                        ->filter($filter)
+                        ->get();
+
+                    echo json_encode(['success' => true, 'groups' => $groups]);
+                } else {
+                    echo json_encode(['success' => false, 'error' => 'Invalid location data']);
                 }
-
-                $groups = $mp->table('Groups')
-                    ->select("Group_ID, Group_Name, Meets_Online, Congregation_ID_Table.Congregation_ID, Congregation_ID_Table.Congregation_Name, Primary_Contact_Table.[Display_Name], Life_Stage_ID_Table.Life_Stage, Congregation_ID_Table_Location_ID_Table.[Location_Name],
-                Congregation_ID_Table_Location_ID_Table_Address_ID_Table.[City],Congregation_ID_Table_Location_ID_Table_Address_ID_Table.[Latitude], Congregation_ID_Table_Location_ID_Table_Address_ID_Table.[Longitude], *")
-                    ->filter($filter)
-                    ->get();
-
-                echo json_encode(['success' => true, 'groups' => $groups]);
             } catch (Exception $e) {
                 echo json_encode(['success' => false, 'error' => $e->getMessage()]);
             }
