@@ -19,23 +19,31 @@
     return isAndroid || isIOS;
   }
 
-  function isUnsupportedImageFormat(file) {
+  function isAllowedImageFormat(file) {
     if (!file) return false;
 
     const fileName = (file.name || "").toLowerCase();
     const mimeType = (file.type || "").toLowerCase();
 
-    const unsupportedExtensions = [".tif", ".tiff", ".heif", ".heic", ".hvif"];
-    const unsupportedMimeHints = ["tif", "tiff", "heif", "heic", "hvif"];
+    const allowedExtensions = [".jpg", ".jpeg", ".png", ".avif", ".webp", ".bmp", ".gif"];
+    const allowedMimeTypes = [
+      "image/jpeg",
+      "image/png",
+      "image/avif",
+      "image/webp",
+      "image/bmp",
+      "image/gif",
+    ];
 
-    const hasUnsupportedExtension = unsupportedExtensions.some((ext) => fileName.endsWith(ext));
-    const hasUnsupportedMime = unsupportedMimeHints.some((hint) => mimeType.includes(hint));
+    const hasAllowedExtension = allowedExtensions.some((ext) => fileName.endsWith(ext));
+    const hasAllowedMimeType = allowedMimeTypes.includes(mimeType);
 
-    return hasUnsupportedExtension || hasUnsupportedMime;
+    // Some mobile/camera flows can return missing/odd mime types, so extension is a fallback.
+    return hasAllowedExtension || hasAllowedMimeType;
   }
 
   function alertUnsupportedImageFormat() {
-    alert("TIFF and HVIF image formats are unsupported. Please upload JPG, PNG, or WEBP.");
+    alert("Please upload a valid image format (JPG, PNG, AVIF, WEBP, BMP or GIF).");
   }
 
   function withOpenCropModal(file) {
@@ -154,11 +162,11 @@
       const file = event.target.files && event.target.files[0];
       if (!file) return;
 
-      if (isUnsupportedImageFormat(file)) {
-        alertUnsupportedImageFormat();
-        event.target.value = "";
-        return;
-      }
+        if (!isAllowedImageFormat(file)) {
+          alertUnsupportedImageFormat();
+          event.target.value = "";
+          return;
+        }
 
       if (!file.type.startsWith("image/")) {
         withShowMessage("error", "Please upload an image.");
@@ -198,7 +206,7 @@
         const file = e.target.files && e.target.files[0];
         if (!file) return;
 
-        if (isUnsupportedImageFormat(file)) {
+        if (!isAllowedImageFormat(file)) {
           alertUnsupportedImageFormat();
           e.target.value = "";
           return;
@@ -247,7 +255,7 @@
           const file = e.target.files && e.target.files[0];
           if (!file) return;
 
-          if (isUnsupportedImageFormat(file)) {
+          if (!isAllowedImageFormat(file)) {
             alertUnsupportedImageFormat();
             e.target.value = "";
             return;
@@ -376,7 +384,6 @@
   window.ProfileFirstModal = {
     init,
     stopCamera,
-    isUnsupportedImageFormat,
     alertUnsupportedImageFormat,
   };
 })(window, document);
