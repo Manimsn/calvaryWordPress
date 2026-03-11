@@ -1,3 +1,14 @@
+// Load giving-page back-navigation override from this page script.
+(function loadMyGivingBackNavOverride() {
+  if (window.__myGivingBackNavRequested) return;
+  window.__myGivingBackNavRequested = true;
+
+  const script = document.createElement('script');
+  script.src = '/wp-content/themes/divi-child/js/my-giving/my-giving-back-nav.js';
+  script.defer = true;
+  document.head.appendChild(script);
+})();
+
 function renderGivingData(data, ytd = false) {
   console.log("NEW TITLE")
   //Total Contribution
