@@ -196,6 +196,7 @@
 }
 
 .crop-actions .secondaryBtn {
+  font-size: 16px;
   background: transparent;
   border: 1px solid #dadce0;
   color: #1a73e8;
