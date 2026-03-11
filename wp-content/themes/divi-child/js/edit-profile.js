@@ -104,7 +104,6 @@ function initializeCropModuleBridge() {
   }
 
   window.ProfileCrop.init({
-    compressImage,
     onApply: (finalFile) => {
       uploadedProfileFile = finalFile;
       hasChanges = true;
@@ -156,18 +155,6 @@ function openCropModal(imageFile) {
       console.error('Failed to open crop modal:', error);
       alert('Unable to load image crop functionality. Please refresh and try again.');
     });
-}
-
-function closeCropModal() {
-  if (window.ProfileCrop) {
-    window.ProfileCrop.close();
-  }
-}
-
-function applyCrop() {
-  if (window.ProfileCrop) {
-    window.ProfileCrop.apply();
-  }
 }
 
 // Page-level loader: create once and provide show/hide helpers
@@ -1945,30 +1932,6 @@ if (document.readyState === 'loading') {
 } else {
   ensureCameraTriggerIdEarly();
   initializePhotoModules();
-}
-
-function compressImage(file, maxWidth = 1024, quality = 0.7) {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.src = URL.createObjectURL(file);
-    img.onload = () => {
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      const scale = Math.min(1, maxWidth / img.width);
-      canvas.width = img.width * scale;
-      canvas.height = img.height * scale;
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-      canvas.toBlob(
-        (blob) => {
-          if (!blob) return reject('Compression failed');
-          resolve(new File([blob], file.name, { type: 'image/jpeg' }));
-        },
-        'image/jpeg',
-        quality
-      );
-    };
-    img.onerror = reject;
-  });
 }
 
 // Crop logic moved to /js/Edit-Profile/crop-profile-image.js - rvised

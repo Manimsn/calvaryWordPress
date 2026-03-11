@@ -169,6 +169,38 @@
     state.initialized = true;
   }
 
+  function compressImage(file, maxWidth, quality) {
+    const width = maxWidth || 1024;
+    const jpegQuality = typeof quality === "number" ? quality : 0.7;
+
+    return new Promise(function (resolve, reject) {
+      const img = new Image();
+      img.src = URL.createObjectURL(file);
+      img.onload = function () {
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        const scale = Math.min(1, width / img.width);
+
+        canvas.width = img.width * scale;
+        canvas.height = img.height * scale;
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+        canvas.toBlob(
+          function (blob) {
+            if (!blob) {
+              reject("Compression failed");
+              return;
+            }
+            resolve(new File([blob], file.name, { type: "image/jpeg" }));
+          },
+          "image/jpeg",
+          jpegQuality
+        );
+      };
+      img.onerror = reject;
+    });
+  }
+
   function open(imageFile) {
     if (!imageFile) return;
 
@@ -287,8 +319,12 @@
       });
 
       let finalFile = croppedFile;
-      if (croppedFile.size > 1 * 1024 * 1024 && typeof state.options.compressImage === "function") {
-        finalFile = await state.options.compressImage(croppedFile, 1024, 0.7);
+      if (croppedFile.size > 1 * 1024 * 1024) {
+        if (typeof state.options.compressImage === "function") {
+          finalFile = await state.options.compressImage(croppedFile, 1024, 0.7);
+        } else {
+          finalFile = await compressImage(croppedFile, 1024, 0.7);
+        }
       }
 
       if (typeof state.options.onApply === "function") {
