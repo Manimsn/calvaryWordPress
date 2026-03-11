@@ -141,14 +141,24 @@ async function loadRegisteredEvents() {
     }
 }
 
-function fetchName() {
-    const token = localStorage.getItem("mpp-widgets_JwtToken");
-    const payload = JSON.parse(atob(token.split(".")[1]));
+async function fetchName() {
+    let UserName;
+    try {
+        if (window.contactDataPromise) {
+            const contact = await window.contactDataPromise;
+            UserName = contact.Nickname || contact.First_Name || "User";
+        } else {
+            const token = localStorage.getItem("mpp-widgets_JwtToken");
+            const payload = JSON.parse(atob(token.split(".")[1]));
+            UserName = payload.Nickname || payload.FirstName || "User";
+        }
+    } catch (e) {
+        const token = localStorage.getItem("mpp-widgets_JwtToken");
+        const payload = JSON.parse(atob(token.split(".")[1]));
+        UserName = payload.Nickname || payload.FirstName || "User";
+    }
     const accountDiv = document.getElementById("my_account_name");
     // const nameTitle = accountDiv.querySelector(".dtq-card-title");
-    console.log("Payload:", payload);
-    let UserName = payload.Nickname || payload.FirstName || "User";
-    // nameTitle.innerHTML = "Hello, " + UserName + "!";    
     
     // Update MY ACCOUNT text if element exists
     const myTitleDiv = document.getElementById("my-title");
