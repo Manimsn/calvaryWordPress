@@ -5,13 +5,75 @@
     currentCropFile: null,
     initialized: false,
     options: {},
+    scrollLocked: false,
+    scrollY: 0,
+    previousBodyOverflow: "",
+    previousBodyPosition: "",
+    previousBodyTop: "",
+    previousBodyWidth: "",
+    previousHtmlOverflow: "",
   };
 
-  function bindEventOnce(element, eventName, handler, key) {
+  function shouldBlockScrollEvent(e) {
+    const modalContent = e.target && e.target.closest
+      ? e.target.closest(".crop-modal-content")
+      : null;
+    return !modalContent;
+  }
+
+  function preventTouchMove(e) {
+    if (shouldBlockScrollEvent(e)) {
+      e.preventDefault();
+    }
+  }
+
+  function preventWheel(e) {
+    if (shouldBlockScrollEvent(e)) {
+      e.preventDefault();
+    }
+  }
+
+  function lockBackgroundScroll() {
+    if (state.scrollLocked) return;
+    state.scrollY = window.scrollY || window.pageYOffset || 0;
+    state.previousBodyOverflow = document.body.style.overflow;
+    state.previousBodyPosition = document.body.style.position;
+    state.previousBodyTop = document.body.style.top;
+    state.previousBodyWidth = document.body.style.width;
+    state.previousHtmlOverflow = document.documentElement.style.overflow;
+
+    document.body.style.overflow = "hidden";
+    document.body.style.position = "fixed";
+    document.body.style.top = `-${state.scrollY}px`;
+    document.body.style.width = "100%";
+    document.documentElement.style.overflow = "hidden";
+
+    document.addEventListener("wheel", preventWheel, { passive: false, capture: true });
+    document.addEventListener("touchmove", preventTouchMove, { passive: false });
+    state.scrollLocked = true;
+  }
+
+  function unlockBackgroundScroll() {
+    if (!state.scrollLocked) return;
+    // Always clear lock styles to avoid restoring a stale fixed state.
+    document.body.style.overflow = "";
+    document.body.style.position = "";
+    document.body.style.top = "";
+    document.body.style.width = "";
+    document.documentElement.style.overflow = "";
+
+    document.removeEventListener("wheel", preventWheel, { capture: true });
+    document.removeEventListener("touchmove", preventTouchMove);
+
+    window.scrollTo(0, state.scrollY);
+    state.scrollLocked = false;
+  }
+
+  function bindEventOnce(element, eventName, handler, key, options) {
     if (!element) return;
     const attr = `bound${key}`;
     if (element.dataset[attr] === "true") return;
-    element.addEventListener(eventName, handler);
+    element.addEventListener(eventName, handler, options || false);
     element.dataset[attr] = "true";
   }
 
@@ -58,6 +120,47 @@
         close();
       }
     }, "Overlay");
+
+    // Prevent scroll-chain to page: keep wheel/touch interactions inside modal.
+    bindEventOnce(cropModal, "wheel", function (e) {
+      const modalContent = e.target && e.target.closest
+        ? e.target.closest(".crop-modal-content")
+        : null;
+
+      if (!modalContent) {
+        e.preventDefault();
+        return;
+      }
+
+      const canScroll = modalContent.scrollHeight > modalContent.clientHeight;
+      if (!canScroll) {
+        e.preventDefault();
+        return;
+      }
+
+      const atTop = modalContent.scrollTop <= 0;
+      const atBottom =
+        modalContent.scrollTop + modalContent.clientHeight >=
+        modalContent.scrollHeight - 1;
+
+      if ((e.deltaY < 0 && atTop) || (e.deltaY > 0 && atBottom)) {
+        e.preventDefault();
+      }
+
+      e.stopPropagation();
+    }, "WheelTrap", { passive: false });
+
+    bindEventOnce(cropModal, "touchmove", function (e) {
+      const modalContent = e.target && e.target.closest
+        ? e.target.closest(".crop-modal-content")
+        : null;
+
+      if (!modalContent) {
+        e.preventDefault();
+      }
+
+      e.stopPropagation();
+    }, "TouchTrap", { passive: false });
   }
 
   function init(options) {
@@ -87,6 +190,7 @@
     state.currentCropFile = imageFile;
     state.currentImageURL = URL.createObjectURL(imageFile);
     imageToCrop.src = state.currentImageURL;
+    lockBackgroundScroll();
     cropModal.style.display = "flex";
 
     ensureModalEvents();
@@ -151,6 +255,8 @@
     if (cropModal) {
       cropModal.style.display = "none";
     }
+
+    unlockBackgroundScroll();
 
     state.currentCropFile = null;
   }

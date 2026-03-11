@@ -2186,4 +2186,4 @@ function compressImage(file, maxWidth = 1024, quality = 0.7) {
   });
 }
 
-// Crop logic moved to /js/Edit-Profile/crop-profile-image.js
+// Crop logic moved to /js/Edit-Profile/crop-profile-image.js-y-y-y
