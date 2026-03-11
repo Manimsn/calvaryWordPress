@@ -2513,7 +2513,7 @@ position: absolute;
                     ->filter($filter)
                     ->get();
 
-                echo "<script>console.log('LIFE STAGE CHECK:', " . json_encode($groups) . ");</script>";
+                // echo "<script>console.log('LIFE STAGE CHECK:', " . json_encode($groups) . ");</script>";
 
                 if (empty($groups)) {
                     $output .= '<p>No groups found.</p>';
@@ -3335,7 +3335,7 @@ window.performSearch = function() {
                     })
                         .then(response => response.json())
                         .then(data => {
-                            console.log("Groups querys:", data);
+                            // console.log("Groups querys:", data);
                             if (data.success && data.groups) {
                                 const groupsHtml = `
                                 <div style="display: flex; gap: 20px; height: 80vh;">
