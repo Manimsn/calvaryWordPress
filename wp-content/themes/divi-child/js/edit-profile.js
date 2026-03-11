@@ -41,6 +41,25 @@ let ph_email = "";
 let profileImageCamera = null;
 const token = localStorage.getItem("mpp-widgets_JwtToken");
 
+function isUnsupportedImageFormat(file) {
+  if (!file) return false;
+
+  const fileName = (file.name || '').toLowerCase();
+  const mimeType = (file.type || '').toLowerCase();
+
+  const unsupportedExtensions = ['.tif', '.tiff', '.heif', '.heic', '.hvif'];
+  const unsupportedMimeHints = ['tif', 'tiff', 'heif', 'heic', 'hvif'];
+
+  const hasUnsupportedExtension = unsupportedExtensions.some((ext) => fileName.endsWith(ext));
+  const hasUnsupportedMime = unsupportedMimeHints.some((hint) => mimeType.includes(hint));
+
+  return hasUnsupportedExtension || hasUnsupportedMime;
+}
+
+function alertUnsupportedImageFormat() {
+  alert('TIFF and HVIF image formats are unsupported. Please upload JPG, PNG, or WEBP.');
+}
+
 let cropModuleLoadPromise = null;
 
 function ensureCropModuleLoaded() {
@@ -1920,6 +1939,12 @@ function initializeFileInputAndCropModal() {
     fileInput.addEventListener('change', async (event) => {
       const file = event.target.files[0];
       if(!file) return;
+
+      if (isUnsupportedImageFormat(file)) {
+        alertUnsupportedImageFormat();
+        event.target.value = '';
+        return;
+      }
       
       console.log('File selected:', file.name, file.type);
       
@@ -1971,6 +1996,12 @@ document.getElementById('uploadImage')?.addEventListener('click', function() {
   fileInput.addEventListener('change', async (event) => {
     const file = event.target.files[0];
     if (!file) return;
+
+    if (isUnsupportedImageFormat(file)) {
+      alertUnsupportedImageFormat();
+      event.target.value = '';
+      return;
+    }
     
     if (!file.type.startsWith('image/')) {
       showMessage("error", "Please upload an image.");
@@ -2080,6 +2111,13 @@ document.getElementById('openCamera').addEventListener('click', async function()
     input.addEventListener('change', async (event) => {
       const file = event.target.files[0];
       if(!file) return;
+
+      if (isUnsupportedImageFormat(file)) {
+        alertUnsupportedImageFormat();
+        event.target.value = '';
+        return;
+      }
+
       if (!file.type.startsWith('image/')) {
         showMessage("error", "Please upload an image.");
         event.target.value = '';
@@ -2186,4 +2224,4 @@ function compressImage(file, maxWidth = 1024, quality = 0.7) {
   });
 }
 
-// Crop logic moved to /js/Edit-Profile/crop-profile-image.js-y-y-y
+// Crop logic moved to /js/Edit-Profile/crop-profile-image.js
