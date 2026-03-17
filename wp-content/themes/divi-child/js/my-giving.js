@@ -88,18 +88,6 @@
 })(window, document);
 
 
-
-// Load giving-page back-navigation override from this page script.
-(function loadMyGivingBackNavOverride() {
-  if (window.__myGivingBackNavRequested) return;
-  window.__myGivingBackNavRequested = true;
-
-  const script = document.createElement('script');
-  script.src = '/wp-content/themes/divi-child/js/my-giving/my-giving-back-nav.js';
-  script.defer = true;
-  document.head.appendChild(script);
-})();
-
 function renderGivingData(data, ytd = false) {
   console.log("NEW TITLE")
   //Total Contribution
@@ -496,6 +484,8 @@ resetBtn.addEventListener('click', async () => {
 
 
 document.addEventListener("DOMContentLoaded", function () {
+  // Hide until yearly-summary check decides whether controls should be shown.
+  toggleStatementControls(false);
   loadMyGivings();
   loadMyStatement(new Date().getFullYear());
   const tabs = document.querySelectorAll('.dsm-tab');
@@ -542,8 +532,205 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 let url;
+let givingYearlyDataCache = null;
+
+function clearStatementChartRuntimeHooks(chartContainer) {
+  if (!chartContainer) return;
+
+  if (chartContainer.__statementInteractionCleanup) {
+    chartContainer.__statementInteractionCleanup();
+    chartContainer.__statementInteractionCleanup = null;
+  }
+
+  if (chartContainer.__statementWheelCleanup) {
+    chartContainer.__statementWheelCleanup();
+    chartContainer.__statementWheelCleanup = null;
+  }
+
+  if (chartContainer.__statementAxisResizeHandler) {
+    window.removeEventListener('resize', chartContainer.__statementAxisResizeHandler);
+    chartContainer.__statementAxisResizeHandler = null;
+  }
+}
+
+function toggleStatementControls(show) {
+  const dropdown = document.querySelector('.custom-dropdown');
+  const selectedEl = document.getElementById('selected');
+  const optionsEl = document.getElementById('options');
+  const statementHeading = document.querySelector('.et_pb_text_inner h2');
+
+  if (dropdown) {
+    dropdown.style.display = show ? '' : 'none';
+  } else {
+    if (selectedEl) selectedEl.style.display = show ? '' : 'none';
+    if (optionsEl) optionsEl.style.display = 'none';
+  }
+
+  document.querySelectorAll('.download_button').forEach((button) => {
+    button.style.display = show ? '' : 'none';
+  });
+
+  if (statementHeading && statementHeading.textContent && statementHeading.textContent.trim() === 'View your monthly contributions by selecting the year.') {
+    const headingWrapper = statementHeading.closest('.et_pb_text_inner');
+    if (headingWrapper) {
+      headingWrapper.style.display = show ? '' : 'none';
+    }
+  }
+}
+
+function isAllYearlyTotalsZero(yearlyRows) {
+  if (!Array.isArray(yearlyRows) || yearlyRows.length === 0) return false;
+  return yearlyRows.every((row) => Number(row && row.Total_Amount) === 0);
+}
+
+function ensureNoGivingResponsiveStyles() {
+  if (document.getElementById('noGivingResponsiveStyles')) return;
+
+  const styleEl = document.createElement('style');
+  styleEl.id = 'noGivingResponsiveStyles';
+  styleEl.textContent = `
+    .no-giving-message {
+      font-size: 36px !important;
+    }
+
+    @media (max-width: 767px) {
+      .no-giving-message {
+        font-size: 18px !important;
+      }
+    }
+  `;
+  document.head.appendChild(styleEl);
+}
+
+function renderNoGivingStatementState() {
+  const chartContainer = document.getElementById('statment_chart');
+  if (!chartContainer) return;
+  const statementWrapper = chartContainer.closest('.statment_chart_div') || chartContainer.parentElement;
+
+  ensureNoGivingResponsiveStyles();
+
+  clearStatementChartRuntimeHooks(chartContainer);
+  chartContainer.innerHTML = '';
+  chartContainer.style.display = 'flex';
+  chartContainer.style.flexDirection = 'column';
+  chartContainer.style.alignItems = 'center';
+  chartContainer.style.justifyContent = 'center';
+  chartContainer.style.width = '100%';
+  chartContainer.style.maxWidth = '100vw';
+  chartContainer.style.minWidth = '0';
+  chartContainer.style.boxSizing = 'border-box';
+  chartContainer.style.margin = '0 auto';
+  chartContainer.style.minHeight = '240px';
+  chartContainer.style.padding = '0 12px';
+  chartContainer.style.position = 'relative';
+  chartContainer.style.overflow = 'hidden';
+  chartContainer.style.overflowX = 'hidden';
+  chartContainer.style.overflowY = 'hidden';
+
+  if (statementWrapper) {
+    statementWrapper.style.width = '100%';
+    statementWrapper.style.maxWidth = '100vw';
+    statementWrapper.style.minWidth = '0';
+    statementWrapper.style.boxSizing = 'border-box';
+    statementWrapper.style.paddingLeft = '0';
+    statementWrapper.style.paddingRight = '0';
+    statementWrapper.style.overflowX = 'hidden';
+    statementWrapper.style.overflowY = 'visible';
+    statementWrapper.style.margin = '0 auto';
+    statementWrapper.scrollLeft = 0;
+  }
+
+  chartContainer.scrollLeft = 0;
+
+  const wrapper = document.createElement('div');
+  wrapper.style.display = 'flex';
+  wrapper.style.flexDirection = 'column';
+  wrapper.style.alignItems = 'center';
+  wrapper.style.justifyContent = 'center';
+  wrapper.style.gap = '20px';
+  wrapper.style.width = '100%';
+  wrapper.style.maxWidth = '900px';
+  wrapper.style.minWidth = '0';
+  wrapper.style.boxSizing = 'border-box';
+  wrapper.style.margin = '0 auto';
+  wrapper.style.padding = '24px 12px';
+
+  const message = document.createElement('p');
+  message.textContent = 'No giving contributions as of yet. Start your generosity journey and watch God work through your giving!';
+  message.classList.add('no-giving-message');
+  message.style.margin = '0';
+  message.style.fontFamily = 'Poppins, sans-serif';
+  message.style.fontSize = '36px';
+  message.style.fontWeight = '600';
+  message.style.lineHeight = '1.4';
+  message.style.color = 'white';
+  message.style.textAlign = 'center';
+  message.style.width = '100%';
+  message.style.maxWidth = '900px';
+  message.style.boxSizing = 'border-box';
+  message.style.overflowWrap = 'anywhere';
+
+  const giveButton = document.createElement('a');
+  giveButton.href = '/give';
+  giveButton.textContent = 'GIVE';
+  giveButton.style.display = 'flex';
+  giveButton.style.padding = '8px 36px';
+  giveButton.style.borderRadius = '32px';
+  giveButton.style.background = 'transparent';
+  giveButton.style.color = 'black';
+  giveButton.style.width = 'fit-content';
+  giveButton.style.justifyContent = 'center';
+  giveButton.style.alignSelf = 'center';
+  giveButton.style.border = '1px solid black';
+  giveButton.style.fontSize = '20px';
+  giveButton.style.fontWeight = '600';
+  giveButton.style.fontFamily = 'Poppins, sans-serif';
+  giveButton.style.textDecoration = 'none';
+
+  wrapper.appendChild(message);
+  wrapper.appendChild(giveButton);
+  chartContainer.appendChild(wrapper);
+}
+
+async function loadGivingYearly() {
+  if (givingYearlyDataCache) return givingYearlyDataCache;
+
+  const jwtToken = localStorage.getItem('mpp-widgets_JwtToken');
+  const response = await fetch(`${baseURL}/api/My/GivingYearly`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${jwtToken}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! Status: ${response.status}`);
+  }
+
+  const yearlyRows = await response.json();
+  givingYearlyDataCache = yearlyRows;
+  return yearlyRows;
+}
+
 async function loadMyStatement(selectedYear) {
   try {
+    try {
+      const yearlyRows = await loadGivingYearly();
+      const allYearsZero = isAllYearlyTotalsZero(yearlyRows);
+      toggleStatementControls(!allYearsZero);
+
+      if (allYearsZero) {
+        url = null;
+        document.getElementById('statementErrorDiv').innerHTML = '';
+        renderNoGivingStatementState();
+        return;
+      }
+    } catch (yearlyError) {
+      toggleStatementControls(true);
+      console.log('Giving yearly fetch error -', yearlyError);
+    }
+
     const jwtToken = localStorage.getItem("mpp-widgets_JwtToken");
 
     const response = await fetch(
@@ -772,6 +959,17 @@ async function loadMyStatement(selectedYear) {
     };
 
     const chartContainer = document.getElementById('statment_chart');
+    const statementWrapper = chartContainer ? (chartContainer.closest('.statment_chart_div') || chartContainer.parentElement) : null;
+    if (statementWrapper) {
+      statementWrapper.style.overflowX = '';
+      statementWrapper.style.overflowY = '';
+      statementWrapper.style.maxWidth = '';
+      statementWrapper.style.margin = '';
+    }
+    if (chartContainer) {
+      chartContainer.style.overflowX = '';
+      chartContainer.style.overflowY = '';
+    }
     const chart = new ApexCharts(chartContainer, options);
     chart.render();
     chart.addEventListener('dataPointMouseEnter', function(event, chartContext, { dataPointIndex }) {
