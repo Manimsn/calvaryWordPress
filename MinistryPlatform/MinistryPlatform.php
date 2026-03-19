@@ -53,6 +53,8 @@ add_shortcode('hashTagEventsCheck', ['MinistryPlatform\MP_API_SHORTCODES', 'hash
 add_shortcode('campusFilterEvents', ['MinistryPlatform\MP_API_SHORTCODES', 'campusFilterEvents']); // Not used directly
 add_shortcode('newHashTagEvents', ['MinistryPlatform\MP_API_SHORTCODES', 'newHashTagEvents']); // Not used directly
 
+add_action('wp_ajax_mpapi_family_certificates_ajax', ['MinistryPlatform\MP_API_SHORTCODES', 'mpapi_family_certificates_ajax']);
+add_action('wp_ajax_nopriv_mpapi_family_certificates_ajax', ['MinistryPlatform\MP_API_SHORTCODES', 'mpapi_family_certificates_ajax']);
 
 add_shortcode('newSwiperEvents', ['MinistryPlatform\MP_API_SHORTCODES', 'newSwiperEvents']);
 
@@ -254,129 +256,341 @@ class MP_API_SHORTCODES
         return '';
     }
 
-    public static function mpapi_family_certificates_sc($name = null)
+    private static function decode_jwt_payload($token)
     {
-        $name = isset($_GET['contactId']) ? urldecode(sanitize_text_field($_GET['contactId'])) : null;
-
-        if (!$name) {
-            return '<p>Loading...</p>';
+        if (empty($token)) {
+            return null;
         }
 
+        $parts = explode('.', $token);
 
+        if (count($parts) < 2) {
+            return null;
+        }
+
+        $payload = strtr($parts[1], '-_', '+/');
+        $padding = strlen($payload) % 4;
+
+        if ($padding > 0) {
+            $payload .= str_repeat('=', 4 - $padding);
+        }
+
+        $decoded = base64_decode($payload, true);
+
+        if ($decoded === false) {
+            return null;
+        }
+
+        $json = json_decode($decoded, true);
+
+        return is_array($json) ? $json : null;
+    }
+
+    private static function build_family_certificates_html($contactId)
+    {
         $mp = new MP();
-
-        // Final output string
         $output = '';
 
-        if ($mp->authenticate()) {          
+        if (!$mp->authenticate()) {
+            return '<p>Unable to authenticate with Ministry Platform.</p>';
+        }
 
-            // echo '<script>console.log("dp_Users result:", ' . json_encode($user) . ');</script>';
-            // echo '<script>console.log("dp_Users result:", ' . json_encode($name) . ');</script>';         
+        $contactId = (int) $contactId;
 
-            $contact = $mp->table('Contacts')
-                // ->select('Contact_ID, Household_ID') // fetch only specific fields
-                ->select('*') // fetch only specific fields
-                ->filter("Contact_ID = '$name'")   // filter by email address (where $name holds the email)
-                ->get();
+        if (!$contactId) {
+            return '<p>Invalid contact.</p>';
+        }
 
-            $householdID = $contact[0]['Household_ID'];
+        $contact = $mp->table('Contacts')
+            ->select('*')
+            ->filter("Contact_ID = '$contactId'")
+            ->get();
 
+        if (empty($contact)) {
+            return '<p>Contact not found.</p>';
+        }
 
-            // $debugContact = '<pre>' . print_r($contact, true) . '</pre>';
-            // $debugUser = '<pre>' . print_r($user, true) . '</pre>';
+        $householdID = $contact[0]['Household_ID'];
 
-            if (empty($contact)) {
-                return '<p>Contact not found for name: ' . esc_html($name) . '</p>';
-            }
+        $family_data = $mp->table('Participant_Milestones')
+            ->select('
+            Participant_ID_Table_Contact_ID_Table.First_Name,
+            Participant_ID_Table_Contact_ID_Table.Last_Name,
+            Participant_Milestones.Date_Accomplished
+        ')
+            ->filter("
+            Participant_ID_Table_Contact_ID_Table.Household_ID = $householdID AND
+            Participant_Milestones.Milestone_ID = 214 AND
+            Participant_Milestones.At_Prior_Church = 0
+        ")
+            ->orderBy('Participant_Milestones.Date_Accomplished DESC')
+            ->get();
 
-            $family_data = $mp->table('Participant_Milestones')
-                ->select('
-                Participant_ID_Table_Contact_ID_Table.First_Name,
-                Participant_ID_Table_Contact_ID_Table.Last_Name,
-                Participant_Milestones.Date_Accomplished
-            ')
-                ->filter("
-                Participant_ID_Table_Contact_ID_Table.Household_ID = $householdID AND
-                Participant_Milestones.Milestone_ID = 214 AND
-                Participant_Milestones.At_Prior_Church = 0
-            ")
-                ->orderBy('Participant_Milestones.Date_Accomplished DESC')
-                ->get();
+        if (!empty($family_data) && is_array($family_data)) {
+            foreach ($family_data as $person) {
+                $firstName = $person['First_Name'] ?? '';
+                $lastName = $person['Last_Name'] ?? '';
+                $fullName = urlencode(trim($firstName . ' ' . $lastName));
 
-            if (!empty($family_data) && is_array($family_data)) {
-                foreach ($family_data as $person) {
-                    $firstName = $person['First_Name'] ?? '';
-                    $lastName = $person['Last_Name'] ?? '';
-                    $fullName = urlencode(trim($firstName . ' ' . $lastName));
+                $date = new \DateTime($person['Date_Accomplished']);
+                $year = $date->format('Y');
+                $month = $date->format('F');
+                $displayDay = (int) $date->format('j');
+                $suffix = 'th';
 
-                    $date = new \DateTime($person['Date_Accomplished']);
-                    $year = $date->format('Y');
-                    $month = $date->format('F');
-                    $day = $date->format('d');
-                    $displayDay = (int) $date->format('j'); // Day without leading zero
-                    $suffix = 'th';
+                setlocale(LC_TIME, 'es_ES.UTF-8');
+                $spanishMonth = ucfirst(strftime('%B', $date->getTimestamp()));
+                $spanishDate = $date->format('d') . ' de ' . $spanishMonth . ' de ' . $date->format('Y');
 
-                    // ---------------Spanish Formatting---------------
-                    // Set the locale to Spanish
-                    setlocale(LC_TIME, 'es_ES.UTF-8'); // For Spanish formatting
-                    $spanishMonth = ucfirst(strftime('%B', $date->getTimestamp())); // e.g., 'Mayo'
-                    $spanishDate = $date->format('d') . ' de ' . $spanishMonth . ' de ' . $date->format('Y');
-
-                    // ---------------
-
-                    if (!in_array(($displayDay % 100), [11, 12, 13])) {
-                        switch ($displayDay % 10) {
-                            case 1:
-                                $suffix = 'st';
-                                break;
-                            case 2:
-                                $suffix = 'nd';
-                                break;
-                            case 3:
-                                $suffix = 'rd';
-                                break;
-                        }
+                if (!in_array(($displayDay % 100), [11, 12, 13])) {
+                    switch ($displayDay % 10) {
+                        case 1:
+                            $suffix = 'st';
+                            break;
+                        case 2:
+                            $suffix = 'nd';
+                            break;
+                        case 3:
+                            $suffix = 'rd';
+                            break;
                     }
+                }
 
+                $iframe = '<iframe 
+                src="https://calvary2024stg.wpenginepowered.com/certificate/en.php?name=' . $fullName . '&year=' . $year . '&month=' . $month . '&date=' . $displayDay . $suffix . '" 
+                frameborder="0" 
+                class="baptism-iframe"
+            >
+            </iframe>';
 
-                    $iframe = '<iframe 
-                    src="https://calvary2024stg.wpenginepowered.com/certificate/en.php?name=' . $fullName . '&year=' . $year . '&month=' . $month . '&date=' . $displayDay . $suffix . '" 
-                    frameborder="0" 
-                    class="baptism-iframe"
-                    >
-                </iframe>';
-
-                    $printButtons = '
+                $printButtons = '
 <div class="baptism-buttons-container">
-    <a 
-        
-        target="_blank" class="btn"  
-        href="' . site_url('/certificate/en.php') . '?name=' . $fullName . '&year=' . $year . '&month=' . $month . '&date=' . $displayDay . $suffix . '" >
+    <a target="_blank" class="btn" href="' . site_url('/certificate/en.php') . '?name=' . $fullName . '&year=' . $year . '&month=' . $month . '&date=' . $displayDay . $suffix . '">
         Print Baptism Certificate
     </a>
 
-    <a 
-        
-        target="_blank" class="btn"  
-        href="' . site_url('/certificate/es.php') . '?name=' . $fullName . '&date=' . urlencode($spanishDate) . '">
+    <a target="_blank" class="btn" href="' . site_url('/certificate/es.php') . '?name=' . $fullName . '&date=' . urlencode($spanishDate) . '">
         Imprimir Certificado de Bautismo
     </a>
 </div>';
-                    ;
 
-                    // $output .= $iframe;
-                    $output .= $iframe . $printButtons;
-                }
-            } else {
-                $output = '<p>No baptism certificate available.</p>';
+                $output .= $iframe . $printButtons;
             }
         } else {
-            $output = '<p>Unable to authenticate with Ministry Platform.</p>';
+            $output = '<p>No baptism certificate available.</p>';
         }
 
         return $output;
-        // return $output;
     }
+
+    public static function mpapi_family_certificates_ajax()
+    {
+        $token = isset($_POST['token']) ? wp_unslash($_POST['token']) : '';
+
+        if (!$token) {
+            wp_send_json_error(['message' => 'Token missing.'], 400);
+        }
+
+        $payload = self::decode_jwt_payload($token);
+        $contactId = isset($payload['ContactId']) ? (int) $payload['ContactId'] : 0;
+
+        if (!$contactId) {
+            wp_send_json_error(['message' => 'ContactId not found in token.'], 400);
+        }
+
+        $html = self::build_family_certificates_html($contactId);
+
+        wp_send_json_success(['html' => $html]);
+    }
+
+    public static function mpapi_family_certificates_sc($name = null)
+    {
+        ob_start();
+        ?>
+            <div id="mp-family-certificates-output">
+                <p>Loading...</p>
+            </div>
+
+            <script>
+            function parseJwt(token) {
+              try {
+                const base64Url = token.split('.')[1];
+                const base64 = decodeURIComponent(atob(base64Url).split('').map(function(c) {
+                  return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                }).join(''));
+                return JSON.parse(base64);
+              } catch (e) {
+                return null;
+              }
+            }
+
+            document.addEventListener("DOMContentLoaded", function () {
+              const container = document.getElementById("mp-family-certificates-output");
+              const token = localStorage.getItem("mpp-widgets_JwtToken");
+
+              if (!token) {
+                container.innerHTML = "<p>No token found.</p>";
+                return;
+              }
+
+              const payload = parseJwt(token);
+              const contactId = payload?.ContactId;
+
+              if (!contactId) {
+                container.innerHTML = "<p>ContactId not found in token.</p>";
+                return;
+              }
+
+              fetch("<?php echo admin_url('admin-ajax.php'); ?>", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: "action=mpapi_family_certificates_ajax&token=" + encodeURIComponent(token)
+              })
+                .then(function(res) {
+                  return res.json();
+                })
+                .then(function(data) {
+                  if (data.success && data.data && data.data.html) {
+                    container.innerHTML = data.data.html;
+                  } else {
+                    container.innerHTML = "<p>Unable to load certificates.</p>";
+                  }
+                })
+                .catch(function() {
+                  container.innerHTML = "<p>AJAX request failed.</p>";
+                });
+            });
+            </script>
+            <?php
+            return ob_get_clean();
+    }
+    // ------------------
+
+    //     public static function mpapi_family_certificates_sc($name = null)
+//     {
+//         $name = isset($_GET['contactId']) ? urldecode(sanitize_text_field($_GET['contactId'])) : null;
+
+    //         if (!$name) {
+//             return '<p>Loading...</p>';
+//         }
+
+
+    //         $mp = new MP();
+
+    //         // Final output string
+//         $output = '';
+
+    //         if ($mp->authenticate()) {
+
+    //             // echo '<script>console.log("dp_Users result:", ' . json_encode($user) . ');</script>';
+//             // echo '<script>console.log("dp_Users result:", ' . json_encode($name) . ');</script>';         
+
+    //             $contact = $mp->table('Contacts')
+//                 // ->select('Contact_ID, Household_ID') // fetch only specific fields
+//                 ->select('*') // fetch only specific fields
+//                 ->filter("Contact_ID = '$name'")   // filter by email address (where $name holds the email)
+//                 ->get();
+
+    //             $householdID = $contact[0]['Household_ID'];
+
+
+    //             // $debugContact = '<pre>' . print_r($contact, true) . '</pre>';
+//             // $debugUser = '<pre>' . print_r($user, true) . '</pre>';
+
+    //             if (empty($contact)) {
+//                 return '<p>Contact not found for name: ' . esc_html($name) . '</p>';
+//             }
+
+    //             $family_data = $mp->table('Participant_Milestones')
+//                 ->select('
+//                 Participant_ID_Table_Contact_ID_Table.First_Name,
+//                 Participant_ID_Table_Contact_ID_Table.Last_Name,
+//                 Participant_Milestones.Date_Accomplished
+//             ')
+//                 ->filter("
+//                 Participant_ID_Table_Contact_ID_Table.Household_ID = $householdID AND
+//                 Participant_Milestones.Milestone_ID = 214 AND
+//                 Participant_Milestones.At_Prior_Church = 0
+//             ")
+//                 ->orderBy('Participant_Milestones.Date_Accomplished DESC')
+//                 ->get();
+
+    //             if (!empty($family_data) && is_array($family_data)) {
+//                 foreach ($family_data as $person) {
+//                     $firstName = $person['First_Name'] ?? '';
+//                     $lastName = $person['Last_Name'] ?? '';
+//                     $fullName = urlencode(trim($firstName . ' ' . $lastName));
+
+    //                     $date = new \DateTime($person['Date_Accomplished']);
+//                     $year = $date->format('Y');
+//                     $month = $date->format('F');
+//                     $day = $date->format('d');
+//                     $displayDay = (int) $date->format('j'); // Day without leading zero
+//                     $suffix = 'th';
+
+    //                     // ---------------Spanish Formatting---------------
+//                     // Set the locale to Spanish
+//                     setlocale(LC_TIME, 'es_ES.UTF-8'); // For Spanish formatting
+//                     $spanishMonth = ucfirst(strftime('%B', $date->getTimestamp())); // e.g., 'Mayo'
+//                     $spanishDate = $date->format('d') . ' de ' . $spanishMonth . ' de ' . $date->format('Y');
+
+    //                     // ---------------
+
+    //                     if (!in_array(($displayDay % 100), [11, 12, 13])) {
+//                         switch ($displayDay % 10) {
+//                             case 1:
+//                                 $suffix = 'st';
+//                                 break;
+//                             case 2:
+//                                 $suffix = 'nd';
+//                                 break;
+//                             case 3:
+//                                 $suffix = 'rd';
+//                                 break;
+//                         }
+//                     }
+
+
+    //                     $iframe = '<iframe 
+//                     src="https://calvary2024stg.wpenginepowered.com/certificate/en.php?name=' . $fullName . '&year=' . $year . '&month=' . $month . '&date=' . $displayDay . $suffix . '" 
+//                     frameborder="0" 
+//                     class="baptism-iframe"
+//                     >
+//                 </iframe>';
+
+    //                     $printButtons = '
+// <div class="baptism-buttons-container">
+//     <a 
+
+    //         target="_blank" class="btn"  
+//         href="' . site_url('/certificate/en.php') . '?name=' . $fullName . '&year=' . $year . '&month=' . $month . '&date=' . $displayDay . $suffix . '" >
+//         Print Baptism Certificate
+//     </a>
+
+    //     <a 
+
+    //         target="_blank" class="btn"  
+//         href="' . site_url('/certificate/es.php') . '?name=' . $fullName . '&date=' . urlencode($spanishDate) . '">
+//         Imprimir Certificado de Bautismo
+//     </a>
+// </div>';
+//                     ;
+
+    //                     // $output .= $iframe;
+//                     $output .= $iframe . $printButtons;
+//                 }
+//             } else {
+//                 $output = '<p>No baptism certificate available.</p>';
+//             }
+//         } else {
+//             $output = '<p>Unable to authenticate with Ministry Platform.</p>';
+//         }
+
+    //         return $output;
+//         // return $output;
+//     }
 
     public static function mpapi_token_name_sc()
     {
@@ -3561,3 +3775,51 @@ window.performSearch = function() {
     }
 
 }
+
+// <script>
+// function parseJwt(token) {
+//   try {
+//     const base64Url = token.split('.')[1];
+//     const base64 = decodeURIComponent(atob(base64Url).split('').map(function(c) {
+//       return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+//     }).join(''));
+//     // console.log("Decoded payload:", base64);
+//     return JSON.parse(base64);
+//   } catch (e) {
+//     // console.error("Error decoding token:", e);
+//     return null;
+//   }
+// }
+
+// document.addEventListener("DOMContentLoaded", function () {
+//   const token = localStorage.getItem("mpp-widgets_JwtToken");
+//   // console.log("Token from localStorage:", token);
+
+//   if (!token) {
+//     // console.warn("Token not found in localStorage.");
+//     return;
+//   }
+
+//   const payload = parseJwt(token);
+//   // console.log("Parsed payload object:", payload);
+
+//   const contactId = payload?.ContactId;
+//   // console.log("Extracted contactId:", contactId);
+
+//   if (!contactId) {
+//     // console.warn("contactId not found in token payload.");
+//     return;
+//   }
+
+//   const currentUrl = new URL(window.location.href);
+
+//   if (!currentUrl.searchParams.get('contactId')) {
+//     currentUrl.searchParams.set('contactId', contactId);
+//     const newUrl = currentUrl.toString();
+//     // console.log("Redirecting to:", newUrl);
+//     window.location.href = newUrl;
+//   } else {
+//     // console.log("URL already contains contactId:", currentUrl.searchParams.get('contactId'));
+//   }
+// });
+// </script>
