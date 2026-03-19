@@ -2060,7 +2060,7 @@ function userifyDiviMobileHamburger(initials) {
     overlay.style.display = "flex";
     overlay.style.alignItems = "center";
     overlay.style.justifyContent = "center";
-    overlay.style.pointerEvents = "none"; // clicks fall through to the span
+    overlay.style.pointerEvents = "auto"; // Capture clicks for dropdown toggle
 
     const avatar = document.createElement("div");
     avatar.id = "user-avatar-mbl";
@@ -2080,19 +2080,26 @@ function userifyDiviMobileHamburger(initials) {
 
     const dropdownIcon = document.createElement("span");
     dropdownIcon.id = "dropdown-icon";
-    dropdownIcon.textContent = "⌄";
+    // dropdownIcon.textContent = "⌄";
+    dropdownIcon.innerHTML = '<i class="fa fa-chevron-down" aria-hidden="true"></i>';
 
     overlay.appendChild(avatar);
     overlay.appendChild(dropdownIcon);
     wrapper.appendChild(overlay);
 
-    // Add click listener to toggle mobile menu icon
-    bar.addEventListener("click", function() {
-      // Toggle icon immediately on click
-      const currentIcon = dropdownIcon.textContent;
-      dropdownIcon.textContent = currentIcon === "⌄" ? "⌃" : "⌄";
-      console.log('Mobile menu icon toggled to:', dropdownIcon.textContent);
+    // Add click handler to overlay for dropdown toggle
+    overlay.addEventListener("click", function (e) {
+      e.stopPropagation(); // Prevent bubbling to document listener
+      userInfo({ target: overlay });
     });
+
+    // Add click listener to toggle mobile menu icon
+    bar.addEventListener("click", function () {
+  const isDown = dropdownIcon.classList.toggle('is-down');
+  dropdownIcon.innerHTML = isDown
+    ? '<i class="fa fa-chevron-down" aria-hidden="true"></i>'
+    : '<i class="fa fa-chevron-up" aria-hidden="true"></i>';
+});
 
     // Mark as done
     bar.dataset.userified = "1";
@@ -2386,80 +2393,73 @@ document.addEventListener("keydown", function (e) {
   }
 });
 
-function userInfo(event) {
-  // Find the closest #user-info element (for event delegation)
-  const userInfoElement = event.target.closest('#user-info');
+function setUserDropdownState(userInfoElement, shouldOpen) {
   if (!userInfoElement) return;
-  
-  // Don't toggle if clicking on dropdown menu items
-  if (event.target.closest('#user-dropdown-menu a')) {
-    console.log('Clicked on dropdown link, not toggling');
-    return;
-  }
-  
-  const userDropdownmenu = userInfoElement.querySelector("#user-dropdown-menu");
-  const dropdownIcon = userInfoElement.querySelector("#dropdown-icon");
-  
+
+  const userDropdownmenu = userInfoElement.querySelector('#user-dropdown-menu');
+  const dropdownIcon = userInfoElement.querySelector('#dropdown-icon');
+
   if (!userDropdownmenu) {
     console.log('No dropdown menu found in this user-info');
     return;
   }
-  
-  // Add a class to track toggle state (to override CSS hover)
-  const isOpen = userInfoElement.classList.contains('dropdown-open');
-  
-  console.log('Toggling dropdown. Currently open:', isOpen);
-  
-  if (isOpen) {
-    // Close dropdown
-    userInfoElement.classList.remove('dropdown-open');
-    userDropdownmenu.style.setProperty('display', 'none', 'important');
-    if (dropdownIcon) {
-      dropdownIcon.textContent = "⌄";
-      console.log('Icon changed to ⌄');
-    }
-  } else {
-    // Open dropdown
+
+  if (shouldOpen) {
     userInfoElement.classList.add('dropdown-open');
     userDropdownmenu.style.setProperty('display', 'block', 'important');
     if (dropdownIcon) {
-      dropdownIcon.textContent = "⌃";
-      console.log('Icon changed to ⌃');
+      dropdownIcon.innerHTML = '<i class="fa fa-chevron-up" aria-hidden="true"></i>';
+      dropdownIcon.classList.remove('is-down');
     }
+    return;
+  }
+
+  userInfoElement.classList.remove('dropdown-open');
+  userDropdownmenu.style.setProperty('display', 'none', 'important');
+  if (dropdownIcon) {
+    dropdownIcon.innerHTML = '<i class="fa fa-chevron-down" aria-hidden="true"></i>';
+    dropdownIcon.classList.add('is-down');
   }
 }
 
-// Use event delegation on document to catch all #user-info clicks (desktop and mobile)
-document.addEventListener('click', function(event) {
-  const userInfoClick = event.target.closest('#user-info');
-  if (userInfoClick) {
-    // Don't prevent default if clicking on a link
-    if (!event.target.closest('#user-dropdown-menu a')) {
-      event.preventDefault(); // Prevent any default behavior only if not clicking a link
-    }
-    userInfo(event);
-  }
-});
-
-// Close dropdown when clicking outside
-document.addEventListener('click', function(event) {
-  const userInfoElements = document.querySelectorAll('#user-info');
-  userInfoElements.forEach(userInfoElement => {
-    if (!userInfoElement.contains(event.target) && userInfoElement.classList.contains('dropdown-open')) {
-      const userDropdownmenu = userInfoElement.querySelector('#user-dropdown-menu');
-      const dropdownIcon = userInfoElement.querySelector('#dropdown-icon');
-      
-      userInfoElement.classList.remove('dropdown-open');
-      if (userDropdownmenu) {
-        userDropdownmenu.style.setProperty('display', 'none', 'important');
-      }
-      if (dropdownIcon) {
-        dropdownIcon.textContent = "⌄";
-      }
-      console.log('Closed dropdown (clicked outside)');
+function closeAllUserDropdowns(exceptElement = null) {
+  document.querySelectorAll('#user-info.dropdown-open').forEach((userInfoElement) => {
+    if (userInfoElement !== exceptElement) {
+      setUserDropdownState(userInfoElement, false);
     }
   });
-});
+}
+
+function userInfo(event) {
+  const userInfoElement = event.target.closest('#user-info');
+  if (!userInfoElement) return;
+
+  if (event.target.closest('#user-dropdown-menu a')) {
+    console.log('Clicked on dropdown link, not toggling');
+    return;
+  }
+
+  const isOpen = userInfoElement.classList.contains('dropdown-open');
+  closeAllUserDropdowns(userInfoElement);
+  setUserDropdownState(userInfoElement, !isOpen);
+}
+
+document.addEventListener('click', function(event) {
+  const userInfoElement = event.target.closest('#user-info');
+
+  if (userInfoElement) {
+    if (event.target.closest('#user-dropdown-menu a')) {
+      return;
+    }
+
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    userInfo({ target: userInfoElement });
+    return;
+  }
+
+  closeAllUserDropdowns();
+}, true);
 
 const megaMenuItem = document.querySelector('.mega-menu');
 
@@ -3672,3 +3672,102 @@ window.addEventListener('pageshow', function (e) {
   });
 });
 // check
+
+// #user-avatar-mbl,
+// #user-avatar {
+//   width: 50px;
+//   height: 50px;
+//   background-color: #00b5ef;
+//   color: white;
+//   border-radius: 50%;
+//   text-align: center;
+//   line-height: 50px;
+//   font-weight: bold;
+//   font-size: 14px;
+// }
+ 
+// #user-avatar-mbl {
+//   width: 40px;
+//   height: 40px;
+//   line-height: 40px;
+//   font-size: 12px;
+// }
+
+// #user-avatar img{
+//   object-fit: cover;
+// }
+ 
+// #user-info {
+//   display: flex;
+//   align-items: center;
+//   gap: 8px;
+//   cursor: pointer;
+// }
+ 
+// .et_pb_column_1_4.et-last-child {
+//   display: flex !important;
+//   justify-content: flex-end;
+//   align-items: center;
+//   gap: 12px; /* space between items */
+// }
+ 
+// #user-dropdown-menu {
+//   display: none;
+//   position: absolute;
+//   top: 120%;
+//   right: -10px;
+//   background: linear-gradient(90deg, #36c5f2 67.98%, #00b5ef 100%, #afebfd 10%);
+//   border-radius: 10px;
+//   box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.15);
+//   min-width: 130px;
+//   list-style: none;
+//   margin: 0;
+//   padding: 10px 10px;
+//   z-index: 1000;
+// }
+ 
+// #user-dropdown-menu li a {
+//   font-family: Poppins;
+//   display: block;
+//   padding: 8px 12px;
+//   color: white;
+//   text-decoration: none;
+// }
+ 
+// #user-dropdown-menu li a:hover {
+//   color: #003e5c !important; /* Example: change text color */
+// }
+ 
+// #user-info {
+//   position: relative;
+// }
+ 
+// #user-info::before {
+//   content: "";
+//   position: absolute;
+//   top: 100%;
+//   left: 0;
+//   height: 20px; /* size of the gap */
+//   width: 100%;
+//   background: transparent;
+// }
+
+// /* #dropdown-icon {
+//   display: inline-flex;
+//   align-items: center;
+//   justify-content: center;
+//   cursor: pointer;
+//   pointer-events: auto;
+//   min-width: 28px;
+//   min-height: 28px;
+//   transform-origin: center;
+// }
+
+// #dropdown-icon i {
+//   font-size: 18px;
+//   cursor: pointer;
+//   pointer-events: auto;
+//   display: flex;
+//   align-items: center;
+//   justify-content: center;
+// } */
