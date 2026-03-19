@@ -2095,10 +2095,10 @@ function userifyDiviMobileHamburger(initials) {
 
     // Add click listener to toggle mobile menu icon
     bar.addEventListener("click", function () {
-  const isDown = dropdownIcon.classList.toggle('is-down');
-  dropdownIcon.innerHTML = isDown
-    ? '<i class="fa fa-chevron-down" aria-hidden="true"></i>'
-    : '<i class="fa fa-chevron-up" aria-hidden="true"></i>';
+  const isUp = dropdownIcon.classList.toggle('is-up');
+  dropdownIcon.innerHTML = isUp
+    ? '<i class="fa fa-chevron-up" aria-hidden="true"></i>'
+    : '<i class="fa fa-chevron-down" aria-hidden="true"></i>';
 });
 
     // Mark as done
