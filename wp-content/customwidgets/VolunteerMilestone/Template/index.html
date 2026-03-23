@@ -17,9 +17,13 @@
                 <td>
                 {% if record.Milestone_Title == 'Background Check' %}
                     {% if record.MilestoneAchieved %}                    
-                        <span class="vm-tip" data-tip="{{ bg_tooltip }}"><img class="img-fluid img-thumbnail" src="https://calvaryftl.org/wp-content/customwidgets/VolunteerMilestone/Assets/BackgroundCheck_YAY.png"></span>
+                        <!-- <span class="vm-tip" data-tip="{{ bg_tooltip }}"><img class="img-fluid img-thumbnail" src="https://calvaryftl.org/wp-content/customwidgets/VolunteerMilestone/Assets/BackgroundCheck_YAY.png"></span> -->
+                        <img class="img-fluid img-thumbnail cvas-native-tip" src="https://calvaryftl.org/wp-content/customwidgets/VolunteerMilestone/Assets/BackgroundCheck_YAY.png" title="{{ bg_tooltip }}">
                     {% else %}
-                        <span class="vm-tip" data-tip="{{ bg_tooltip }}"><img class="img-fluid img-thumbnail" src="https://calvaryftl.org/wp-content/customwidgets/VolunteerMilestone/Assets/BackgroundCheck_BOO.png"></span>
+                        <!-- <span class="vm-tip" data-tip="{{ bg_tooltip }}"><img class="img-fluid img-thumbnail" src="https://calvaryftl.org/wp-content/customwidgets/VolunteerMilestone/Assets/BackgroundCheck_BOO.png"></span> -->
+                         <a>
+                        <img class="img-fluid img-thumbnail cvas-native-tip" src="https://calvaryftl.org/wp-content/customwidgets/VolunteerMilestone/Assets/BackgroundCheck_BOO.png"  title="{{ bg_tooltip }}">
+						</a>
                     {% endif %}
 
                 {% elsif record.Milestone_Title == 'Connect Experience' %}

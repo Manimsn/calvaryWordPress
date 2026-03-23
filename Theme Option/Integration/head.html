@@ -131,10 +131,6 @@
 
 <script>
   (function () {
-    function isTouchLike() {
-      return window.matchMedia("(hover: none), (pointer: coarse)").matches;
-    }
-
     function removeTapTip() {
       var current = document.getElementById("cvas-mobile-tooltip");
       if (current) {
@@ -177,25 +173,67 @@
       tip.style.left = left + "px";
       tip.style.top = top + "px";
       tip.classList.add(showAbove ? "tip-top" : "tip-bottom");
-
-      setTimeout(removeTapTip, 2200);
     }
+
+    function getTipText(target) {
+      var text = target.getAttribute("data-native-tip");
+      if (text) {
+        return text;
+      }
+
+      text = target.getAttribute("title");
+      if (text) {
+        target.setAttribute("data-native-tip", text);
+        target.setAttribute("aria-label", text);
+        target.removeAttribute("title");
+      }
+      return text;
+    }
+
+    function activateTip(target) {
+      var text = getTipText(target);
+      if (!text) return;
+      showTapTip(target, text);
+    }
+
+    document.addEventListener("mouseover", function (e) {
+      var target = e.target.closest(".cvas-native-tip");
+      if (!target) return;
+      activateTip(target);
+    });
+
+    document.addEventListener("mouseout", function (e) {
+      var target = e.target.closest(".cvas-native-tip");
+      if (!target) return;
+      if (target.contains(e.relatedTarget)) return;
+      removeTapTip();
+    });
+
+    document.addEventListener("focusin", function (e) {
+      var target = e.target.closest(".cvas-native-tip");
+      if (!target) return;
+      activateTip(target);
+    });
+
+    document.addEventListener("focusout", function (e) {
+      var target = e.target.closest(".cvas-native-tip");
+      if (!target) return;
+      if (target.contains(e.relatedTarget)) return;
+      removeTapTip();
+    });
 
     document.addEventListener(
       "click",
       function (e) {
-        if (!isTouchLike()) return;
-
         var target = e.target.closest(".cvas-native-tip");
         if (!target) {
           removeTapTip();
           return;
         }
 
-        var text = target.getAttribute("title");
-        if (!text) return;
+        activateTip(target);
 
-        showTapTip(target, text);
+        setTimeout(removeTapTip, 2200);
       },
       true,
     );
