@@ -29,54 +29,7 @@
 #VolunteerMilestoneWidget td {
     border: none !important;
 }
-
-
-  .vm-tip {
-    position: relative;
-    display: inline-block;
-  }
-
-  .vm-tip::before,
-  .vm-tip::after {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.2s ease;
-    z-index: 1000;
-  }
-
-  /* Tooltip bubble */
-  .vm-tip::before {
-    content: attr(data-tip);
-    bottom: calc(100% + 10px); /* gap = arrow height, so arrow bottom meets bubble bottom */
-    background: #333;
-    color: #fff;
-    padding: 8px 14px;
-    border-radius: 6px;
-    font-size: 13px;
-    max-width: 260px;
-    width: max-content;
-    white-space: normal;
-    text-align: center;
-    line-height: 1.5;
-  }
-
-  /* Arrow: downward-pointing triangle, same color as bubble, attached to its bottom */
-  .vm-tip::after {
-    content: "";
-    bottom: 100%; /* arrow bottom sits at top of .vm-tip span */
-    border-width: 10px 10px 0 10px; /* 10px tall — fills the gap exactly */
-    border-style: solid;
-    border-color: #333 transparent transparent transparent;
-  }
-
-  .vm-tip:hover::before,
-  .vm-tip:hover::after {
-    opacity: 1;
-  }
-  /* ---------- */
+/* ---------- */
   .vm-tip {
     position: relative;
     display: inline-block;
@@ -141,4 +94,19 @@
   .vm-tip.vm-tip-active::before,
   .vm-tip.vm-tip-active::after {
     opacity: 1;
+  }
+
+  /* Safer layering: keep tooltip above nearby elements without changing table flow */
+  #VolunteerMilestoneWidget {
+    position: relative;
+  }
+
+  #VolunteerMilestoneWidget .vm-tip {
+    position: relative;
+    z-index: 10;
+  }
+
+  #VolunteerMilestoneWidget .vm-tip::before,
+  #VolunteerMilestoneWidget .vm-tip::after {
+    z-index: 9999;
   }
