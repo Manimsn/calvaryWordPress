@@ -33,11 +33,11 @@
 
                 {% elsif record.Milestone_Title == 'CVAS (Child and Vulnerable Adult Safety) Training' %}
                     {% if record.MilestoneAchieved %}
-                        <img class="img-fluid img-thumbnail" src="https://calvaryftl.org/wp-content/customwidgets/VolunteerMilestone/Assets/CVASTraining_YAY.png" title="{{ cvas_tooltip }}">
+                        <img class="img-fluid img-thumbnail cvas-native-tip" src="https://calvaryftl.org/wp-content/customwidgets/VolunteerMilestone/Assets/CVASTraining_YAY.png" title="{{ cvas_tooltip }}">
                     {% else %}
 						<!-- <a href={{ cvas_anchor }}> -->
 						<a>
-                        <img class="img-fluid img-thumbnail" src="https://calvaryftl.org/wp-content/customwidgets/VolunteerMilestone/Assets/CVASTraining_BOO.png"  title="{{ cvas_tooltip }}">
+                        <img class="img-fluid img-thumbnail cvas-native-tip" src="https://calvaryftl.org/wp-content/customwidgets/VolunteerMilestone/Assets/CVASTraining_BOO.png"  title="{{ cvas_tooltip }}">
 						</a>
                     {% endif %}
 

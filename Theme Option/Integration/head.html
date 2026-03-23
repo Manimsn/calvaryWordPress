@@ -128,6 +128,82 @@
     }, 3000);
   })();
 </script>
+
+<script>
+  (function () {
+    function isTouchLike() {
+      return window.matchMedia("(hover: none), (pointer: coarse)").matches;
+    }
+
+    function removeTapTip() {
+      var current = document.getElementById("cvas-mobile-tooltip");
+      if (current) {
+        current.remove();
+      }
+    }
+
+    function showTapTip(target, text) {
+      removeTapTip();
+
+      var tip = document.createElement("div");
+      tip.id = "cvas-mobile-tooltip";
+      tip.className = "cvas-mobile-tooltip";
+      tip.textContent = text;
+      document.body.appendChild(tip);
+
+      var rect = target.getBoundingClientRect();
+      var tipRect = tip.getBoundingClientRect();
+      var vw = window.innerWidth || document.documentElement.clientWidth;
+      var vh = window.innerHeight || document.documentElement.clientHeight;
+      var gap = 10;
+      var pad = 8;
+
+      var left = rect.left + rect.width / 2 - tipRect.width / 2;
+      if (left < pad) left = pad;
+      if (left + tipRect.width > vw - pad) left = vw - pad - tipRect.width;
+
+      var showAbove = rect.top >= tipRect.height + gap + pad;
+      var top = showAbove
+        ? rect.top - tipRect.height - gap
+        : rect.bottom + gap;
+
+      if (top + tipRect.height > vh - pad) {
+        top = vh - pad - tipRect.height;
+      }
+      if (top < pad) {
+        top = pad;
+      }
+
+      tip.style.left = left + "px";
+      tip.style.top = top + "px";
+      tip.classList.add(showAbove ? "tip-top" : "tip-bottom");
+
+      setTimeout(removeTapTip, 2200);
+    }
+
+    document.addEventListener(
+      "click",
+      function (e) {
+        if (!isTouchLike()) return;
+
+        var target = e.target.closest(".cvas-native-tip");
+        if (!target) {
+          removeTapTip();
+          return;
+        }
+
+        var text = target.getAttribute("title");
+        if (!text) return;
+
+        showTapTip(target, text);
+      },
+      true,
+    );
+
+    window.addEventListener("scroll", removeTapTip, { passive: true });
+    window.addEventListener("resize", removeTapTip);
+  })();
+</script>
 <script>
   jQuery(function ($) {
     var $accordion = $("#my_events_list_accordion");

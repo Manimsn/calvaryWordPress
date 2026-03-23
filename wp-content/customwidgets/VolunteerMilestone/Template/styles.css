@@ -110,3 +110,37 @@
   #VolunteerMilestoneWidget .vm-tip::after {
     z-index: 9999;
   }
+
+  .cvas-mobile-tooltip {
+    position: fixed;
+    max-width: min(260px, 90vw);
+    background: #333;
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    line-height: 1.4;
+    text-align: center;
+    z-index: 2147483647;
+    pointer-events: none;
+  }
+
+  .cvas-mobile-tooltip::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    border-style: solid;
+  }
+
+  .cvas-mobile-tooltip.tip-top::after {
+    top: 100%;
+    border-width: 8px 8px 0 8px;
+    border-color: #333 transparent transparent transparent;
+  }
+
+  .cvas-mobile-tooltip.tip-bottom::after {
+    bottom: 100%;
+    border-width: 0 8px 8px 8px;
+    border-color: transparent transparent #333 transparent;
+  }
