@@ -429,7 +429,7 @@ class MP_API_SHORTCODES
               const token = localStorage.getItem("mpp-widgets_JwtToken");
 
               if (!token) {
-                container.innerHTML = "<p>No token found.</p>";
+                container.innerHTML = "<p>User needs to Login.</p>";
                 return;
               }
 
