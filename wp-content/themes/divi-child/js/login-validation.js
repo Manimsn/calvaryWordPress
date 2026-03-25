@@ -1,4 +1,4 @@
-console.log("QA CAN PROCEED");
+// // console.log("QA CAN PROCEED");
 const login = document.getElementById("loginButton");
 const inputElement = document.getElementById("loginInput");
 const errorDiv = document.getElementById("inputError");
@@ -13,8 +13,8 @@ let signUpPayload = {
 let timeoutDidnotReceiveMessage;
 let userNameForgotPass = false;
 let isLoading = false;
-const baseURL = "https://mobileserveruat.calvaryftl.org";
-const dbURL = "https://mybeta.calvaryftl.org";
+const baseURL = "https://mobileserver.calvaryftl.org";
+const dbURL = "https://my.calvaryftl.org";
 
 function validateEmail(email) {
   const re = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -126,7 +126,7 @@ async function handleLogin() {
     const text = await response.text();
 
     if (!response.ok) {
-      console.log(response);
+      // // console.log(response);
       if (response.status === 404) {
         document.getElementById("loginForm").style.display = "none";
         document.getElementById("signupSection").style.display = "flex";
@@ -343,7 +343,7 @@ async function verifyOtp() {
 
     if (response.ok) {
       const data = await response.json();
-      console.log("✅ OTP Verified:", data);
+      // // console.log("✅ OTP Verified:", data);
 
       document.getElementById("setPasswordForm").style.display = "flex";
         document.getElementById("otpSection").style.display = "none";
@@ -457,7 +457,7 @@ function validateInputPhone() {
 }
 
 function checkSecondaryOtpAndToggleButton() {
-  console.log("checkSecondaryOtpAndToggleButton called");
+  // console.log("checkSecondaryOtpAndToggleButton called");
   const otpInputs = document.querySelectorAll(".secondaryotpInputBox");
   const secondaryLoginOTPButton = document.getElementById("secondaryOTPButton");
 
@@ -465,7 +465,7 @@ function checkSecondaryOtpAndToggleButton() {
     .map((input) => input.value.trim())
     .join("");
 
-  console.log("CALLED checkSecondaryOtpAndToggleButton", enteredDigits);
+  // console.log("CALLED checkSecondaryOtpAndToggleButton", enteredDigits);
 
   if (enteredDigits.length === 6 && /^\d{6}$/.test(enteredDigits)) {
     secondaryLoginOTPButton.disabled = false;
@@ -566,7 +566,7 @@ async function verifySecondaryContact() {
   const isEmail = email_input.value.trim() !== "" ? true : false;
 
   const jwtToken = localStorage.getItem("mpp-widgets_JwtToken");
-  console.log("JWT Token:", jwtToken);
+  // console.log("JWT Token:", jwtToken);
 
   // Start sending
   addButton.disabled = true;
@@ -577,8 +577,8 @@ async function verifySecondaryContact() {
   isEmail
     ? (email_input.style.borderColor = "#D1D5DB")
     : (phone_input.style.borderColor = "#D1D5DB");
-  console.log("input_value: " + input_value);
-  console.log("input_value: isEmail " + isEmail);
+  // console.log("input_value: " + input_value);
+  // console.log("input_value: isEmail " + isEmail);
 
   try {
     const response = await fetch(
@@ -596,8 +596,8 @@ async function verifySecondaryContact() {
     const text = await response.text();
 
     if (!response.ok) {
-      console.log("API Response:", response);
-      console.log("API Response:text", text);
+      // console.log("API Response:", response);
+      // console.log("API Response:text", text);
 
       // Success – close modal
       // $.magnificPopup.close();
@@ -650,7 +650,7 @@ async function verifySecondaryContact() {
 }
 
 function showLoginForm() {
-  console.log("showLoginForm");
+  // console.log("showLoginForm");
   // Show login form
   const continueBtn = document.getElementById("continueButton");
   continueBtn.classList.remove("button-loading");
@@ -682,7 +682,7 @@ function showLoginForm() {
 let isResending = false;
 
 async function resendOtp() {
-  console.log("CALLING RESEND OTP", isResending);
+  // console.log("CALLING RESEND OTP", isResending);
   if (isResending) return; // Prevent multiple clicks
   const input = document.getElementById("loginInput");
   const value = input.value.trim();
@@ -707,9 +707,9 @@ async function resendOtp() {
     const text = await response.text();
 
     if (!response.ok) {
-      console.log(response);
+      // console.log(response);
       if (response.status === 404) {
-        console.log(response.status);
+        // console.log(response.status);
         // document.getElementById("loginForm").style.display = "none";
         // document.getElementById("signupSection").style.display = "flex";
       }
@@ -764,7 +764,7 @@ async function resendOtp() {
 }
 
 function resetLoginModalState() {
-  console.log("🔁 Resetting modal state...");
+  // console.log("🔁 Resetting modal state...");
 
   // Login - First Page
   const input = document.getElementById("loginInput");
@@ -1002,7 +1002,7 @@ document.addEventListener("click", function (e) {
   const isCloseButton = e.target.closest(".mfp-close");
 
   if (isCloseButton) {
-    console.log("✅ DIVI modal close button clicked");
+    // console.log("✅ DIVI modal close button clicked");
     resetLoginModalState();
   }
 });
@@ -1075,7 +1075,7 @@ document.addEventListener("keydown", function (e) {
     e.key === "Escape" &&
     document.getElementById("successModal").style.display != "flex"
   ) {
-    console.log("✅ ESC key pressed");
+    // console.log("✅ ESC key pressed");
     unlockScroll();
     if (!showSuccessModal()) {
       resetLoginModalState();
@@ -1086,7 +1086,7 @@ document.addEventListener("keydown", function (e) {
 // DIVI modal closed via overlay or close button
 jQuery(document).ready(function ($) {
   $(document).on("mfpClose", function () {
-    console.log("✅ Modal closed (by close button or outside click)");
+    // console.log("✅ Modal closed (by close button or outside click)");
     // Enable scrolling
     unlockScroll();
     if (!showSuccessModal()) {
@@ -1325,7 +1325,7 @@ async function submitSignup(event) {
       signUpButton.disabled = false;
       signUpButton.innerText = "CONTINUE";
     } else {
-      console.log("API Response:else", response);
+      // console.log("API Response:else", response);
       signUpButton.classList.remove("button-loading");
       signUpButton.disabled = false;
       signUpButton.innerText = "CONTINUE";
@@ -1345,11 +1345,11 @@ async function submitSignup(event) {
       errorDiv.style.visibility = 'hidden';
       errorDivText.innerText = "";
 
-      console.log("API Response:", response);
-      console.log("API Response:text", text);
-      console.log("API Response:firstName length", firstNameValue);
-      console.log("API Response:lastName length", lastNameValue);
-      console.log("API Response:emailInput length", email_phone);
+      // console.log("API Response:", response);
+      // console.log("API Response:text", text);
+      // console.log("API Response:firstName length", firstNameValue);
+      // console.log("API Response:lastName length", lastNameValue);
+      // console.log("API Response:emailInput length", email_phone);
 
       // Focus OTP box
       const otpBox = document.querySelector(".signupotpInputBox");
@@ -1373,7 +1373,7 @@ async function submitSignup(event) {
 }
 
 function showSignupForm() {
-  console.log("showSignupForm");
+  // console.log("showSignupForm");
   // Show login form
   const singupBtn = document.getElementById("signUpButton");
 
@@ -1501,7 +1501,7 @@ function setupSignUpOtpListeners() {
 let isSignUpResending = false;
 
 async function resendSignUpOtp() {
-  console.log("CALLING RESEND OTP", isSignUpResending);
+  // console.log("CALLING RESEND OTP", isSignUpResending);
   if (isSignUpResending) return; // Prevent multiple clicks
 
   const firstName = document.getElementById("firstNameInput");
@@ -1542,9 +1542,9 @@ async function resendSignUpOtp() {
     const text = await response.text();
 
     if (!response.ok) {
-      console.log(response);
+      // console.log(response);
       if (response.status === 404) {
-        console.log(response.status);
+        // console.log(response.status);
       }
 
       resetCodeLink.classList.remove("link-loading");
@@ -1652,7 +1652,7 @@ async function verifySingupOtp() {
       document.getElementById("signUpPasswordForm").style.display = "flex";
         document.getElementById("signupotpSection").style.display = "none";
     } else {
-      console.log("✅ OTP failed:", response);
+      // console.log("✅ OTP failed:", response);
       // Error: invalid OTP
       signUpotpInputs.forEach(
         (input) => (input.style.border = "2px solid #B91C1C")
@@ -1688,7 +1688,7 @@ async function verifySingupOtp() {
 }
 
 function showAddSecondaryContactForm() {
-  console.log("showAddSecondaryContactForm");
+  // console.log("showAddSecondaryContactForm");
   // Show login form
   const secondaryValueDisplay = document.getElementById("secondaryValueDisplay").textContent.trim();
   const isEmail = secondaryValueDisplay.includes('@');
@@ -1732,7 +1732,7 @@ async function secodaryLoginverifyOtp() {
 
   const email_phone = email_input.value.trim() || phone_input.value.trim();
   const jwtToken = localStorage.getItem("mpp-widgets_JwtToken");
-  console.log("JWT Token:", jwtToken);
+  // console.log("JWT Token:", jwtToken);
 
   const Code = Array.from(secondaryLoginotpInputs)
     .map((input) => input.value.trim())
@@ -1773,10 +1773,10 @@ async function secodaryLoginverifyOtp() {
     );
 
     const text = await response.text();
-    console.log("API Response:", response);
-    console.log("API Response:text", text);
+    // console.log("API Response:", response);
+    // console.log("API Response:text", text);
     if (response.ok) {
-      console.log("✅ OTP success:", response);
+      // console.log("✅ OTP success:", response);
       // Start sending
       secondaryLoginOtpBtn.disabled = false;
       secondaryLoginOtpBtn.classList.remove("button-loading");
@@ -1788,7 +1788,7 @@ async function secodaryLoginverifyOtp() {
       showSuccessModal(true);
       lockScroll();
     } else {
-      console.log("✅ OTP failed:", response);
+      // console.log("✅ OTP failed:", response);
       secondaryLoginotpInputs.forEach(
         (input) => (input.style.border = "2px solid #B91C1C")
       );
@@ -1840,15 +1840,15 @@ async function secodaryLoginverifyOtp() {
     return;
   }
   isLoading = false;
-  console.log("secodaryLoginverifyOtp", payload);
+  // console.log("secodaryLoginverifyOtp", payload);
 }
 
 let isSecondaryLoginResending = false;
 async function resendSecondaryLoginOtp() {
-  console.log(
-    "CALLING RESEND OTP isSecondaryLoginResending",
-    isSecondaryLoginResending
-  );
+  // console.log(
+  //   "CALLING RESEND OTP isSecondaryLoginResending",
+  //   isSecondaryLoginResending
+  // );
 
   if (isSecondaryLoginResending) return; // Prevent multiple clicks
 
@@ -1861,13 +1861,13 @@ async function resendSecondaryLoginOtp() {
   const signUpOtpBtn = document.getElementById("secondaryOTPButton");
   const oldErr = document.getElementById("otpSecondaryLoginErrorMessage");
   const jwtToken = localStorage.getItem("mpp-widgets_JwtToken");
-  console.log("JWT Token:", jwtToken);
+  // console.log("JWT Token:", jwtToken);
 
   const payload = {
     Phone_Email: email_phone,
   };
 
-  console.log("object", payload);
+  // console.log("object", payload);
 
   resetCodeLink.classList.add("link-loading");
   resetCodeLink.textContent = "Resending...";
@@ -1886,13 +1886,13 @@ async function resendSecondaryLoginOtp() {
     );
 
     const text = await response.text();
-    console.log("object", text);
+    // console.log("object", text);
 
     if (!response.ok) {
-      console.log("✅ Resend OTP failed:", response);
+      // console.log("✅ Resend OTP failed:", response);
 
       if (response.status === 404) {
-        console.log(response.status);
+        // console.log(response.status);
       }
 
       resetCodeLink.classList.remove("link-loading");
@@ -1934,7 +1934,7 @@ async function resendSecondaryLoginOtp() {
       }, 3000);
     }
   } catch (err) {
-    console.log("err", err);
+    // console.log("err", err);
     resetCodeLink.classList.remove("link-loading");
     resetCodeLink.textContent = "Resend Code";
     isSecondaryLoginResending = false;
@@ -2148,7 +2148,7 @@ async function updateUserHeaderUI() {
     loginButton.style.visibility = "hidden";
     try {
       const payload = JSON.parse(atob(token.split(".")[1]));
-      console.log("Decoded JWT payload:", payload);
+      // console.log("Decoded JWT payload:", payload);
 
       window.contactDataPromise = fetch(
         `${baseURL}/api/My/Contact`,
@@ -2236,7 +2236,7 @@ async function updateUserHeaderUI() {
 
   const email_phone = localStorage.getItem('Email_Phone');
   if( email_phone != null){
-    console.log("forceLogout reached");
+    // console.log("forceLogout reached");
     jQuery(window).on("load", function () {
     setTimeout(() => {
       jQuery("#loginButton").trigger("click");
@@ -2400,7 +2400,7 @@ function setUserDropdownState(userInfoElement, shouldOpen) {
   const dropdownIcon = userInfoElement.querySelector('#dropdown-icon');
 
   if (!userDropdownmenu) {
-    console.log('No dropdown menu found in this user-info');
+    // console.log('No dropdown menu found in this user-info');
     return;
   }
 
@@ -2435,7 +2435,7 @@ function userInfo(event) {
   if (!userInfoElement) return;
 
   if (event.target.closest('#user-dropdown-menu a')) {
-    console.log('Clicked on dropdown link, not toggling');
+    // console.log('Clicked on dropdown link, not toggling');
     return;
   }
 
@@ -2687,7 +2687,7 @@ async function handleExPasswordLogin() {
           },
           success: function (offer) {
             adobe.target.applyOffer({ offer: offer });
-            console.log("🎯 Adobe Target personalization applied");
+            // console.log("🎯 Adobe Target personalization applied");
           },
           error: function (error) {
             console.error("⚠️ Adobe Target offer error:", error);
@@ -2707,7 +2707,7 @@ async function handleExPasswordLogin() {
         exPasswordDiv.style.display = "none";
         document.getElementById("secondaryContactForm").style.display = "flex";
         globalSuccessText.innerText = "You've logged in!";
-        console.log("closing OTP modal");
+        // console.log("closing OTP modal");
         document.querySelectorAll('.submitButtonDiv h5').forEach(el => {
           el.style.pointerEvents = 'auto';
         });
@@ -2951,7 +2951,7 @@ async function handleSignUpPasswordLogin() {
     } 
     else {
       const data = await response.json();
-      console.log("✅ OTP Verified:", data);
+      // console.log("✅ OTP Verified:", data);
 
       // Save JWT Token
       const token = JSON.parse(atob(data.AccessToken.split(".")[1]));
@@ -3188,7 +3188,7 @@ async function handleResetPassword(){
 
     const text = await response.text();
     if (!response.ok) {
-      console.log(response);
+      // console.log(response);
       input.style.borderColor = "#B91C1C";
       error.style.visibility = 'visible';
       errorDivText.innerText = text || "Verification Code Generation failed.";
@@ -3369,7 +3369,7 @@ async function verifyResetPasswordOtp() {
 
     if (response.ok) {
       const data = await response.json();
-      console.log("✅ OTP Verified:", data);
+      // console.log("✅ OTP Verified:", data);
 
       document.getElementById('setPasswordButton').innerText = 'UPDATE PASSWORD';
       document.getElementById("setPasswordForm").style.display = "flex";
@@ -3435,9 +3435,9 @@ async function resendResetPasswordOtp() {
     const text = await response.text();
 
     if (!response.ok) {
-      console.log(response);
+      // console.log(response);
       if (response.status === 404) {
-        console.log(response.status);
+        // console.log(response.status);
         // document.getElementById("loginForm").style.display = "none";
         // document.getElementById("signupSection").style.display = "flex";
       }
@@ -3595,7 +3595,7 @@ async function refetchProfileImage(token) {
       const userAvatar = document.getElementById("user-avatar");
       const loginButton = document.getElementById("loginButton");
 
-      console.log("Decoded JWT payload:", payload);
+      // console.log("Decoded JWT payload:", payload);
 
       const response = await fetch(
         `${baseURL}/api/My/Contact`,
