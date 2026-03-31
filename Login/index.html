@@ -1,215 +1,1440 @@
 <!-- Modal + Backdrop -->
 
 <div class="modalContent">
-
-    <div class="loginForm" id="loginForm">
-        <!-- Logo (Replace logo.png with your own) -->
-        <div style="text-align: center; margin-bottom: 1rem;">
-            <img src="https://calvary2024stg.wpenginepowered.com/wp-content/uploads/2024/08/CalvaryLogo_Suncross_White.png"
-                alt="Logo" />
-        </div>
-        <h2 style="font-family: 'Poppins', sans-serif !important;">Welcome!</h2>
-
-        <form class="inputWrapper" onsubmit="handleLogin();return false">
-            <div class="inputField">
-                <label for="login" style="margin-bottom: 8px; font-family: 'Poppins', sans-serif !important;">Type in your phone number or email to continue.</label>
-                <!-- Input -->
-                <input id="loginInput" style="font-family: 'Poppins', sans-serif !important;" type="text" placeholder="Phone or email address" oninput="validateInput()" onblur="onBlurvalidatePhone()" />
-                <!-- Error Message -->
-                <div id="inputError" style="font-family: 'Poppins', sans-serif !important;"></div>
-            </div>
-            <!-- Continue Button -->
-            <button id="continueButton" style="font-family: 'Poppins', sans-serif !important;" disabled>CONTINUE</button>
-        </form>
+  <div class="loginForm" id="loginForm">
+    <!-- Logo (Replace logo.png with your own) -->
+    <div style="text-align: center; margin-bottom: 1rem">
+      <img
+        src="https://calvary2024stg.wpenginepowered.com/wp-content/uploads/2025/11/CalvaryLogo_Suncross_White.png"
+        alt="Logo"
+        id="CalvaryLogo"
+      />
     </div>
+    <h2 style="font-family: &quot;Poppins&quot;, sans-serif !important">
+      Welcome!
+    </h2>
 
-    <div id="otpSection" style="display: none; flex-direction: column; gap: 24px;">
-        <div class="otpHeader" style="display: flex; align-items: center; gap: 32px;">
-            <span id="otpBackArrow" onclick="showLoginForm()" tabindex="0" onkeydown="checkshowLoginForm(event)"
-                style="cursor: pointer; font-size: 24px; align-self: flex-start">←</span>
-             <p id="otpText" style="margin: 0; color: white; font-size: 20px; font-family: 'Poppins', sans-serif !important;">Enter the code sent to 
-                <span><a id="userValueDisplay"  style="font-weight: bold; color: #005B78; word-break: break-word; font-family: 'Poppins', sans-serif !important; pointer-events: none; cursor: default;" href="#"></a></span>
-            </p>
+    <form
+      class="inputWrapper"
+      onsubmit="
+        handleLogin();
+        return false;
+      "
+    >
+      <div class="inputField">
+        <label
+          for="login"
+          style="
+            margin-bottom: 8px;
+            font-family: &quot;Poppins&quot;, sans-serif !important;
+          "
+          >Type in your cell phone number or email address to continue.</label
+        >
+        <!-- Input -->
+        <input
+          id="loginInput"
+          autocomplete="username"
+          name="login_username"
+          style="font-family: &quot;Poppins&quot;, sans-serif !important"
+          type="text"
+          placeholder="cell phone or email address"
+          oninput="validateInput()"
+          onblur="onBlurvalidatePhone()"
+          maxlength="255"
+        />
+        <!-- Error Message -->
+        <div
+          id="inputError"
+          style="font-family: &quot;Poppins&quot;, sans-serif !important"
+        >
+          <span class="helperText">!</span><span class="errorText"></span>
         </div>
-
-        <!-- OTP Boxes aligned-->
-        <div id="otpWrapper"
-            style="display: flex; flex-direction: column; align-items: start; gap: 6px; margin-left: 52px;">
-            <div style="display: flex; flex-direction: column; align-items: flex-end;">
-                <div id="otpBoxes" style="display: flex; gap: 8px;">
-                    <input maxlength="1" type="number" min="0" max="9" class="otpInputBox no-spinner" />
-                    <input maxlength="1" type="number" min="0" max="9" class="otpInputBox no-spinner" />
-                    <input maxlength="1" type="number" min="0" max="9" class="otpInputBox no-spinner" />
-                    <input maxlength="1" type="number" min="0" max="9" class="otpInputBox no-spinner" />
-                    <input maxlength="1" type="number" min="0" max="9" class="otpInputBox no-spinner" />
-                    <input maxlength="1" type="number" min="0" max="9" class="otpInputBox no-spinner" />
-                </div>
-                <div id="otpResendSection"
-                    style="display: flex; align-items: flex-end; justify-content: space-between; width: 100%">
-                    <a id="resetCodeLink" onclick="resendOtp()" href="#"
-                        style="margin-top: 8px; color: white; font-size: 14px; margin-left: auto; min-width: fit-content; align-self: flex-start; order: 2; font-family: 'Poppins', sans-serif !important;">
-                        Resend Code
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <button id="signInButton" onclick="verifyOtp()" type="submit" disabled style="font-family: 'Poppins', sans-serif !important;">
-            SIGN IN
-        </button>
-    </div>
-
-    <!-- ------------------------------------ SING UP START ------------------------------------ -->
-    <!-- ------------------------------------ SING UP FIRST SECTION ------------------------------------ -->
-    <div id="signupSection" class="loginForm" style="display: none; flex-direction: column;">
-        <h5 style="font-family: 'Poppins', sans-serif !important;">You're almost there – just a few more details to login!</h5>
-
-        <form onsubmit="submitSignup(event)"
-            style="display: flex; flex-direction: column; gap: 24px; width: 100%; align-items: center;">
-            <div class="form-row">
-                <div class="inputField">
-                    <label for="firstName" style="font-family: 'Poppins', sans-serif !important;">First Name*</label>
-                    <input id="firstNameInput" style="font-family: 'Poppins', sans-serif !important;" type="text" placeholder="First Name" oninput="validateFirstName()" />
-                    <div id="inputErrorFirstName" style="font-family: 'Poppins', sans-serif !important;"></div>
-                    <!-- You’ve reached the 25-character limit -->
-                </div>
-                <div class="lastinputField">
-                    <label for="lastName" style="font-family: 'Poppins', sans-serif !important;">Last Name*</label>
-                    <input id="lastNameInput" style="font-family: 'Poppins', sans-serif !important;" type="text" placeholder="Last Name" oninput="validateLastName()" />
-                    <div id="inputErrorLastName" style="font-family: 'Poppins', sans-serif !important;"></div>
-                </div>
-            </div>
-
-            <div class="inputField">
-                <label for="signupemail" style="font-family: 'Poppins', sans-serif !important;">Email Address*</label>
-                <input id="emailInput" style="font-family: 'Poppins', sans-serif !important;" type="email" placeholder="sampleuser@yourdomain.com"
-                    oninput="validateSignupInput()" />
-                <div id="inputErrorEmail" style="font-family: 'Poppins', sans-serif !important;">
-                </div>
-            </div>
-
-            <button id="signUpButton" class="cta-button" style="font-family: 'Poppins', sans-serif !important;" disabled>CONTINUE</button>
-        </form>
-    </div>
-
-    <!-- ------------------------------------ OTP SECTION START ------------------------------------ -->
-    <div id="signupotpSection" style="display: none; flex-direction: column; gap: 24px;">
-        <div class="otpHeader" style="display: flex; align-items: center; gap: 32px;">
-            <span id="signupotpBackArrow" onclick="showSignupForm()" tabindex="0" onkeydown="checkshowSignupForm(event)"
-                style="cursor: pointer; font-size: 24px; align-self: flex-start">←</span>
-            <p id="otpText" style="margin: 0; color: white; font-size: 20px; font-family: 'Poppins', sans-serif !important;">Enter the code sent to <span
-                    id="signupUserValueDisplay"
-                    style="font-weight: bold; color: #005B78; word-break: break-word; font-family: 'Poppins', sans-serif !important;"></span></p>
-        </div>
-
-        <!-- OTP Boxes aligned-->
-        <div id="otpWrapper"
-            style="display: flex; flex-direction: column; align-items: start; gap: 6px; margin-left: 52px;">
-            <div style="display: flex; flex-direction: column; align-items: flex-end;">
-                <div id="otpBoxes" style="display: flex; gap: 8px;">
-                    <input maxlength="1" type="number" min="0" max="9" class="signupotpInputBox no-spinner" />
-                    <input maxlength="1" type="number" min="0" max="9" class="signupotpInputBox no-spinner" />
-                    <input maxlength="1" type="number" min="0" max="9" class="signupotpInputBox no-spinner" />
-                    <input maxlength="1" type="number" min="0" max="9" class="signupotpInputBox no-spinner" />
-                    <input maxlength="1" type="number" min="0" max="9" class="signupotpInputBox no-spinner" />
-                    <input maxlength="1" type="number" min="0" max="9" class="signupotpInputBox no-spinner" />
-                </div>
-                <div id="signupotpResendSection"
-                    style="display: flex; align-items: flex-end; justify-content: space-between; width: 100%">
-                    <a id="signupResetCodeLink" onclick="resendSignUpOtp()" href="#"
-                        style="margin-top: 8px; color: white; font-size: 14px; margin-left: auto; min-width: fit-content; align-self: flex-start; order: 2; font-family: 'Poppins', sans-serif !important;">
-                        Resend Code
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <button id="signupOTPButton" onclick="verifySingupOtp()" disabled style="font-family: 'Poppins', sans-serif !important;">
-            SIGN IN
-        </button>
-    </div>
-    <!-- ------------------------------------ SING UP END ------------------------------------ -->
-    <!-- ------------------------------------ SECONDARY CONTACT FOR BOTH LOGIN & SIGN UP------------------------------------ -->
-
-    <form class="secondaryContactForm" id="secondaryContactForm" style="display: none; flex-direction: column;" onsubmit="verifySecondaryContact();return false">
-        <div id="secondaryContactMessage">
-            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="49" viewBox="0 0 48 49" fill="none">
-                <path fill-rule="evenodd" clip-rule="evenodd"
-                    d="M24 41.3C33.2783 41.3 40.7999 33.7784 40.7999 24.5C40.7999 15.2216 33.2783 7.7 24 7.7C14.7216 7.7 7.19995 15.2216 7.19995 24.5C7.19995 33.7784 14.7216 41.3 24 41.3ZM31.7849 21.7849C32.605 20.9648 32.605 19.6352 31.7849 18.8151C30.9648 17.995 29.6351 17.995 28.815 18.8151L21.9 25.7301L19.1849 23.0151C18.3648 22.195 17.0351 22.195 16.215 23.0151C15.3949 23.8352 15.3949 25.1648 16.215 25.9849L20.415 30.1849C21.2351 31.005 22.5648 31.005 23.3849 30.1849L31.7849 21.7849Z"
-                    fill="#16A34A"></path>
-            </svg>
-            <p id="secondaryContactSuccess" style="font-family: 'Poppins', sans-serif !important;"> You've logged in!</p>
-        </div>
-
-        <div class="inputWrapper">
-            <div class="inputField">
-                <label for="secondaryContact" id="secondaryContactLabel" style="font-family: 'Poppins', sans-serif !important;">Do you want to add your <span class="Phone_Email" style="font-family: 'Poppins', sans-serif !important;"></span>?</label>
-                <!-- Input -->
-                <input id="secondaryContactInputEmail" type="email"
-                    style="display: none; font-family: 'Poppins', sans-serif !important;" placeholder="sampleuser@yourdomain.com" oninput="validateInputEmail()" />
-                <input id="secondaryContactInputPhone" class="no-spinner"  type="tel" pattern="[0-9\-]*" inputmode="numeric"
-                    style="display: none; font-family: 'Poppins', sans-serif !important;" placeholder="999-999-9999" oninput="validateInputPhone()" />
-                <!-- Error Message -->
-                <div id="inputErrorSecondary" style="font-family: 'Poppins', sans-serif !important;"></div>
-            </div>
-        </div>
-        <div style="align-self: flex-end; margin-top: 24px;">
-            <button id="addButton" type="submit" style="font-family: 'Poppins', sans-serif !important;" disabled>
-                ADD <span class="Phone_Email" style="font-family: 'Poppins', sans-serif !important;"></span>
-            </button>
-            <button id="skipButton" style="font-family: 'Poppins', sans-serif !important;" onclick="closeModal()">
-                SKIP
-            </button>
-        </div>
+      </div>
+      <!-- Continue Button -->
+      <button
+        id="continueButton"
+        style="font-family: &quot;Poppins&quot;, sans-serif !important"
+        disabled
+      >
+        CONTINUE
+      </button>
     </form>
+  </div>
 
-    <div id="secondaryotpSection" style="display: none; flex-direction: column; gap: 24px;">
-        <div class="otpHeader" style="display: flex; align-items: center; gap: 32px;">
-            <span id="secondaryotpBackArrow" onclick="showAddSecondaryContactForm()" tabindex="0" onkeydown="checkshowAddSecondaryContactForm(event)"
-                style="cursor: pointer; font-size: 24px; align-self: flex-start">←</span>
-            <p id="otpText" style="margin: 0; color: white; font-size: 20px; font-family: 'Poppins', sans-serif !important;">Enter the code sent to <span
-                    id="secondaryValueDisplay"
-                    style="font-weight: bold; color: #005B78; word-break: break-word; font-family: 'Poppins', sans-serif !important;"></span></p>
-        </div>
-
-        <!-- OTP Boxes aligned-->
-        <div id="otpWrapper"
-            style="display: flex; flex-direction: column; align-items: start; gap: 6px; margin-left: 52px;">
-            <div style="display: flex; flex-direction: column; align-items: flex-end;">
-                <div id="otpBoxes" style="display: flex; gap: 8px;">
-                    <input maxlength="1" type="number" min="0" max="9" class="secondaryotpInputBox no-spinner" />                    
-                    <input maxlength="1" type="number" min="0" max="9" class="secondaryotpInputBox no-spinner" />
-                    <input maxlength="1" type="number" min="0" max="9" class="secondaryotpInputBox no-spinner" />
-                    <input maxlength="1" type="number" min="0" max="9" class="secondaryotpInputBox no-spinner" />
-                    <input maxlength="1" type="number" min="0" max="9" class="secondaryotpInputBox no-spinner" />
-                    <input maxlength="1" type="number" min="0" max="9" class="secondaryotpInputBox no-spinner" />
-                    
-                </div>
-                <div id="secondaryLoginotpResendSection"
-                    style="display: flex; align-items: flex-end; justify-content: space-between; width: 100%">
-                    <a id="secondaryLoginresetCodeLink" onclick="resendSecondaryLoginOtp()" href="#"
-                        style="margin-top: 8px; color: white; font-size: 14px; margin-left: auto; min-width: fit-content; align-self: flex-start; order: 2; font-family: 'Poppins', sans-serif !important;">
-                        Resend Code
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <button id="secondaryOTPButton" onclick="secodaryLoginverifyOtp()" disabled style="font-family: 'Poppins', sans-serif !important;">
-            VERIFY
-        </button>
-    </div>
-    <!--  secondary otp done -->
-
-    <!-- Success Modal -->
-    <div id="successModal" style="display: none; flex-direction: column; align-items: center; text-align: center;">
-        <img src="https://calvary2024stg.wpenginepowered.com/wp-content/uploads/2025/07/Congratulations.png"  alt="Congratulations" style="margin-bottom: 12px;"/>
-        <h3 id="successTitle" style="display: none; color: white; font-size: 32px; font-family: 'Poppins', sans-serif !important; font-weight: 600; line-height: 40px; padding-bottom: 0;">
-            Congratulations!
-        </h3>
-        <h4 id="successMessage" style="color: white; font-size: 28px; font-family: 'Poppins', sans-serif !important; font-weight: 500; line-height: 36px;">
-            You've successfully updated your information.
-        </h4>
+  <div id="otpSection" style="display: none; flex-direction: column; gap: 24px">
+    <div
+      class="otpHeader"
+      style="display: flex; align-items: center; gap: 32px"
+    >
+      <span
+        id="otpBackArrow"
+        onclick="showLoginForm()"
+        tabindex="0"
+        onkeydown="checkshowLoginForm(event)"
+        style="cursor: pointer; font-size: 24px; align-self: flex-start"
+        >←</span
+      >
+      <p
+        id="otpText"
+        style="
+          margin: 0;
+          color: white;
+          font-size: 20px;
+          font-family: &quot;Poppins&quot;, sans-serif !important;
+        "
+      >
+        Enter the code sent to
+        <span>
+          <a
+            id="userValueDisplay"
+            style="
+              font-weight: bold;
+              color: #005b78;
+              word-break: break-word;
+              font-family: &quot;Poppins&quot;, sans-serif !important;
+              pointer-events: none;
+              cursor: default;
+            "
+            href="#"
+          >
+          </a>
+        </span>
+      </p>
     </div>
 
+    <!-- OTP Boxes aligned-->
+    <div
+      id="otpWrapper"
+      style="
+        display: flex;
+        flex-direction: column;
+        align-items: start;
+        gap: 6px;
+        margin-left: 52px;
+      "
+    >
+      <div style="display: flex; flex-direction: column; align-items: flex-end">
+        <div id="otpBoxes" style="display: flex; gap: 8px">
+          <input
+            maxlength="1"
+            type="number"
+            min="0"
+            max="9"
+            class="otpInputBox no-spinner"
+          />
+          <input
+            maxlength="1"
+            type="number"
+            min="0"
+            max="9"
+            class="otpInputBox no-spinner"
+          />
+          <input
+            maxlength="1"
+            type="number"
+            min="0"
+            max="9"
+            class="otpInputBox no-spinner"
+          />
+          <input
+            maxlength="1"
+            type="number"
+            min="0"
+            max="9"
+            class="otpInputBox no-spinner"
+          />
+          <input
+            maxlength="1"
+            type="number"
+            min="0"
+            max="9"
+            class="otpInputBox no-spinner"
+          />
+          <input
+            maxlength="1"
+            type="number"
+            min="0"
+            max="9"
+            class="otpInputBox no-spinner"
+          />
+        </div>
+        <div
+          id="otpResendSection"
+          style="
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            width: 100%;
+          "
+        >
+          <a
+            id="resetCodeLink"
+            onclick="resendOtp()"
+            href="#"
+            style="
+              margin-top: 8px;
+              color: white;
+              font-size: 14px;
+              margin-left: auto;
+              min-width: fit-content;
+              align-self: flex-start;
+              order: 2;
+              font-family: &quot;Poppins&quot;, sans-serif !important;
+            "
+          >
+            Resend Code
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="submitButtonDiv">
+      <button
+        id="signInButton"
+        onclick="verifyOtp()"
+        type="submit"
+        disabled
+        style="font-family: &quot;Poppins&quot;, sans-serif !important"
+      >
+        VERIFY
+      </button>
+      <h5 onclick="showLDidnotReceiveMessage()">Didn't receive a code?</h5>
+      <h6 id="loginCodeMessage">
+        <span class="mailText"
+          >Check your spam folder or verify the email address.
+        </span>
+        <span style="font-family: &quot;Poppins&quot;, sans-serif !important"
+          >Still no code? Please contact</span
+        >
+        <span
+          style="
+            color: #005b78;
+            font-weight: 600;
+            font-family: &quot;Poppins&quot;, sans-serif !important;
+          "
+        >
+          <a style="text-decoration: none" href="mailto:WebHelp@CalvaryFTL.org"
+            >WebHelp@CalvaryFTL.org</a
+          >
+        </span>
+      </h6>
+    </div>
+  </div>
+
+  <!-- ------------------------------------ SING UP START ------------------------------------ -->
+  <!-- ------------------------------------ SING UP FIRST SECTION ------------------------------------ -->
+  <div
+    id="signupSection"
+    class="loginForm"
+    style="display: none; flex-direction: column"
+  >
+    <h5 style="font-family: &quot;Poppins&quot;, sans-serif !important">
+      You're almost there – just a few more details to login!
+    </h5>
+
+    <form
+      onsubmit="submitSignup(event)"
+      style="
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+        width: 100%;
+        align-items: center;
+      "
+    >
+      <div class="form-row">
+        <div class="inputField">
+          <label
+            for="firstName"
+            style="font-family: &quot;Poppins&quot;, sans-serif !important"
+            >First Name*</label
+          >
+          <input
+            id="firstNameInput"
+            style="font-family: &quot;Poppins&quot;, sans-serif !important"
+            type="text"
+            placeholder="First Name"
+            oninput="validateFirstName()"
+          />
+          <div
+            id="inputErrorFirstName"
+            style="font-family: &quot;Poppins&quot;, sans-serif !important"
+          >
+            <span class="helperText">!</span><span class="errorText"></span>
+          </div>
+          <!-- You’ve reached the 25-character limit -->
+        </div>
+        <div class="lastinputField">
+          <label
+            for="lastName"
+            style="font-family: &quot;Poppins&quot;, sans-serif !important"
+            >Last Name*</label
+          >
+          <input
+            id="lastNameInput"
+            style="font-family: &quot;Poppins&quot;, sans-serif !important"
+            type="text"
+            placeholder="Last Name"
+            oninput="validateLastName()"
+          />
+          <div
+            id="inputErrorLastName"
+            style="font-family: &quot;Poppins&quot;, sans-serif !important"
+          >
+            <span class="helperText">!</span><span class="errorText"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="inputField">
+        <label
+          for="signupemail"
+          style="font-family: &quot;Poppins&quot;, sans-serif !important"
+          >Email Address*</label
+        >
+        <input
+          id="emailInput"
+          style="font-family: &quot;Poppins&quot;, sans-serif !important"
+          type="email"
+          name="signup_username"
+          autocomplete="username"
+          placeholder="sampleuser@yourdomain.com"
+          oninput="validateSignupInput()"
+          maxlength="255"
+        />
+        <div
+          id="inputErrorEmail"
+          style="font-family: &quot;Poppins&quot;, sans-serif !important"
+        >
+          <span class="helperText">!</span><span class="errorText"></span>
+        </div>
+      </div>
+
+      <button
+        id="signUpButton"
+        class="cta-button"
+        style="font-family: &quot;Poppins&quot;, sans-serif !important"
+        disabled
+      >
+        CONTINUE
+      </button>
+    </form>
+  </div>
+
+  <!-- ------------------------------------ OTP SECTION START ------------------------------------ -->
+  <div
+    id="signupotpSection"
+    style="display: none; flex-direction: column; gap: 24px"
+  >
+    <div
+      class="otpHeader"
+      style="display: flex; align-items: center; gap: 32px"
+    >
+      <span
+        id="signupotpBackArrow"
+        onclick="showSignupForm()"
+        tabindex="0"
+        onkeydown="checkshowSignupForm(event)"
+        style="cursor: pointer; font-size: 24px; align-self: flex-start"
+        >←</span
+      >
+      <p
+        id="otpText"
+        style="
+          margin: 0;
+          color: white;
+          font-size: 20px;
+          font-family: &quot;Poppins&quot;, sans-serif !important;
+        "
+      >
+        Enter the code sent to
+        <span>
+          <a
+            id="signupUserValueDisplay"
+            style="
+              font-weight: bold;
+              color: #005b78;
+              word-break: break-word;
+              font-family: &quot;Poppins&quot;, sans-serif !important;
+              pointer-events: none;
+              cursor: default;
+            "
+            href="#"
+          >
+          </a>
+        </span>
+      </p>
+    </div>
+
+    <!-- OTP Boxes aligned-->
+    <div
+      id="otpWrapper"
+      style="
+        display: flex;
+        flex-direction: column;
+        align-items: start;
+        gap: 6px;
+        margin-left: 52px;
+      "
+    >
+      <div style="display: flex; flex-direction: column; align-items: flex-end">
+        <div id="otpBoxes" style="display: flex; gap: 8px">
+          <input
+            maxlength="1"
+            type="number"
+            min="0"
+            max="9"
+            class="signupotpInputBox no-spinner"
+          />
+          <input
+            maxlength="1"
+            type="number"
+            min="0"
+            max="9"
+            class="signupotpInputBox no-spinner"
+          />
+          <input
+            maxlength="1"
+            type="number"
+            min="0"
+            max="9"
+            class="signupotpInputBox no-spinner"
+          />
+          <input
+            maxlength="1"
+            type="number"
+            min="0"
+            max="9"
+            class="signupotpInputBox no-spinner"
+          />
+          <input
+            maxlength="1"
+            type="number"
+            min="0"
+            max="9"
+            class="signupotpInputBox no-spinner"
+          />
+          <input
+            maxlength="1"
+            type="number"
+            min="0"
+            max="9"
+            class="signupotpInputBox no-spinner"
+          />
+        </div>
+        <div
+          id="signupotpResendSection"
+          style="
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            width: 100%;
+          "
+        >
+          <a
+            id="signupResetCodeLink"
+            onclick="resendSignUpOtp()"
+            href="#"
+            style="
+              margin-top: 8px;
+              color: white;
+              font-size: 14px;
+              margin-left: auto;
+              min-width: fit-content;
+              align-self: flex-start;
+              order: 2;
+              font-family: &quot;Poppins&quot;, sans-serif !important;
+            "
+          >
+            Resend Code
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="submitButtonDiv">
+      <button
+        id="signupOTPButton"
+        onclick="verifySingupOtp()"
+        disabled
+        style="font-family: &quot;Poppins&quot;, sans-serif !important"
+      >
+        SIGN IN
+      </button>
+      <h5 onclick="showSUDidnotReceiveMessage()">Didn't receive a code?</h5>
+      <h6 id="signupCodeMessage">
+        <span class="mailText"
+          >Check your spam folder or verify the email address.
+        </span>
+        <span style="font-family: &quot;Poppins&quot;, sans-serif !important"
+          >Still no code? Please contact</span
+        >
+        <span
+          style="
+            color: #005b78;
+            font-weight: 600;
+            font-family: &quot;Poppins&quot;, sans-serif !important;
+          "
+        >
+          <a style="text-decoration: none" href="mailto:WebHelp@CalvaryFTL.org"
+            >WebHelp@CalvaryFTL.org</a
+          >
+        </span>
+      </h6>
+    </div>
+  </div>
+  <!-- ------------------------------------ SING UP END ------------------------------------ -->
+  <!-- ------------------------------------ SECONDARY CONTACT FOR BOTH LOGIN & SIGN UP------------------------------------ -->
+
+  <form
+    class="secondaryContactForm"
+    id="secondaryContactForm"
+    style="display: none; flex-direction: column"
+    onsubmit="
+      verifySecondaryContact();
+      return false;
+    "
+  >
+    <div id="secondaryContactMessage">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="48"
+        height="49"
+        viewBox="0 0 48 49"
+        fill="none"
+      >
+        <path
+          fill-rule="evenodd"
+          clip-rule="evenodd"
+          d="M24 41.3C33.2783 41.3 40.7999 33.7784 40.7999 24.5C40.7999 15.2216 33.2783 7.7 24 7.7C14.7216 7.7 7.19995 15.2216 7.19995 24.5C7.19995 33.7784 14.7216 41.3 24 41.3ZM31.7849 21.7849C32.605 20.9648 32.605 19.6352 31.7849 18.8151C30.9648 17.995 29.6351 17.995 28.815 18.8151L21.9 25.7301L19.1849 23.0151C18.3648 22.195 17.0351 22.195 16.215 23.0151C15.3949 23.8352 15.3949 25.1648 16.215 25.9849L20.415 30.1849C21.2351 31.005 22.5648 31.005 23.3849 30.1849L31.7849 21.7849Z"
+          fill="#16A34A"
+        ></path>
+      </svg>
+      <p
+        id="secondaryContactSuccess"
+        style="font-family: &quot;Poppins&quot;, sans-serif !important"
+      >
+        You've logged in!
+      </p>
+    </div>
+
+    <div class="inputWrapper">
+      <div class="inputField">
+        <label
+          for="secondaryContact"
+          id="secondaryContactLabel"
+          style="font-family: &quot;Poppins&quot;, sans-serif !important"
+          >Do you want to add your
+          <span
+            class="Phone_Email"
+            style="font-family: &quot;Poppins&quot;, sans-serif !important"
+          ></span
+          >?</label
+        >
+        <!-- Input -->
+        <input
+          id="secondaryContactInputEmail"
+          type="email"
+          maxlength="255"
+          style="
+            display: none;
+            font-family: &quot;Poppins&quot;, sans-serif !important;
+          "
+          placeholder="sampleuser@yourdomain.com"
+          oninput="validateInputEmail()"
+        />
+        <input
+          id="secondaryContactInputPhone"
+          class="no-spinner"
+          type="tel"
+          pattern="[0-9\-]*"
+          inputmode="numeric"
+          style="
+            display: none;
+            font-family: &quot;Poppins&quot;, sans-serif !important;
+          "
+          placeholder="999-999-9999"
+          oninput="validateInputPhone()"
+        />
+        <!-- Error Message -->
+        <div
+          id="inputErrorSecondary"
+          style="font-family: &quot;Poppins&quot;, sans-serif !important"
+        >
+          <span class="helperText">!</span><span class="errorText"></span>
+        </div>
+      </div>
+    </div>
+    <div id="secondaryContact_Button_Div">
+      <button
+        id="addButton"
+        type="submit"
+        style="font-family: &quot;Poppins&quot;, sans-serif !important"
+        disabled
+      ></button>
+      <button
+        id="skipButton"
+        style="font-family: &quot;Poppins&quot;, sans-serif !important"
+        onclick="closeModal()"
+      >
+        SKIP
+      </button>
+    </div>
+  </form>
+
+  <div
+    id="secondaryotpSection"
+    style="display: none; flex-direction: column; gap: 24px"
+  >
+    <div
+      class="otpHeader"
+      style="display: flex; align-items: center; gap: 32px"
+    >
+      <span
+        id="secondaryotpBackArrow"
+        onclick="showAddSecondaryContactForm()"
+        tabindex="0"
+        onkeydown="checkshowAddSecondaryContactForm(event)"
+        style="cursor: pointer; font-size: 24px; align-self: flex-start"
+        >←</span
+      >
+      <p
+        id="otpText"
+        style="
+          margin: 0;
+          color: white;
+          font-size: 20px;
+          font-family: &quot;Poppins&quot;, sans-serif !important;
+        "
+      >
+        Enter the code sent to
+        <span>
+          <a
+            id="secondaryValueDisplay"
+            style="
+              font-weight: bold;
+              color: #005b78;
+              word-break: break-word;
+              font-family: &quot;Poppins&quot;, sans-serif !important;
+              pointer-events: none;
+              cursor: default;
+            "
+            href="#"
+          >
+          </a>
+        </span>
+      </p>
+    </div>
+
+    <!-- OTP Boxes aligned-->
+    <div
+      id="otpWrapper"
+      style="
+        display: flex;
+        flex-direction: column;
+        align-items: start;
+        gap: 6px;
+        margin-left: 52px;
+      "
+    >
+      <div style="display: flex; flex-direction: column; align-items: flex-end">
+        <div id="otpBoxes" style="display: flex; gap: 8px">
+          <input
+            maxlength="1"
+            type="number"
+            min="0"
+            max="9"
+            class="secondaryotpInputBox no-spinner"
+          />
+          <input
+            maxlength="1"
+            type="number"
+            min="0"
+            max="9"
+            class="secondaryotpInputBox no-spinner"
+          />
+          <input
+            maxlength="1"
+            type="number"
+            min="0"
+            max="9"
+            class="secondaryotpInputBox no-spinner"
+          />
+          <input
+            maxlength="1"
+            type="number"
+            min="0"
+            max="9"
+            class="secondaryotpInputBox no-spinner"
+          />
+          <input
+            maxlength="1"
+            type="number"
+            min="0"
+            max="9"
+            class="secondaryotpInputBox no-spinner"
+          />
+          <input
+            maxlength="1"
+            type="number"
+            min="0"
+            max="9"
+            class="secondaryotpInputBox no-spinner"
+          />
+        </div>
+        <div
+          id="secondaryLoginotpResendSection"
+          style="
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            width: 100%;
+          "
+        >
+          <a
+            id="secondaryLoginresetCodeLink"
+            onclick="resendSecondaryLoginOtp()"
+            href="#"
+            style="
+              margin-top: 8px;
+              color: white;
+              font-size: 14px;
+              margin-left: auto;
+              min-width: fit-content;
+              align-self: flex-start;
+              order: 2;
+              font-family: &quot;Poppins&quot;, sans-serif !important;
+            "
+          >
+            Resend Code
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="submitButtonDiv">
+      <button
+        id="secondaryOTPButton"
+        onclick="secodaryLoginverifyOtp()"
+        disabled
+        style="font-family: &quot;Poppins&quot;, sans-serif !important"
+      >
+        VERIFY
+      </button>
+      <h5 onclick="showSCDidnotReceiveMessage()">Didn't receive a code?</h5>
+      <h6 id="secondaryContactCodeMessage">
+        <span class="mailText"
+          >Check your spam folder or verify the email address.
+        </span>
+        <span style="font-family: &quot;Poppins&quot;, sans-serif !important"
+          >Still no code? Please contact</span
+        >
+        <span
+          style="
+            color: #005b78;
+            font-weight: 600;
+            font-family: &quot;Poppins&quot;, sans-serif !important;
+          "
+        >
+          <a style="text-decoration: none" href="mailto:WebHelp@CalvaryFTL.org"
+            >WebHelp@CalvaryFTL.org</a
+          >
+        </span>
+      </h6>
+    </div>
+  </div>
+  <!--  secondary otp done -->
+
+  <!--  Username/Password section -->
+  <div class="usernameForm" id="usernameForm">
+    <img
+      src="https://calvary2024stg.wpenginepowered.com/wp-content/uploads/2024/08/CalvaryLogo_Suncross_White.png"
+      alt="Logo"
+      id="CalvaryLogo"
+    />
+    <h2 style="font-family: &quot;Poppins&quot;, sans-serif !important">
+      Welcome!
+    </h2>
+    <form
+      class="inputsWrapper"
+      onsubmit="
+        handleUsernameLogin();
+        return false;
+      "
+    >
+      <div class="inputField">
+        <label
+          for="username"
+          style="font-family: &quot;Poppins&quot;, sans-serif !important"
+          >Username</label
+        >
+        <!-- Input -->
+        <input
+          id="usernameInput"
+          autocomplete="username"
+          name="username"
+          style="font-family: &quot;Poppins&quot;, sans-serif !important"
+          type="text"
+          placeholder="Username"
+          oninput="validateUsernamePasswordInput()"
+          maxlength="255"
+        />
+      </div>
+
+      <div class="inputField">
+        <label
+          for="username"
+          style="font-family: &quot;Poppins&quot;, sans-serif !important"
+          >Password</label
+        >
+        <!-- Input -->
+        <div class="wrapper">
+          <div class="password-container">
+            <input
+              id="passwordInput"
+              type="password"
+              placeholder="Password"
+              autocomplete="current-password"
+              name="password"
+              oninput="validateUsernamePasswordInput()"
+              maxlength="255"
+            />
+            <button
+              type="button"
+              class="toggle-visibility"
+              aria-label="Toggle password visibility"
+              tabindex="0"
+            >
+              <!-- 👁️ Default Eye Icon -->
+              <svg
+                class="eyeIcon"
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+              >
+                <g clip-path="url(#clip0_5956_15833)">
+                  <path
+                    d="M15.5969 11.9986C15.5969 13.9052 13.9836 15.4509 11.9935 15.4509C10.0034 15.4509 8.39012 13.9052 8.39012 11.9986C8.39012 10.092 10.0034 8.54639 11.9935 8.54639C13.9836 8.54637 15.5969 10.092 15.5969 11.9986ZM12 4.81055C9.9395 4.81969 7.80372 5.32131 5.78192 6.28169C4.28076 7.02413 2.8178 8.07161 1.54788 9.36451C0.92416 10.0245 0.12862 10.9801 0 11.9997C0.0152 12.883 0.9626 13.9731 1.54788 14.635C2.73874 15.8771 4.1636 16.8954 5.78192 17.7186C7.66734 18.6336 9.75424 19.1604 12 19.1897C14.0625 19.1804 16.1978 18.673 18.2173 17.7186C19.7185 16.9761 21.1822 15.9279 22.4521 14.635C23.0758 13.975 23.8714 13.0194 24 11.9997C23.9848 11.1165 23.0374 10.0263 22.4521 9.36447C21.2613 8.12235 19.8356 7.10489 18.2173 6.28165C16.3329 5.36733 14.2408 4.84413 12 4.81055ZM11.9985 6.59551C15.1209 6.59551 17.652 9.01539 17.652 12.0005C17.652 14.9856 15.1209 17.4055 11.9985 17.4055C8.8761 17.4055 6.34498 14.9856 6.34498 12.0005C6.34498 9.01539 8.8761 6.59551 11.9985 6.59551Z"
+                    fill="#00B5EF"
+                  />
+                </g>
+                <defs>
+                  <clipPath id="clip0_5956_15833">
+                    <rect width="24" height="24" />
+                  </clipPath>
+                </defs>
+              </svg>
+            </button>
+          </div>
+          <a id="forgotPassword" href="#" tabindex="0">Forgot Password?</a>
+        </div>
+      </div>
+
+      <!-- Error Message -->
+      <div id="usernameInputError">
+        <span class="helperText">!</span>
+        <span class="errorText"></span>
+      </div>
+
+      <!-- Sign In Button -->
+      <button
+        id="usernameSignInButton"
+        style="font-family: &quot;Poppins&quot;, sans-serif !important"
+        disabled
+      >
+        SIGN IN
+      </button>
+    </form>
+  </div>
+
+  <!--  Existing user - Password section -->
+  <div class="exPasswordForm" id="exPasswordForm">
+    <h2 style="font-family: &quot;Poppins&quot;, sans-serif !important">
+      Welcome back <span id="nickName"></span>!
+    </h2>
+    <form
+      class="inputsWrapper"
+      onsubmit="
+        handleExPasswordLogin();
+        return false;
+      "
+    >
+      <div class="inputField">
+        <label
+          for="password"
+          style="font-family: &quot;Poppins&quot;, sans-serif !important"
+          >Please enter your password *</label
+        >
+        <!-- Input -->
+        <div class="wrapper">
+          <div class="password-container">
+            <input
+              id="exPasswordInput"
+              autocomplete="current-password"
+              name="password"
+              type="password"
+              placeholder="Password"
+              oninput="validateUsernamePasswordInput()"
+              maxlength="255"
+            />
+            <button
+              type="button"
+              class="toggle-visibility"
+              aria-label="Toggle password visibility"
+              tabindex="0"
+            >
+              <!-- 👁️ Default Eye Icon -->
+              <svg
+                class="eyeIcon"
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+              >
+                <g clip-path="url(#clip0_5956_15833)">
+                  <path
+                    d="M15.5969 11.9986C15.5969 13.9052 13.9836 15.4509 11.9935 15.4509C10.0034 15.4509 8.39012 13.9052 8.39012 11.9986C8.39012 10.092 10.0034 8.54639 11.9935 8.54639C13.9836 8.54637 15.5969 10.092 15.5969 11.9986ZM12 4.81055C9.9395 4.81969 7.80372 5.32131 5.78192 6.28169C4.28076 7.02413 2.8178 8.07161 1.54788 9.36451C0.92416 10.0245 0.12862 10.9801 0 11.9997C0.0152 12.883 0.9626 13.9731 1.54788 14.635C2.73874 15.8771 4.1636 16.8954 5.78192 17.7186C7.66734 18.6336 9.75424 19.1604 12 19.1897C14.0625 19.1804 16.1978 18.673 18.2173 17.7186C19.7185 16.9761 21.1822 15.9279 22.4521 14.635C23.0758 13.975 23.8714 13.0194 24 11.9997C23.9848 11.1165 23.0374 10.0263 22.4521 9.36447C21.2613 8.12235 19.8356 7.10489 18.2173 6.28165C16.3329 5.36733 14.2408 4.84413 12 4.81055ZM11.9985 6.59551C15.1209 6.59551 17.652 9.01539 17.652 12.0005C17.652 14.9856 15.1209 17.4055 11.9985 17.4055C8.8761 17.4055 6.34498 14.9856 6.34498 12.0005C6.34498 9.01539 8.8761 6.59551 11.9985 6.59551Z"
+                    fill="#00B5EF"
+                  />
+                </g>
+                <defs>
+                  <clipPath id="clip0_5956_15833">
+                    <rect width="24" height="24" />
+                  </clipPath>
+                </defs>
+              </svg>
+            </button>
+          </div>
+          <a id="exPasswordForgotPassword" href="#" tabindex="0"
+            >Forgot Password?</a
+          >
+        </div>
+      </div>
+
+      <!-- Error Message -->
+      <div id="exPasswordInputError">
+        <span class="helperText">!</span>
+        <span class="errorText"></span>
+      </div>
+
+      <!-- Sign In Button -->
+      <button
+        id="exPasswordSignInButton"
+        style="font-family: &quot;Poppins&quot;, sans-serif !important"
+        disabled
+      >
+        SIGN IN
+      </button>
+    </form>
+  </div>
+
+  <!--  Set Password section -->
+  <div class="setPasswordForm" id="setPasswordForm">
+    <h2
+      id="setPasswordHeading"
+      style="font-family: &quot;Poppins&quot;, sans-serif !important"
+    >
+      Enter a new password for your account
+    </h2>
+    <form
+      class="inputsWrapper"
+      onsubmit="
+        handleSetPasswordLogin();
+        return false;
+      "
+    >
+      <!-- Password Input -->
+      <div class="inputField">
+        <label
+          for="password"
+          style="font-family: &quot;Poppins&quot;, sans-serif !important"
+          >Password</label
+        >
+        <div class="password-container">
+          <input
+            id="setPasswordInput"
+            type="password"
+            placeholder="Password"
+            autocomplete="new-password"
+            name="set_password"
+            oninput="validateSetPasswordInput()"
+            maxlength="255"
+          />
+          <button
+            type="button"
+            class="toggle-visibility"
+            aria-label="Toggle password visibility"
+            tabindex="0"
+          >
+            <!-- 👁️ Default Eye Icon -->
+            <svg
+              class="eyeIcon"
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+            >
+              <g clip-path="url(#clip0_5956_15833)">
+                <path
+                  d="M15.5969 11.9986C15.5969 13.9052 13.9836 15.4509 11.9935 15.4509C10.0034 15.4509 8.39012 13.9052 8.39012 11.9986C8.39012 10.092 10.0034 8.54639 11.9935 8.54639C13.9836 8.54637 15.5969 10.092 15.5969 11.9986ZM12 4.81055C9.9395 4.81969 7.80372 5.32131 5.78192 6.28169C4.28076 7.02413 2.8178 8.07161 1.54788 9.36451C0.92416 10.0245 0.12862 10.9801 0 11.9997C0.0152 12.883 0.9626 13.9731 1.54788 14.635C2.73874 15.8771 4.1636 16.8954 5.78192 17.7186C7.66734 18.6336 9.75424 19.1604 12 19.1897C14.0625 19.1804 16.1978 18.673 18.2173 17.7186C19.7185 16.9761 21.1822 15.9279 22.4521 14.635C23.0758 13.975 23.8714 13.0194 24 11.9997C23.9848 11.1165 23.0374 10.0263 22.4521 9.36447C21.2613 8.12235 19.8356 7.10489 18.2173 6.28165C16.3329 5.36733 14.2408 4.84413 12 4.81055ZM11.9985 6.59551C15.1209 6.59551 17.652 9.01539 17.652 12.0005C17.652 14.9856 15.1209 17.4055 11.9985 17.4055C8.8761 17.4055 6.34498 14.9856 6.34498 12.0005C6.34498 9.01539 8.8761 6.59551 11.9985 6.59551Z"
+                  fill="#00B5EF"
+                />
+              </g>
+              <defs>
+                <clipPath id="clip0_5956_15833">
+                  <rect width="24" height="24" />
+                </clipPath>
+              </defs>
+            </svg>
+          </button>
+        </div>
+      </div>
+      <!-- Confirm Password Input -->
+      <div class="inputField">
+        <label
+          for="confirm password"
+          style="font-family: &quot;Poppins&quot;, sans-serif !important"
+          >Confirm Password</label
+        >
+        <div class="password-container">
+          <input
+            id="setPasswordConfirmInput"
+            type="password"
+            placeholder="Confirm Password"
+            autocomplete="new-password"
+            name="set_password_confirm"
+            oninput="validateSetPasswordInput()"
+            maxlength="255"
+          />
+          <button
+            type="button"
+            class="toggle-visibility"
+            aria-label="Toggle password visibility"
+            tabindex="0"
+          >
+            <!-- 👁️ Default Eye Icon -->
+            <svg
+              class="eyeIcon"
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+            >
+              <g clip-path="url(#clip0_5956_15833)">
+                <path
+                  d="M15.5969 11.9986C15.5969 13.9052 13.9836 15.4509 11.9935 15.4509C10.0034 15.4509 8.39012 13.9052 8.39012 11.9986C8.39012 10.092 10.0034 8.54639 11.9935 8.54639C13.9836 8.54637 15.5969 10.092 15.5969 11.9986ZM12 4.81055C9.9395 4.81969 7.80372 5.32131 5.78192 6.28169C4.28076 7.02413 2.8178 8.07161 1.54788 9.36451C0.92416 10.0245 0.12862 10.9801 0 11.9997C0.0152 12.883 0.9626 13.9731 1.54788 14.635C2.73874 15.8771 4.1636 16.8954 5.78192 17.7186C7.66734 18.6336 9.75424 19.1604 12 19.1897C14.0625 19.1804 16.1978 18.673 18.2173 17.7186C19.7185 16.9761 21.1822 15.9279 22.4521 14.635C23.0758 13.975 23.8714 13.0194 24 11.9997C23.9848 11.1165 23.0374 10.0263 22.4521 9.36447C21.2613 8.12235 19.8356 7.10489 18.2173 6.28165C16.3329 5.36733 14.2408 4.84413 12 4.81055ZM11.9985 6.59551C15.1209 6.59551 17.652 9.01539 17.652 12.0005C17.652 14.9856 15.1209 17.4055 11.9985 17.4055C8.8761 17.4055 6.34498 14.9856 6.34498 12.0005C6.34498 9.01539 8.8761 6.59551 11.9985 6.59551Z"
+                  fill="#00B5EF"
+                />
+              </g>
+              <defs>
+                <clipPath id="clip0_5956_15833">
+                  <rect width="24" height="24" />
+                </clipPath>
+              </defs>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <p class="passwordHint">
+        Hint: Password must contain 8+ characters, mix of upper and lowercase, a
+        number and a special character.
+      </p>
+
+      <!-- Error Message -->
+      <div id="setPasswordInputsError">
+        <span class="helperText">!</span>
+        <span class="errorText"></span>
+      </div>
+
+      <!-- Set Password Button -->
+      <button
+        id="setPasswordButton"
+        style="font-family: &quot;Poppins&quot;, sans-serif !important"
+        disabled
+      >
+        SET PASSWORD
+      </button>
+    </form>
+  </div>
+
+  <!--  Re-login success section -->
+  <div id="reLoginSuccessSection">
+    <div class="reLoginWrapper">
+      <img
+        src="https://calvary2024stg.wpenginepowered.com/wp-content/uploads/2025/11/Congratulations.png"
+        alt="Congratulations"
+      />
+      <h2 id="reLoginSuccessMessage">
+        Done! You’ve successfully set your password.
+      </h2>
+    </div>
+    <button
+      id="reLoginButton"
+      style="font-family: &quot;Poppins&quot;, sans-serif !important"
+    >
+      CLICK HERE TO LOGIN
+    </button>
+  </div>
+
+  <!--  Sign Up - Set Password section -->
+  <div class="signUpPasswordForm" id="signUpPasswordForm">
+    <h2 style="font-family: &quot;Poppins&quot;, sans-serif !important">
+      Final step — let's finish this!
+    </h2>
+    <form
+      class="inputsWrapper"
+      onsubmit="
+        handleSignUpPasswordLogin();
+        return false;
+      "
+    >
+      <!-- Password Input -->
+      <div class="inputField">
+        <label
+          for="password"
+          style="font-family: &quot;Poppins&quot;, sans-serif !important"
+          >Password</label
+        >
+        <div class="password-container">
+          <input
+            id="signUpPasswordInput"
+            type="password"
+            placeholder="Password"
+            autocomplete="new-password"
+            name="signup_password"
+            oninput="validateSignUpPasswordInput()"
+            maxlength="255"
+          />
+          <button
+            type="button"
+            class="toggle-visibility"
+            aria-label="Toggle password visibility"
+            tabindex="0"
+          >
+            <!-- 👁️ Default Eye Icon -->
+            <svg
+              class="eyeIcon"
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+            >
+              <g clip-path="url(#clip0_5956_15833)">
+                <path
+                  d="M15.5969 11.9986C15.5969 13.9052 13.9836 15.4509 11.9935 15.4509C10.0034 15.4509 8.39012 13.9052 8.39012 11.9986C8.39012 10.092 10.0034 8.54639 11.9935 8.54639C13.9836 8.54637 15.5969 10.092 15.5969 11.9986ZM12 4.81055C9.9395 4.81969 7.80372 5.32131 5.78192 6.28169C4.28076 7.02413 2.8178 8.07161 1.54788 9.36451C0.92416 10.0245 0.12862 10.9801 0 11.9997C0.0152 12.883 0.9626 13.9731 1.54788 14.635C2.73874 15.8771 4.1636 16.8954 5.78192 17.7186C7.66734 18.6336 9.75424 19.1604 12 19.1897C14.0625 19.1804 16.1978 18.673 18.2173 17.7186C19.7185 16.9761 21.1822 15.9279 22.4521 14.635C23.0758 13.975 23.8714 13.0194 24 11.9997C23.9848 11.1165 23.0374 10.0263 22.4521 9.36447C21.2613 8.12235 19.8356 7.10489 18.2173 6.28165C16.3329 5.36733 14.2408 4.84413 12 4.81055ZM11.9985 6.59551C15.1209 6.59551 17.652 9.01539 17.652 12.0005C17.652 14.9856 15.1209 17.4055 11.9985 17.4055C8.8761 17.4055 6.34498 14.9856 6.34498 12.0005C6.34498 9.01539 8.8761 6.59551 11.9985 6.59551Z"
+                  fill="#00B5EF"
+                />
+              </g>
+              <defs>
+                <clipPath id="clip0_5956_15833">
+                  <rect width="24" height="24" />
+                </clipPath>
+              </defs>
+            </svg>
+          </button>
+        </div>
+      </div>
+      <!-- Confirm Password Input -->
+      <div class="inputField">
+        <label
+          for="confirm password"
+          style="font-family: &quot;Poppins&quot;, sans-serif !important"
+          >Confirm Password</label
+        >
+        <div class="password-container">
+          <input
+            id="signUpPasswordConfirmInput"
+            type="password"
+            placeholder="Confirm Password"
+            autocomplete="new-password"
+            name="signup_password_confirm"
+            oninput="validateSignUpPasswordInput()"
+            maxlength="255"
+          />
+          <button
+            type="button"
+            class="toggle-visibility"
+            aria-label="Toggle password visibility"
+            tabindex="0"
+          >
+            <!-- 👁️ Default Eye Icon -->
+            <svg
+              class="eyeIcon"
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+            >
+              <g clip-path="url(#clip0_5956_15833)">
+                <path
+                  d="M15.5969 11.9986C15.5969 13.9052 13.9836 15.4509 11.9935 15.4509C10.0034 15.4509 8.39012 13.9052 8.39012 11.9986C8.39012 10.092 10.0034 8.54639 11.9935 8.54639C13.9836 8.54637 15.5969 10.092 15.5969 11.9986ZM12 4.81055C9.9395 4.81969 7.80372 5.32131 5.78192 6.28169C4.28076 7.02413 2.8178 8.07161 1.54788 9.36451C0.92416 10.0245 0.12862 10.9801 0 11.9997C0.0152 12.883 0.9626 13.9731 1.54788 14.635C2.73874 15.8771 4.1636 16.8954 5.78192 17.7186C7.66734 18.6336 9.75424 19.1604 12 19.1897C14.0625 19.1804 16.1978 18.673 18.2173 17.7186C19.7185 16.9761 21.1822 15.9279 22.4521 14.635C23.0758 13.975 23.8714 13.0194 24 11.9997C23.9848 11.1165 23.0374 10.0263 22.4521 9.36447C21.2613 8.12235 19.8356 7.10489 18.2173 6.28165C16.3329 5.36733 14.2408 4.84413 12 4.81055ZM11.9985 6.59551C15.1209 6.59551 17.652 9.01539 17.652 12.0005C17.652 14.9856 15.1209 17.4055 11.9985 17.4055C8.8761 17.4055 6.34498 14.9856 6.34498 12.0005C6.34498 9.01539 8.8761 6.59551 11.9985 6.59551Z"
+                  fill="#00B5EF"
+                />
+              </g>
+              <defs>
+                <clipPath id="clip0_5956_15833">
+                  <rect width="24" height="24" />
+                </clipPath>
+              </defs>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <p class="passwordHint">
+        Hint: Password must contain 8+ characters, mix of upper and lowercase, a
+        number and a special character.
+      </p>
+
+      <!-- Error Message -->
+      <div id="signUpPasswordInputsError">
+        <span class="helperText">!</span>
+        <span class="errorText"></span>
+      </div>
+
+      <!-- Set Password Button -->
+      <button
+        id="signUpPasswordButton"
+        style="font-family: &quot;Poppins&quot;, sans-serif !important"
+        disabled
+      >
+        SIGN IN
+      </button>
+    </form>
+  </div>
+
+  <!-- Reset Password -->
+  <div class="resetPasswordForm" id="resetPasswordForm" style="display: none">
+    <!-- Logo (Replace logo.png with your own) -->
+    <div style="text-align: center; margin-bottom: 1rem">
+      <img
+        src="https://calvary2024stg.wpenginepowered.com/wp-content/uploads/2024/08/CalvaryLogo_Suncross_White.png"
+        alt="Logo"
+        id="CalvaryLogo"
+      />
+    </div>
+    <h2 style="font-family: &quot;Poppins&quot;, sans-serif !important">
+      Reset Password!
+    </h2>
+
+    <form
+      class="inputWrapper"
+      onsubmit="
+        handleResetPassword();
+        return false;
+      "
+    >
+      <div class="inputField">
+        <label
+          for="login"
+          style="
+            margin-bottom: 8px;
+            font-family: &quot;Poppins&quot;, sans-serif !important;
+          "
+          >Type in your cell phone number or email address to continue.</label
+        >
+        <!-- Input -->
+        <input
+          id="resetPasswordInput"
+          style="font-family: &quot;Poppins&quot;, sans-serif !important"
+          type="text"
+          autocomplete="username"
+          name="reset_password_username"
+          placeholder="cell phone or email address"
+          oninput="validateResetPasswordInput()"
+          onblur="onBlurvalidateResetPasswordPhone()"
+          maxlength="255"
+        />
+        <!-- Error Message -->
+        <div
+          id="inputRPError"
+          style="font-family: &quot;Poppins&quot;, sans-serif !important"
+        >
+          <span class="helperText">!</span><span class="errorText"></span>
+        </div>
+      </div>
+      <!-- Continue Button -->
+      <button
+        id="resetPasswordContinueButton"
+        style="font-family: &quot;Poppins&quot;, sans-serif !important"
+        disabled
+      >
+        CONTINUE
+      </button>
+    </form>
+  </div>
+  <!-- Reset Password -->
+
+  <!-- Reset Password OTP section -->
+  <div
+    id="resetPasswordOtpSection"
+    style="display: none; flex-direction: column; gap: 24px"
+  >
+    <div
+      class="otpHeader"
+      style="display: flex; align-items: center; gap: 32px"
+    >
+      <span
+        id="resetPasswordotpBackArrow"
+        onclick="showResetPasswordForm()"
+        tabindex="0"
+        onkeydown="checkshowResetPasswordForm(event)"
+        style="cursor: pointer; font-size: 24px; align-self: flex-start"
+        >←</span
+      >
+      <p
+        id="otpText"
+        style="
+          margin: 0;
+          color: white;
+          font-size: 20px;
+          font-family: &quot;Poppins&quot;, sans-serif !important;
+        "
+      >
+        Enter the code sent to
+        <span>
+          <a
+            id="resetPasswordValueDisplay"
+            style="
+              font-weight: bold;
+              color: #005b78;
+              word-break: break-word;
+              font-family: &quot;Poppins&quot;, sans-serif !important;
+              pointer-events: none;
+              cursor: default;
+            "
+            href="#"
+          >
+          </a>
+        </span>
+      </p>
+    </div>
+
+    <!-- OTP Boxes aligned-->
+    <div
+      id="otpWrapper"
+      style="
+        display: flex;
+        flex-direction: column;
+        align-items: start;
+        gap: 6px;
+        margin-left: 52px;
+      "
+    >
+      <div style="display: flex; flex-direction: column; align-items: flex-end">
+        <div id="otpBoxes" style="display: flex; gap: 8px">
+          <input
+            maxlength="1"
+            type="number"
+            min="0"
+            max="9"
+            class="resetotpInputBox no-spinner"
+          />
+          <input
+            maxlength="1"
+            type="number"
+            min="0"
+            max="9"
+            class="resetotpInputBox no-spinner"
+          />
+          <input
+            maxlength="1"
+            type="number"
+            min="0"
+            max="9"
+            class="resetotpInputBox no-spinner"
+          />
+          <input
+            maxlength="1"
+            type="number"
+            min="0"
+            max="9"
+            class="resetotpInputBox no-spinner"
+          />
+          <input
+            maxlength="1"
+            type="number"
+            min="0"
+            max="9"
+            class="resetotpInputBox no-spinner"
+          />
+          <input
+            maxlength="1"
+            type="number"
+            min="0"
+            max="9"
+            class="resetotpInputBox no-spinner"
+          />
+        </div>
+        <div
+          id="resetPasswordotpResendSection"
+          style="
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            width: 100%;
+          "
+        >
+          <a
+            id="resetPasswordCodeLink"
+            onclick="resendResetPasswordOtp()"
+            href="#"
+            style="
+              margin-top: 8px;
+              color: white;
+              font-size: 14px;
+              margin-left: auto;
+              min-width: fit-content;
+              align-self: flex-start;
+              order: 2;
+              font-family: &quot;Poppins&quot;, sans-serif !important;
+            "
+          >
+            Resend Code
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="submitButtonDiv">
+      <button
+        id="resetPasswordButton"
+        onclick="verifyResetPasswordOtp()"
+        type="submit"
+        disabled
+        style="font-family: &quot;Poppins&quot;, sans-serif !important"
+      >
+        VERIFY
+      </button>
+      <h5 onclick="showRPDidnotReceiveMessage()">Didn't receive a code?</h5>
+      <h6 id="resetPasswordMessage">
+        <span class="mailText"
+          >Check your spam folder or verify the email address.
+        </span>
+        <span style="font-family: &quot;Poppins&quot;, sans-serif !important"
+          >Still no code? Please contact</span
+        >
+        <span
+          style="
+            color: #005b78;
+            font-weight: 600;
+            font-family: &quot;Poppins&quot;, sans-serif !important;
+          "
+        >
+          <a style="text-decoration: none" href="mailto:WebHelp@CalvaryFTL.org"
+            >WebHelp@CalvaryFTL.org</a
+          >
+        </span>
+      </h6>
+    </div>
+  </div>
+  <!-- Reset Password OTP section -->
 </div>
