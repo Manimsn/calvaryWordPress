@@ -1408,7 +1408,7 @@ async function submitSignup(event) {
     console.error("Error submitting signup:", error);
     emailInput.style.borderColor = "#B91C1C";
     errorDiv.style.visibility = "visible";
-    
+
     errorDiv.style.display = isMobile ? "flex" : "";
     errorDivText.innerText = "Something went wrong. Please try again.";
     signUpButton.disabled = false;
