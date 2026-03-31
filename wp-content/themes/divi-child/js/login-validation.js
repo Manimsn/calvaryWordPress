@@ -34,14 +34,14 @@ function validatePhone(phone) {
 function validateInput() {
   const inputElement = document.getElementById("loginInput");
   const errorDiv = document.getElementById("inputError");
-  const errorDivText = document.querySelector('#inputError .errorText')
+  const errorDivText = document.querySelector("#inputError .errorText");
   const input = inputElement.value.trim();
   const continueBtn = document.getElementById("continueButton");
 
   if (input === "") {
     continueBtn.disabled = true;
     errorDivText.textContent = "";
-    errorDiv.style.visibility = 'hidden';
+    errorDiv.style.visibility = "hidden";
     inputElement.style.borderColor = "#D1D5DB";
     return;
   }
@@ -49,17 +49,18 @@ function validateInput() {
   if (validateEmail(input) || validatePhone(input)) {
     continueBtn.disabled = false;
     errorDivText.textContent = "";
-    errorDiv.style.visibility = 'hidden';
+    errorDiv.style.visibility = "hidden";
     inputElement.style.borderColor = "#D1D5DB"; // Reset to normal border
   } else {
     continueBtn.disabled = true;
-    errorDiv.style.visibility = 'visible';
-    errorDivText.textContent = "Please enter a 10-digit cell phone number or valid email address.";
+    errorDiv.style.visibility = "visible";
+    errorDivText.textContent =
+      "Please enter a 10-digit cell phone number or valid email address.";
     inputElement.style.borderColor = "#B91C1C"; // Add red border
   }
 
-  if(input.length == 255){
-    errorDiv.style.visibility = 'visible';
+  if (input.length == 255) {
+    errorDiv.style.visibility = "visible";
     errorDivText.textContent = "You’ve reached the 255-character limit";
     inputElement.style.borderColor = "#D1D5DB";
   }
@@ -79,7 +80,7 @@ function onBlurvalidatePhone() {
   if (digitsOnly.length === 10) {
     const formatted = `${digitsOnly.slice(0, 3)}-${digitsOnly.slice(
       3,
-      6
+      6,
     )}-${digitsOnly.slice(6)}`;
     inputElement.value = formatted;
   } else {
@@ -88,18 +89,18 @@ function onBlurvalidatePhone() {
 }
 
 async function handleLogin() {
-  if(isLoading) return;
+  if (isLoading) return;
   isLoading = true;
   onBlurvalidatePhone();
   const input = document.getElementById("loginInput");
   const continueBtn = document.getElementById("continueButton");
   const error = document.getElementById("inputError");
-  const errorDivText = document.querySelector('#inputError .errorText')
+  const errorDivText = document.querySelector("#inputError .errorText");
   let value = input.value.trim();
 
   // Double check validation before calling API
   if (!(validateEmail(value) || validatePhone(value))) {
-    error.style.visibility = 'hidden';
+    error.style.visibility = "hidden";
     errorDivText.innerText = "Please enter a valid email or cell phone number.";
     input.style.borderColor = "#B91C1C";
     return;
@@ -109,19 +110,16 @@ async function handleLogin() {
   continueBtn.disabled = true;
   continueBtn.classList.add("button-loading");
   continueBtn.innerText = "SENDING...";
-  error.style.visibility = 'hidden';
+  error.style.visibility = "hidden";
   errorDivText.innerText = "";
   input.style.borderColor = "#D1D5DB";
 
   try {
-    const response = await fetch(
-      `${baseURL}/v1.2/api/Login`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ Phone_Email: value }),
-      }
-    );
+    const response = await fetch(`${baseURL}/v1.2/api/Login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ Phone_Email: value }),
+    });
 
     const text = await response.text();
 
@@ -142,14 +140,14 @@ async function handleLogin() {
           const formattedPattern = /^\d{3}-\d{3}-\d{4}$/;
           if (!formattedPattern.test(value)) {
             value = `${value.slice(0, 3)}-${value.slice(3, 6)}-${value.slice(
-              6
+              6,
             )}`;
           }
         }
         document.getElementById("emailInput").value = value;
       }
       input.style.borderColor = "#B91C1C";
-      error.style.visibility = 'visible';
+      error.style.visibility = "visible";
       errorDivText.innerText = text || "Login failed.";
       continueBtn.disabled = false;
       continueBtn.innerText = "CONTINUE";
@@ -159,14 +157,21 @@ async function handleLogin() {
     } else if (text.includes("Your authentication code was sent by")) {
       // Success – show OTP section
       document.getElementById("otpSection").style.display = "flex";
-      timeoutDidnotReceiveMessage = setTimeout(showLDidnotReceiveMessage, 10000);
+      timeoutDidnotReceiveMessage = setTimeout(
+        showLDidnotReceiveMessage,
+        10000,
+      );
       document.getElementById("signInButton").disabled = true;
       document.getElementById("userValueDisplay").innerText = value;
       phone_email = value;
-      if(phone_email.includes("@")){
-        document.querySelectorAll("#loginCodeMessage .mailText").forEach(el => el.style.display = "contents") ;
+      if (phone_email.includes("@")) {
+        document
+          .querySelectorAll("#loginCodeMessage .mailText")
+          .forEach((el) => (el.style.display = "contents"));
       } else {
-        document.querySelectorAll("#loginCodeMessage .mailText").forEach(el => el.style.display = "none");
+        document
+          .querySelectorAll("#loginCodeMessage .mailText")
+          .forEach((el) => (el.style.display = "none"));
       }
       // Hide initial login form
       // document.querySelector("img").style.display = "none";
@@ -175,7 +180,7 @@ async function handleLogin() {
       document.getElementById("loginForm").style.display = "none";
       // input.style.display = "none";
       // continueBtn.style.display = "none";
-      error.style.visibility = 'hidden';
+      error.style.visibility = "hidden";
       errorDivText.innerText = "";
 
       // Focus OTP box
@@ -184,13 +189,12 @@ async function handleLogin() {
 
       // Optional: Attach OTP listeners once
       // if (!window.otpListenersAttached) {
-        if (typeof setupOtpListeners === "function") {
-          setupOtpListeners();
+      if (typeof setupOtpListeners === "function") {
+        setupOtpListeners();
         //   window.otpListenersAttached = true;
         // }
-        }
       }
-    else {
+    } else {
       // Password prompt
       document.getElementById("exPasswordForm").style.display = "flex";
       document.getElementById("loginForm").style.display = "none";
@@ -199,7 +203,7 @@ async function handleLogin() {
     }
   } catch (err) {
     input.style.borderColor = "#B91C1C";
-    error.style.visibility = 'visible';
+    error.style.visibility = "visible";
     errorDivText.innerText = "Something went wrong. Please try again.";
     continueBtn.disabled = false;
     continueBtn.innerText = "CONTINUE";
@@ -303,7 +307,7 @@ function setupOtpListeners() {
 }
 
 async function verifyOtp() {
-  if(isLoading) return;
+  if (isLoading) return;
   isLoading = true;
   const signInBtn = document.getElementById("signInButton");
   const otpInputs = document.querySelectorAll(".otpInputBox");
@@ -327,43 +331,39 @@ async function verifyOtp() {
   signInBtn.innerText = "VERIFYING...";
 
   try {
-    const response = await fetch(
-      `${baseURL}/v1.2/api/LoginCode/Confirm`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          Phone_Email,
-          Code,
-          DeviceID: "dummy-device-id", // Replace if needed
-          API_Key: "dummy-api-key", // Replace if needed
-        }),
-      }
-    );
+    const response = await fetch(`${baseURL}/v1.2/api/LoginCode/Confirm`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        Phone_Email,
+        Code,
+        DeviceID: "dummy-device-id", // Replace if needed
+        API_Key: "dummy-api-key", // Replace if needed
+      }),
+    });
 
     if (response.ok) {
       const data = await response.json();
       // // console.log("✅ OTP Verified:", data);
 
       document.getElementById("setPasswordForm").style.display = "flex";
-        document.getElementById("otpSection").style.display = "none";
+      document.getElementById("otpSection").style.display = "none";
       phone_email = Phone_Email;
-
     } else {
       // Error: invalid OTP
       otpInputs.forEach((input) => (input.style.border = "2px solid #B91C1C"));
-      const exclamationSpan = document.createElement('span');
-      exclamationSpan.classList.add('helperText');
-      exclamationSpan.textContent = '!';
+      const exclamationSpan = document.createElement("span");
+      exclamationSpan.classList.add("helperText");
+      exclamationSpan.textContent = "!";
       const err = document.createElement("div");
       err.id = "otpErrorMessage";
       err.style.color = "#B91C1C";
       err.style.fontSize = "14px";
       err.style.marginTop = "8px";
       err.style.fontFamily = "Poppins, sans-serif";
-      err.style.visibility = 'visible';
-      const errorTextSpan = document.createElement('span');
-      errorTextSpan.classList.add('errorText');
+      err.style.visibility = "visible";
+      const errorTextSpan = document.createElement("span");
+      errorTextSpan.classList.add("errorText");
       errorTextSpan.innerText = "Invalid or expired code. Please try again.";
       document.getElementById("otpResendSection").appendChild(err);
       document.getElementById("otpErrorMessage").appendChild(exclamationSpan);
@@ -384,13 +384,15 @@ async function verifyOtp() {
 function validateInputEmail() {
   const inputElement = document.getElementById("secondaryContactInputEmail");
   const errorDiv = document.getElementById("inputErrorSecondary");
-  const errorDivText = document.querySelector('#inputErrorSecondary .errorText')
+  const errorDivText = document.querySelector(
+    "#inputErrorSecondary .errorText",
+  );
   const input = inputElement.value.trim();
   const continueBtn = document.getElementById("addButton");
 
   if (input === "") {
     continueBtn.disabled = true;
-    errorDiv.style.visibility = 'hidden';
+    errorDiv.style.visibility = "hidden";
     errorDivText.textContent = "";
     inputElement.style.borderColor = "#D1D5DB";
     return;
@@ -398,20 +400,20 @@ function validateInputEmail() {
 
   if (validateEmail(input)) {
     continueBtn.disabled = false;
-    errorDiv.style.visibility = 'hidden';
+    errorDiv.style.visibility = "hidden";
     errorDivText.textContent = "";
     inputElement.style.opacity = 1;
     inputElement.style.borderColor = "#D1D5DB";
   } else {
     continueBtn.disabled = true;
-    errorDiv.style.visibility = 'visible';
+    errorDiv.style.visibility = "visible";
     errorDivText.textContent = "Please enter a valid email address";
     // errorDivText.style.color = "#B91C1C";
     inputElement.style.borderColor = "#B91C1C";
   }
 
-  if(input.length == 255){
-    errorDiv.style.visibility = 'visible';
+  if (input.length == 255) {
+    errorDiv.style.visibility = "visible";
     errorDivText.textContent = "You’ve reached the 255-character limit";
     inputElement.style.borderColor = "#D1D5DB";
   }
@@ -420,7 +422,9 @@ function validateInputEmail() {
 function validateInputPhone() {
   const inputElement = document.getElementById("secondaryContactInputPhone");
   const errorDiv = document.getElementById("inputErrorSecondary");
-  const errorDivText = document.querySelector('#inputErrorSecondary .errorText')
+  const errorDivText = document.querySelector(
+    "#inputErrorSecondary .errorText",
+  );
   const continueBtn = document.getElementById("addButton");
 
   let input = inputElement.value.replace(/[^\d]/g, "").slice(0, 10);
@@ -435,7 +439,7 @@ function validateInputPhone() {
 
   if (input === "") {
     continueBtn.disabled = true;
-    errorDiv.style.visibility = 'hidden';
+    errorDiv.style.visibility = "hidden";
     errorDivText.textContent = "";
     inputElement.style.borderColor = "#D1D5DB";
     return;
@@ -443,13 +447,13 @@ function validateInputPhone() {
 
   if (validatePhone(input)) {
     continueBtn.disabled = false;
-    errorDiv.style.visibility = 'hidden';
+    errorDiv.style.visibility = "hidden";
     errorDivText.textContent = "";
     inputElement.style.opacity = 1;
     inputElement.style.borderColor = "#D1D5DB";
   } else {
     continueBtn.disabled = true;
-    errorDiv.style.visibility = 'visible';
+    errorDiv.style.visibility = "visible";
     errorDivText.textContent = "Please enter a valid cell phone number";
     // errorDiv.style.color = "#B91C1C";
     inputElement.style.borderColor = "#B91C1C";
@@ -555,13 +559,15 @@ function setupSecondaryOtpListeners() {
 }
 
 async function verifySecondaryContact() {
-  if(isLoading) return;
+  if (isLoading) return;
   isLoading = true;
   const email_input = document.getElementById("secondaryContactInputEmail");
   const phone_input = document.getElementById("secondaryContactInputPhone");
   const addButton = document.getElementById("addButton");
   const error = document.getElementById("inputErrorSecondary");
-  const errorDivText = document.querySelector('#inputErrorSecondary .errorText')
+  const errorDivText = document.querySelector(
+    "#inputErrorSecondary .errorText",
+  );
   const input_value = email_input.value.trim() || phone_input.value.trim();
   const isEmail = email_input.value.trim() !== "" ? true : false;
 
@@ -572,7 +578,7 @@ async function verifySecondaryContact() {
   addButton.disabled = true;
   addButton.classList.add("button-loading");
   addButton.innerText = "SENDING...";
-  error.style.visibility = 'hidden';
+  error.style.visibility = "hidden";
   errorDivText.innerText = "";
   isEmail
     ? (email_input.style.borderColor = "#D1D5DB")
@@ -581,17 +587,14 @@ async function verifySecondaryContact() {
   // console.log("input_value: isEmail " + isEmail);
 
   try {
-    const response = await fetch(
-      `${baseURL}/api/My/SecondaryContact`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${jwtToken}`,
-        },
-        body: JSON.stringify({ Phone_Email: input_value }),
-      }
-    );
+    const response = await fetch(`${baseURL}/api/My/SecondaryContact`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${jwtToken}`,
+      },
+      body: JSON.stringify({ Phone_Email: input_value }),
+    });
 
     const text = await response.text();
 
@@ -605,24 +608,36 @@ async function verifySecondaryContact() {
       isEmail
         ? (email_input.style.borderColor = "#B91C1C")
         : (phone_input.style.borderColor = "#B91C1C");
-      error.style.visibility = 'visible';
-      errorDivText.innerText = text || "Something went wrong. Please try again.";
+      error.style.visibility = "visible";
+      errorDivText.innerText =
+        text || "Something went wrong. Please try again.";
       addButton.disabled = false;
       addButton.classList.remove("button-loading");
-      addButton.innerText = isEmail ? "add email address" : "add cell phone number";
+      addButton.innerText = isEmail
+        ? "add email address"
+        : "add cell phone number";
     } else {
       addButton.disabled = false;
       addButton.classList.remove("button-loading");
-      addButton.innerText = isEmail ? "add email address" : "add cell phone number";
-      error.style.visibility = 'hidden';
+      addButton.innerText = isEmail
+        ? "add email address"
+        : "add cell phone number";
+      error.style.visibility = "hidden";
       errorDivText.innerText = "";
       document.getElementById("secondaryContactForm").style.display = "none";
       document.getElementById("secondaryotpSection").style.display = "flex";
-      timeoutDidnotReceiveMessage = setTimeout(showSCDidnotReceiveMessage, 10000);
-      if(input_value.includes("@")){
-        document.querySelectorAll("#secondaryContactCodeMessage .mailText").forEach(el => el.style.display = "contents") ;
+      timeoutDidnotReceiveMessage = setTimeout(
+        showSCDidnotReceiveMessage,
+        10000,
+      );
+      if (input_value.includes("@")) {
+        document
+          .querySelectorAll("#secondaryContactCodeMessage .mailText")
+          .forEach((el) => (el.style.display = "contents"));
       } else {
-        document.querySelectorAll("#secondaryContactCodeMessage .mailText").forEach(el => el.style.display = "none") ;
+        document
+          .querySelectorAll("#secondaryContactCodeMessage .mailText")
+          .forEach((el) => (el.style.display = "none"));
       }
       document.getElementById("secondaryValueDisplay").innerText = input_value;
 
@@ -640,11 +655,13 @@ async function verifySecondaryContact() {
     isEmail
       ? (email_input.style.borderColor = "#B91C1C")
       : (phone_input.style.borderColor = "#B91C1C");
-    error.style.visibility = 'visible';
+    error.style.visibility = "visible";
     errorDivText.innerText = "Something went wrong. Please try again.";
     addButton.disabled = false;
     addButton.classList.remove("button-loading");
-    addButton.innerText = isEmail ? "add email address" : "add cell phone number";
+    addButton.innerText = isEmail
+      ? "add email address"
+      : "add cell phone number";
   }
   isLoading = false;
 }
@@ -672,10 +689,10 @@ function showLoginForm() {
   const otpError = document.getElementById("otpErrorMessage");
   if (otpError) otpError.remove();
 
-  document.getElementById("loginCodeMessage").style.display="none";
+  document.getElementById("loginCodeMessage").style.display = "none";
   clearTimeout(timeoutDidnotReceiveMessage);
-  document.querySelectorAll('.submitButtonDiv h5').forEach(el => {
-    el.style.pointerEvents = 'auto';
+  document.querySelectorAll(".submitButtonDiv h5").forEach((el) => {
+    el.style.pointerEvents = "auto";
   });
 }
 
@@ -695,14 +712,11 @@ async function resendOtp() {
   resetCodeLink.textContent = "Resending...";
 
   try {
-    const response = await fetch(
-      `${baseURL}/api/LoginCode`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ Phone_Email: value }),
-      }
-    );
+    const response = await fetch(`${baseURL}/api/LoginCode`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ Phone_Email: value }),
+    });
 
     const text = await response.text();
 
@@ -774,12 +788,15 @@ function resetLoginModalState() {
   // Login OTP
   const otpInputs = document.querySelectorAll(".otpInputBox");
   const oldErr = document.getElementById("otpErrorMessage");
-  document.getElementById("loginCodeMessage").style.display="none";
-
+  document.getElementById("loginCodeMessage").style.display = "none";
 
   // Secondary contact
-  const email_secondary_Input = document.getElementById("secondaryContactInputEmail");
-  const phone_secondary_Input = document.getElementById("secondaryContactInputPhone");
+  const email_secondary_Input = document.getElementById(
+    "secondaryContactInputEmail",
+  );
+  const phone_secondary_Input = document.getElementById(
+    "secondaryContactInputPhone",
+  );
   const addButton = document.getElementById("addButton");
   document.querySelector(".Phone_Email").textContent = "";
   document.getElementById("inputErrorSecondary").style.visibility = "hidden";
@@ -788,7 +805,7 @@ function resetLoginModalState() {
   document.getElementById("secondaryValueDisplay").textContent = "";
   const secondaryotpInputs = document.querySelectorAll(".secondaryotpInputBox");
   const secondaryOTPButton = document.getElementById("secondaryOTPButton");
-  document.getElementById("secondaryContactCodeMessage").style.display="none";
+  document.getElementById("secondaryContactCodeMessage").style.display = "none";
 
   //Signup section
   document.getElementById("firstNameInput").value = "";
@@ -804,7 +821,7 @@ function resetLoginModalState() {
   //signup OTP section
   const signupotpInputs = document.querySelectorAll(".signupotpInputBox");
   const signupOTPButton = document.getElementById("signupOTPButton");
-  document.getElementById("signupCodeMessage").style.display="none";
+  document.getElementById("signupCodeMessage").style.display = "none";
 
   // username/password section
   document.getElementById("usernameInput").value = "";
@@ -864,8 +881,8 @@ function resetLoginModalState() {
   document.getElementById("resetPasswordMessage").style.display = "none";
   userNameForgotPass = false;
   clearTimeout(timeoutDidnotReceiveMessage);
-  document.querySelectorAll('.submitButtonDiv h5').forEach(el => {
-    el.style.pointerEvents = 'auto';
+  document.querySelectorAll(".submitButtonDiv h5").forEach((el) => {
+    el.style.pointerEvents = "auto";
   });
 
   if (input) {
@@ -909,13 +926,13 @@ function resetLoginModalState() {
     secondaryOTPButton.classList.remove("button-loading");
   }
 
-  if(email_secondary_Input){
+  if (email_secondary_Input) {
     email_secondary_Input.value = "";
     email_secondary_Input.style.display = "none";
     email_secondary_Input.style.border = "2px solid #d1d5db";
   }
 
-  if(phone_secondary_Input){
+  if (phone_secondary_Input) {
     phone_secondary_Input.value = "";
     phone_secondary_Input.style.display = "none";
     phone_secondary_Input.style.border = "2px solid #d1d5db";
@@ -989,9 +1006,13 @@ function resetLoginModalState() {
   }, 900); // 1000 milliseconds = 1 second
 
   const AccessToken = localStorage.getItem("mpp-widgets_AuthToken");
-  const valid = isAccessTokenValid(AccessToken, `${dbURL}/ministryplatformapi/oauth`, `${dbURL}/ministryplatformapi/oauth/resources`);
-  const reloadUrlPath = ["/events/", "/custom-form-2/", "/opportunity/"]
-  if(reloadUrlPath.includes(window.location.pathname) && valid){
+  const valid = isAccessTokenValid(
+    AccessToken,
+    `${dbURL}/ministryplatformapi/oauth`,
+    `${dbURL}/ministryplatformapi/oauth/resources`,
+  );
+  const reloadUrlPath = ["/events/", "/custom-form-2/", "/opportunity/"];
+  if (reloadUrlPath.includes(window.location.pathname) && valid) {
     window.location.reload();
     return;
   }
@@ -1099,10 +1120,9 @@ jQuery(document).ready(function ($) {
     const mfpBg = document.querySelector(".mfp-bg");
     // Disable scrolling
     const width = window.screen.width;
-    if(width < 768 || width > 1024){
+    if (width < 768 || width > 1024) {
       lockScroll();
-    }
-    else{
+    } else {
       document.body.style.position = "fixed";
     }
 
@@ -1123,21 +1143,24 @@ function validateFirstName() {
   const signUpButton = document.getElementById("signUpButton");
   const firstName = document.getElementById("firstNameInput");
   const firstNameError = document.getElementById("inputErrorFirstName");
-  const firstNameErrorText = document.querySelector('#inputErrorFirstName .errorText')
+  const firstNameErrorText = document.querySelector(
+    "#inputErrorFirstName .errorText",
+  );
+  const isMobile = window.innerWidth <= 767;
   let input = firstName.value.replace(/[^a-zA-Z.,'’‘\- ]/g, "").slice(0, 25);
   firstName.value = input;
 
-  if (input === ""){
-    firstNameError.style.visibility = 'hidden';
+  if (input === "") {
+    firstNameError.style.visibility = "hidden";
+    firstNameError.style.display = isMobile ? "none" : "";
     firstNameErrorText.textContent = "";
-  }
-  else if (input.length == 25)
-  {
-    firstNameError.style.visibility = 'visible';
+  } else if (input.length == 25) {
+    firstNameError.style.visibility = "visible";
+    firstNameError.style.display = isMobile ? "flex" : "";
     firstNameErrorText.textContent = "You’ve reached the 25-character limit";
-  }
-  else {
-    firstNameError.style.visibility = 'hidden';
+  } else {
+    firstNameError.style.visibility = "hidden";
+    firstNameError.style.display = isMobile ? "none" : "";
     firstNameErrorText.textContent = "";
   }
   const allValid = checkSignupInputs();
@@ -1149,20 +1172,24 @@ function validateLastName() {
   const signUpButton = document.getElementById("signUpButton");
   const lastName = document.getElementById("lastNameInput");
   const lastNameError = document.getElementById("inputErrorLastName");
-  const lastNameErrorText = document.querySelector('#inputErrorLastName .errorText')
+  const lastNameErrorText = document.querySelector(
+    "#inputErrorLastName .errorText",
+  );
+  const isMobile = window.innerWidth <= 767;
   let input = lastName.value.replace(/[^a-zA-Z.,'’‘\- ]/g, "").slice(0, 25);
   lastName.value = input;
 
-  if (input === ""){
-    lastNameError.style.visibility = 'hidden';
+  if (input === "") {
+    lastNameError.style.visibility = "hidden";
+    lastNameError.style.display = isMobile ? "none" : "";
     lastNameErrorText.textContent = "";
-  }
-  else if (input.length == 25){
-    lastNameError.style.visibility = 'visible';
+  } else if (input.length == 25) {
+    lastNameError.style.visibility = "visible";
+    lastNameError.style.display = isMobile ? "flex" : "";
     lastNameErrorText.textContent = "You’ve reached the 25-character limit";
-  }
-  else{
-    lastNameError.style.visibility = 'hidden';
+  } else {
+    lastNameError.style.visibility = "hidden";
+    lastNameError.style.display = isMobile ? "none" : "";
     lastNameErrorText.textContent = "";
   }
   const allValid = checkSignupInputs();
@@ -1173,8 +1200,9 @@ function validateLastName() {
 function validateSignupInput() {
   const inputElement = document.getElementById("emailInput");
   const errorDiv = document.getElementById("inputErrorEmail");
-  const errorDivText = document.querySelector('#inputErrorEmail .errorText')
+  const errorDivText = document.querySelector("#inputErrorEmail .errorText");
   const isEmail = inputElement.type == "email";
+  const isMobile = window.innerWidth <= 767;
 
   const input = isEmail
     ? inputElement.value.trim()
@@ -1191,7 +1219,8 @@ function validateSignupInput() {
     inputElement.value = formatted;
   }
   if (input === "") {
-    errorDiv.style.visibility = 'hidden';
+    errorDiv.style.visibility = "hidden";
+    errorDiv.style.display = isMobile ? "none" : "";
     errorDivText.textContent = isEmail
       ? "Email is required."
       : "Cell Phone number is required.";
@@ -1207,11 +1236,13 @@ function validateSignupInput() {
   const isEmailOrPhoneValid = isEmail ? isEmailValid : isPhoneValid;
 
   if (isEmailOrPhoneValid) {
-    errorDiv.style.visibility = 'hidden';
+    errorDiv.style.visibility = "hidden";
+    errorDiv.style.display = isMobile ? "none" : "";
     errorDivText.textContent = "";
     inputElement.style.borderColor = "#D1D5DB";
   } else {
-    errorDiv.style.visibility = 'visible';
+    errorDiv.style.visibility = "visible";
+    errorDiv.style.display = isMobile ? "flex" : "";
     errorDivText.textContent = isEmail
       ? "Please enter a valid email address."
       : "Please enter a valid cell phone number.";
@@ -1219,8 +1250,9 @@ function validateSignupInput() {
     inputElement.style.borderColor = "#B91C1C";
   }
 
-  if(input.length == 255){
-    errorDiv.style.visibility = 'visible';
+  if (input.length == 255) {
+    errorDiv.style.visibility = "visible";
+    errorDiv.style.display = isMobile ? "flex" : "";
     errorDivText.textContent = "You’ve reached the 255-character limit";
     inputElement.style.borderColor = "#D1D5DB";
   }
@@ -1252,18 +1284,23 @@ function checkSignupInputs() {
 
 async function submitSignup(event) {
   event.preventDefault();
-  if(isLoading) return;
+  if (isLoading) return;
   isLoading = true;
   const firstName = document.getElementById("firstNameInput");
   const lastName = document.getElementById("lastNameInput");
   const emailInput = document.getElementById("emailInput");
   const errorDiv = document.getElementById("inputErrorEmail");
-  const errorDivText = document.querySelector('#inputErrorEmail .errorText')
+  const errorDivText = document.querySelector("#inputErrorEmail .errorText");
   const signUpButton = document.getElementById("signUpButton");
   const errorFirstName = document.getElementById("inputErrorFirstName");
-  const firstNameErrorText = document.querySelector('#inputErrorFirstName .errorText');
+  const firstNameErrorText = document.querySelector(
+    "#inputErrorFirstName .errorText",
+  );
   const errorlastName = document.getElementById("inputErrorLastName");
-  const lastNameErrorText = document.querySelector('#inputErrorLastName .errorText');
+  const lastNameErrorText = document.querySelector(
+    "#inputErrorLastName .errorText",
+  );
+  const isMobile = window.innerWidth <= 767;
 
   const email_phone = emailInput.value.trim();
   const firstNameValue = firstName.value.trim();
@@ -1283,43 +1320,43 @@ async function submitSignup(event) {
   signUpButton.disabled = true;
   signUpButton.classList.add("button-loading");
   signUpButton.innerText = "SENDING...";
-  errorDiv.style.visibility = 'hidden';
+  errorDiv.style.visibility = "hidden";
   errorDivText.innerText = "";
 
   try {
-    const response = await fetch(
-      `${baseURL}/api/SignupCode`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      }
-    );
+    const response = await fetch(`${baseURL}/api/SignupCode`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
 
     const text = await response.text();
 
     if (!response.ok) {
       if (firstName.value.trim().length === 0) {
         // status - 400
-        errorFirstName.style.visibility = 'visible';
+        errorFirstName.style.visibility = "visible";
         firstNameErrorText.innerText = "First name is required.";
         // errorFirstName.style.color = "#B91C1C";
         document.getElementById("firstNameInput").style.borderColor = "#B91C1C";
       }
       if (lastName.value.trim().length === 0) {
-        errorlastName.style.visibility = 'visible';
+        errorlastName.style.visibility = "visible";
         lastNameErrorText.innerText = "Last name is required.";
         // errorlastName.style.color = "#B91C1C";
         lastName.style.borderColor = "#B91C1C";
       }
       if (emailInput.value.trim().length === 0) {
-        errorDiv.style.visibility = 'visible';
+        errorDiv.style.visibility = "visible";
+        errorDiv.style.display = isMobile ? "flex" : "";
         errorDivText.innerText = "Email or cell phone number is required.";
         // errorDivText.style.color = "#B91C1C";
         emailInput.style.borderColor = "#B91C1C";
       }
       emailInput.style.borderColor = "#B91C1C";
-      errorDiv.style.visibility = 'visible';
+      errorDiv.style.visibility = "visible";
+
+      errorDiv.style.display = isMobile ? "flex" : "";
       errorDivText.innerText = text || "Login failed.";
       signUpButton.classList.remove("button-loading");
       signUpButton.disabled = false;
@@ -1331,18 +1368,25 @@ async function submitSignup(event) {
       signUpButton.innerText = "CONTINUE";
       document.getElementById("signupSection").style.display = "none";
       document.getElementById("signupotpSection").style.display = "flex";
-      timeoutDidnotReceiveMessage = setTimeout(showSUDidnotReceiveMessage,10000);
-      if(email_phone.includes("@")){
-        document.querySelectorAll("#signupCodeMessage .mailText").forEach(el => el.style.display = "contents");
+      timeoutDidnotReceiveMessage = setTimeout(
+        showSUDidnotReceiveMessage,
+        10000,
+      );
+      if (email_phone.includes("@")) {
+        document
+          .querySelectorAll("#signupCodeMessage .mailText")
+          .forEach((el) => (el.style.display = "contents"));
       } else {
-        document.querySelectorAll("#signupCodeMessage .mailText").forEach(el => el.style.display = "none");
+        document
+          .querySelectorAll("#signupCodeMessage .mailText")
+          .forEach((el) => (el.style.display = "none"));
       }
       document.getElementById("signupUserValueDisplay").innerText = email_phone;
-      errorFirstName.style.visibility = 'hidden';
+      errorFirstName.style.visibility = "hidden";
       firstNameErrorText.innerText = "";
-      errorlastName.style.visibility = 'hidden';
+      errorlastName.style.visibility = "hidden";
       lastNameErrorText.innerText = "";
-      errorDiv.style.visibility = 'hidden';
+      errorDiv.style.visibility = "hidden";
       errorDivText.innerText = "";
 
       // console.log("API Response:", response);
@@ -1363,7 +1407,9 @@ async function submitSignup(event) {
   } catch (error) {
     console.error("Error submitting signup:", error);
     emailInput.style.borderColor = "#B91C1C";
-    errorDiv.style.visibility = 'visible';
+    errorDiv.style.visibility = "visible";
+    
+    errorDiv.style.display = isMobile ? "flex" : "";
     errorDivText.innerText = "Something went wrong. Please try again.";
     signUpButton.disabled = false;
     signUpButton.innerText = "CONTINUE";
@@ -1396,10 +1442,10 @@ function showSignupForm() {
   const otpError = document.getElementById("otpSignupErrorMessage");
   if (otpError) otpError.remove();
 
-  document.getElementById("signupCodeMessage").style.display="none";
+  document.getElementById("signupCodeMessage").style.display = "none";
   clearTimeout(timeoutDidnotReceiveMessage);
-  document.querySelectorAll('.submitButtonDiv h5').forEach(el => {
-    el.style.pointerEvents = 'auto';
+  document.querySelectorAll(".submitButtonDiv h5").forEach((el) => {
+    el.style.pointerEvents = "auto";
   });
 }
 
@@ -1530,14 +1576,11 @@ async function resendSignUpOtp() {
   resetCodeLink.textContent = "Resending...";
 
   try {
-    const response = await fetch(
-      `${baseURL}/api/SignupCode`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      }
-    );
+    const response = await fetch(`${baseURL}/api/SignupCode`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
 
     const text = await response.text();
 
@@ -1595,7 +1638,7 @@ async function resendSignUpOtp() {
 }
 
 async function verifySingupOtp() {
-  if(isLoading) return;
+  if (isLoading) return;
   isLoading = true;
   const signUpOtpBtn = document.getElementById("signupOTPButton");
   const signUpotpInputs = document.querySelectorAll(".signupotpInputBox");
@@ -1636,26 +1679,23 @@ async function verifySingupOtp() {
   signUpOtpBtn.innerText = "VERIFYING...";
 
   try {
-    const response = await fetch(
-      `${baseURL}/v1.2/api/SignUpCode/Confirm`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      }
-    );
+    const response = await fetch(`${baseURL}/v1.2/api/SignUpCode/Confirm`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
 
     if (response.ok) {
       signUpPayload.First_Name = firstNameValue;
       signUpPayload.Last_Name = lastNameValue;
       signUpPayload.code.Phone_Email = email_phone;
       document.getElementById("signUpPasswordForm").style.display = "flex";
-        document.getElementById("signupotpSection").style.display = "none";
+      document.getElementById("signupotpSection").style.display = "none";
     } else {
       // console.log("✅ OTP failed:", response);
       // Error: invalid OTP
       signUpotpInputs.forEach(
-        (input) => (input.style.border = "2px solid #B91C1C")
+        (input) => (input.style.border = "2px solid #B91C1C"),
       );
 
       const err = document.createElement("div");
@@ -1664,16 +1704,20 @@ async function verifySingupOtp() {
       err.style.fontSize = "14px";
       err.style.marginTop = "8px";
       err.style.fontFamily = "Poppins, sans-serif";
-      err.style.visibility = 'visible';
-      const exclamationSpan = document.createElement('span');
-      exclamationSpan.classList.add('helperText');
-      exclamationSpan.textContent = '!';
-      const errorTextSpan = document.createElement('span');
-      errorTextSpan.classList.add('errorText');
+      err.style.visibility = "visible";
+      const exclamationSpan = document.createElement("span");
+      exclamationSpan.classList.add("helperText");
+      exclamationSpan.textContent = "!";
+      const errorTextSpan = document.createElement("span");
+      errorTextSpan.classList.add("errorText");
       errorTextSpan.innerText = "Invalid or expired code. Please try again.";
       document.getElementById("signupotpResendSection").appendChild(err);
-      document.getElementById("otpSignupErrorMessage").appendChild(exclamationSpan);
-      document.getElementById("otpSignupErrorMessage").appendChild(errorTextSpan);
+      document
+        .getElementById("otpSignupErrorMessage")
+        .appendChild(exclamationSpan);
+      document
+        .getElementById("otpSignupErrorMessage")
+        .appendChild(errorTextSpan);
     }
   } catch (err) {
     alert("Something went wrong. Please try again.");
@@ -1690,8 +1734,10 @@ async function verifySingupOtp() {
 function showAddSecondaryContactForm() {
   // console.log("showAddSecondaryContactForm");
   // Show login form
-  const secondaryValueDisplay = document.getElementById("secondaryValueDisplay").textContent.trim();
-  const isEmail = secondaryValueDisplay.includes('@');
+  const secondaryValueDisplay = document
+    .getElementById("secondaryValueDisplay")
+    .textContent.trim();
+  const isEmail = secondaryValueDisplay.includes("@");
   const singupBtn = document.getElementById("addButton");
   singupBtn.classList.remove("button-loading");
   singupBtn.disabled = false;
@@ -1712,19 +1758,19 @@ function showAddSecondaryContactForm() {
   const otpError = document.getElementById("otpSecondaryLoginErrorMessage");
   if (otpError) otpError.remove();
 
-  document.getElementById("secondaryContactCodeMessage").style.display="none";
+  document.getElementById("secondaryContactCodeMessage").style.display = "none";
   clearTimeout(timeoutDidnotReceiveMessage);
-  document.querySelectorAll('.submitButtonDiv h5').forEach(el => {
-    el.style.pointerEvents = 'auto';
+  document.querySelectorAll(".submitButtonDiv h5").forEach((el) => {
+    el.style.pointerEvents = "auto";
   });
 }
 
 async function secodaryLoginverifyOtp() {
-  if(isLoading) return;
+  if (isLoading) return;
   isLoading = true;
   const secondaryLoginOtpBtn = document.getElementById("secondaryOTPButton");
   const secondaryLoginotpInputs = document.querySelectorAll(
-    ".secondaryotpInputBox"
+    ".secondaryotpInputBox",
   );
 
   const email_input = document.getElementById("secondaryContactInputEmail");
@@ -1747,7 +1793,7 @@ async function secodaryLoginverifyOtp() {
 
   // Reset previous error styles
   secondaryLoginotpInputs.forEach(
-    (input) => (input.style.border = "2px solid white")
+    (input) => (input.style.border = "2px solid white"),
   );
 
   // Remove existing error message
@@ -1760,17 +1806,14 @@ async function secodaryLoginverifyOtp() {
   secondaryLoginOtpBtn.innerText = "VERIFYING...";
 
   try {
-    const response = await fetch(
-      `${baseURL}/api/My/SecondaryContact/Confirm`,
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${jwtToken}`,
-        },
-        body: JSON.stringify(payload),
-      }
-    );
+    const response = await fetch(`${baseURL}/api/My/SecondaryContact/Confirm`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${jwtToken}`,
+      },
+      body: JSON.stringify(payload),
+    });
 
     const text = await response.text();
     // console.log("API Response:", response);
@@ -1790,7 +1833,7 @@ async function secodaryLoginverifyOtp() {
     } else {
       // console.log("✅ OTP failed:", response);
       secondaryLoginotpInputs.forEach(
-        (input) => (input.style.border = "2px solid #B91C1C")
+        (input) => (input.style.border = "2px solid #B91C1C"),
       );
 
       const secondaryotperr = document.createElement("div");
@@ -1798,16 +1841,22 @@ async function secodaryLoginverifyOtp() {
       secondaryotperr.style.color = "#B91C1C";
       secondaryotperr.style.fontSize = "14px";
       secondaryotperr.style.marginTop = "8px";
-      secondaryotperr.style.visibility = 'visible';
-      const exclamationSpan = document.createElement('span');
-      exclamationSpan.classList.add('helperText');
-      exclamationSpan.textContent = '!';
-      const errorTextSpan = document.createElement('span');
-      errorTextSpan.classList.add('errorText');
+      secondaryotperr.style.visibility = "visible";
+      const exclamationSpan = document.createElement("span");
+      exclamationSpan.classList.add("helperText");
+      exclamationSpan.textContent = "!";
+      const errorTextSpan = document.createElement("span");
+      errorTextSpan.classList.add("errorText");
       errorTextSpan.innerText = "Invalid or expired code. Please try again.";
-      document.getElementById("secondaryLoginotpResendSection").appendChild(secondaryotperr);
-      document.getElementById("otpSecondaryLoginErrorMessage").appendChild(exclamationSpan);
-      document.getElementById("otpSecondaryLoginErrorMessage").appendChild(errorTextSpan);
+      document
+        .getElementById("secondaryLoginotpResendSection")
+        .appendChild(secondaryotperr);
+      document
+        .getElementById("otpSecondaryLoginErrorMessage")
+        .appendChild(exclamationSpan);
+      document
+        .getElementById("otpSecondaryLoginErrorMessage")
+        .appendChild(errorTextSpan);
       secondaryLoginOtpBtn.disabled = false;
       secondaryLoginOtpBtn.classList.remove("button-loading");
       secondaryLoginOtpBtn.innerText = "VERIFY";
@@ -1816,7 +1865,7 @@ async function secodaryLoginverifyOtp() {
     // alert("Something went wrong. Please try again.");
     console.error("❌ OTP verification failed:", err);
     secondaryLoginotpInputs.forEach(
-      (input) => (input.style.border = "2px solid #B91C1C")
+      (input) => (input.style.border = "2px solid #B91C1C"),
     );
 
     const secondaryotperr = document.createElement("div");
@@ -1824,16 +1873,22 @@ async function secodaryLoginverifyOtp() {
     secondaryotperr.style.color = "#B91C1C";
     secondaryotperr.style.fontSize = "14px";
     secondaryotperr.style.marginTop = "8px";
-    secondaryotperr.style.visibility = 'visible';
-    const exclamationSpan = document.createElement('span');
-    exclamationSpan.classList.add('helperText');
-    exclamationSpan.textContent = '!';
-    const errorTextSpan = document.createElement('span');
-    errorTextSpan.classList.add('errorText');
+    secondaryotperr.style.visibility = "visible";
+    const exclamationSpan = document.createElement("span");
+    exclamationSpan.classList.add("helperText");
+    exclamationSpan.textContent = "!";
+    const errorTextSpan = document.createElement("span");
+    errorTextSpan.classList.add("errorText");
     errorTextSpan.innerText = "Something went wrong. Please try again.";
-    document.getElementById("secondaryLoginotpResendSection").appendChild(secondaryotperr);
-    document.getElementById("otpSecondaryLoginErrorMessage").appendChild(exclamationSpan);
-    document.getElementById("otpSecondaryLoginErrorMessage").appendChild(errorTextSpan);
+    document
+      .getElementById("secondaryLoginotpResendSection")
+      .appendChild(secondaryotperr);
+    document
+      .getElementById("otpSecondaryLoginErrorMessage")
+      .appendChild(exclamationSpan);
+    document
+      .getElementById("otpSecondaryLoginErrorMessage")
+      .appendChild(errorTextSpan);
     secondaryLoginOtpBtn.disabled = false;
     secondaryLoginOtpBtn.classList.remove("button-loading");
     secondaryLoginOtpBtn.innerText = "VERIFY";
@@ -1873,17 +1928,14 @@ async function resendSecondaryLoginOtp() {
   resetCodeLink.textContent = "Resending...";
 
   try {
-    const response = await fetch(
-      `${baseURL}/api/My/SecondaryContact`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${jwtToken}`,
-        },
-        body: JSON.stringify(payload),
-      }
-    );
+    const response = await fetch(`${baseURL}/api/My/SecondaryContact`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${jwtToken}`,
+      },
+      body: JSON.stringify(payload),
+    });
 
     const text = await response.text();
     // console.log("object", text);
@@ -2022,7 +2074,7 @@ function showMobileLoginBtn() {
 function userifyDiviMobileHamburger(initials) {
   // Target ALL mobile menu bars in case there are multiple instances
   const bars = document.querySelectorAll(
-    ".et_mobile_nav_menu .mobile_menu_bar"
+    ".et_mobile_nav_menu .mobile_menu_bar",
   );
   if (!bars.length) return;
 
@@ -2030,7 +2082,7 @@ function userifyDiviMobileHamburger(initials) {
     // Avoid double-application
     if (bar.dataset.userified === "1") {
       const existingAvatar = bar.parentElement?.querySelector(
-        "#user-info #user-avatar-mbl"
+        "#user-info #user-avatar-mbl",
       );
       if (existingAvatar) existingAvatar.textContent = initials || "";
       return;
@@ -2064,24 +2116,24 @@ function userifyDiviMobileHamburger(initials) {
 
     const avatar = document.createElement("div");
     avatar.id = "user-avatar-mbl";
-    if(initials.includes("calvaryftl")){
+    if (initials.includes("calvaryftl")) {
       const img = document.createElement("img");
-        img.src = initials;
-        // img.alt = "Profile Image";
-        img.style.borderRadius = "50%";
-        img.style.height = "100%";
-        img.style.width = "100%";
-        img.style.objectFit = "cover";
-        avatar.appendChild(img);
-    }
-    else{
-    avatar.textContent = initials || "";
+      img.src = initials;
+      // img.alt = "Profile Image";
+      img.style.borderRadius = "50%";
+      img.style.height = "100%";
+      img.style.width = "100%";
+      img.style.objectFit = "cover";
+      avatar.appendChild(img);
+    } else {
+      avatar.textContent = initials || "";
     }
 
     const dropdownIcon = document.createElement("span");
     dropdownIcon.id = "dropdown-icon";
     // dropdownIcon.textContent = "⌄";
-    dropdownIcon.innerHTML = '<i class="fa fa-chevron-down" aria-hidden="true"></i>';
+    dropdownIcon.innerHTML =
+      '<i class="fa fa-chevron-down" aria-hidden="true"></i>';
 
     overlay.appendChild(avatar);
     overlay.appendChild(dropdownIcon);
@@ -2095,22 +2147,23 @@ function userifyDiviMobileHamburger(initials) {
 
     // Add click listener to toggle mobile menu icon
     bar.addEventListener("click", function () {
-  const isUp = dropdownIcon.classList.toggle('is-up');
-  dropdownIcon.innerHTML = isUp
-    ? '<i class="fa fa-chevron-up" aria-hidden="true"></i>'
-    : '<i class="fa fa-chevron-down" aria-hidden="true"></i>';
-});
+      const isUp = dropdownIcon.classList.toggle("is-up");
+      dropdownIcon.innerHTML = isUp
+        ? '<i class="fa fa-chevron-up" aria-hidden="true"></i>'
+        : '<i class="fa fa-chevron-down" aria-hidden="true"></i>';
+    });
 
     // Mark as done
     bar.dataset.userified = "1";
   });
 }
 
-
 function cleanupUserifyDiviMobileHamburger() {
   // Find all userified mobile menu bars
-  const bars = document.querySelectorAll(".et_mobile_nav_menu .mobile_menu_bar[data-userified='1']");
-  bars.forEach(bar => {
+  const bars = document.querySelectorAll(
+    ".et_mobile_nav_menu .mobile_menu_bar[data-userified='1']",
+  );
+  bars.forEach((bar) => {
     const wrapper = bar.parentElement;
     if (!wrapper) return;
 
@@ -2139,91 +2192,112 @@ function cleanupUserifyDiviMobileHamburger() {
 async function updateUserHeaderUI() {
   const token = localStorage.getItem("mpp-widgets_JwtToken");
   const AccessToken = localStorage.getItem("mpp-widgets_AuthToken");
-  const valid = isAccessTokenValid(AccessToken, `${dbURL}/ministryplatformapi/oauth`, `${dbURL}/ministryplatformapi/oauth/resources`);
+  const valid = isAccessTokenValid(
+    AccessToken,
+    `${dbURL}/ministryplatformapi/oauth`,
+    `${dbURL}/ministryplatformapi/oauth/resources`,
+  );
   if (valid) {
-  const loginButton = document.getElementById("loginButton");
-  const userInfo = document.getElementById("user-info");
-  const userAvatar = document.getElementById("user-avatar");
-  if (token) {
-    loginButton.style.visibility = "hidden";
-    try {
-      const payload = JSON.parse(atob(token.split(".")[1]));
-      // console.log("Decoded JWT payload:", payload);
+    const loginButton = document.getElementById("loginButton");
+    const userInfo = document.getElementById("user-info");
+    const userAvatar = document.getElementById("user-avatar");
+    if (token) {
+      loginButton.style.visibility = "hidden";
+      try {
+        const payload = JSON.parse(atob(token.split(".")[1]));
+        // console.log("Decoded JWT payload:", payload);
 
-      window.contactDataPromise = fetch(
-        `${baseURL}/api/My/Contact`,
-        {
+        window.contactDataPromise = fetch(`${baseURL}/api/My/Contact`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
+          },
+        }).then((r) => r.json());
+
+        const text = await window.contactDataPromise;
+
+        if (text.Web_Image_URL != null) {
+          userInfo.style.display = "flex";
+          userAvatar.innerHTML = "";
+          const img = document.createElement("img");
+          img.src = text.Web_Image_URL;
+          // img.alt = "Profile Image";
+          img.style.borderRadius = "50%";
+          img.style.height = "100%";
+          img.style.width = "100%";
+          userAvatar.appendChild(img);
+          // update image for mobile view
+          userifyDiviMobileHamburger(text.Web_Image_URL);
+        } else {
+          const firstName = payload.FirstName || "";
+          const lastName = payload.LastName || "";
+          const email = payload.UserName || "";
+
+          const initials =
+            firstName && lastName
+              ? `${firstName.charAt(0).toUpperCase()}${lastName.charAt(0).toUpperCase()}`
+              : email.charAt(0).toUpperCase();
+
+          if (userInfo) {
+            userInfo.style.display = "flex";
+            userAvatar.textContent = initials;
           }
+          // 🔹 Make the mobile hamburger show the avatar but keep Divi's menu toggle
+          userifyDiviMobileHamburger(initials);
         }
-      ).then(r => r.json());
-
-      const text = await window.contactDataPromise;
-      
-      if(text.Web_Image_URL != null){
-        userInfo.style.display = "flex";
-        userAvatar.innerHTML="";
-        const img = document.createElement("img");
-        img.src = text.Web_Image_URL;
-        // img.alt = "Profile Image";
-        img.style.borderRadius = "50%";
-        img.style.height = "100%";
-        img.style.width = "100%";
-        userAvatar.appendChild(img);
-        // update image for mobile view
-        userifyDiviMobileHamburger(text.Web_Image_URL);
+        // Update UI
+        if (loginButton) loginButton.style.display = "none";
+        // Hide mobile login
+        hideMobileLoginBtn();
+      } catch (error) {
+        console.error("Invalid JWT token", error);
       }
-      else {
-      const firstName = payload.FirstName || "";
-      const lastName = payload.LastName || "";
-      const email = payload.UserName || "";
-
-      const initials =
-        firstName && lastName
-            ? `${firstName.charAt(0).toUpperCase()}${lastName.charAt(0).toUpperCase()}`
-          : email.charAt(0).toUpperCase();
-
-      if (userInfo) {
-        userInfo.style.display = "flex";
-        userAvatar.textContent = initials;
-      }
-      // 🔹 Make the mobile hamburger show the avatar but keep Divi's menu toggle
-      userifyDiviMobileHamburger(initials);
-      }
-      // Update UI
-      if (loginButton) loginButton.style.display = "none";
-      // Hide mobile login
-      hideMobileLoginBtn();
-
-    } catch (error) {
-      console.error("Invalid JWT token", error);
+      loginButton.style.visibility = "visible";
     }
-    loginButton.style.visibility = "visible";
-  }
-
-  }
-  else {
+  } else {
     // Remove token from local storage
     localStorage.removeItem("mpp-widgets_AuthToken");
     localStorage.removeItem("mpp-widgets_JwtToken");
     localStorage.removeItem("mpp-widgets_ExpiresAfter");
     localStorage.removeItem("primaryContact");
-      const path = window.location.pathname;
-    const redirectUrlPath = ["/my-account/", "/my-contributions/", "/my-giving/", "/baptism-certificate/", "/my-grouplife/", "/my-household/", "/volunteer-requirements/", "/forms-docs/", "/edit-profile/", "/my-account-page/", "/my-giving-page/"]
-    if(redirectUrlPath.includes(path)){
-      const token = localStorage.getItem("mpp-widgets_AuthToken"); 
+    const path = window.location.pathname;
+    const redirectUrlPath = [
+      "/my-account/",
+      "/my-contributions/",
+      "/my-giving/",
+      "/baptism-certificate/",
+      "/my-grouplife/",
+      "/my-household/",
+      "/volunteer-requirements/",
+      "/forms-docs/",
+      "/edit-profile/",
+      "/my-account-page/",
+      "/my-giving-page/",
+    ];
+    if (redirectUrlPath.includes(path)) {
+      const token = localStorage.getItem("mpp-widgets_AuthToken");
       if (!token) {
         window.location.href = "/";
       }
     }
   }
   const path = window.location.pathname;
-  const redirectUrlPath = ["/my-account/", "/my-contributions/", "/my-giving/", "/baptism-certificate/", "/my-grouplife/", "/my-household/", "/volunteer-requirements/", "/forms-docs/", "/edit-profile/", "/my-account-page/", "/my-giving-page/"]
-  if(redirectUrlPath.includes(path)){
-    const token = localStorage.getItem("mpp-widgets_AuthToken"); 
+  const redirectUrlPath = [
+    "/my-account/",
+    "/my-contributions/",
+    "/my-giving/",
+    "/baptism-certificate/",
+    "/my-grouplife/",
+    "/my-household/",
+    "/volunteer-requirements/",
+    "/forms-docs/",
+    "/edit-profile/",
+    "/my-account-page/",
+    "/my-giving-page/",
+  ];
+  if (redirectUrlPath.includes(path)) {
+    const token = localStorage.getItem("mpp-widgets_AuthToken");
     if (!token) {
       window.location.href = "/";
     }
@@ -2234,20 +2308,20 @@ async function updateUserHeaderUI() {
     showLogoutModal();
   }
 
-  const email_phone = localStorage.getItem('Email_Phone');
-  if( email_phone != null){
+  const email_phone = localStorage.getItem("Email_Phone");
+  if (email_phone != null) {
     // console.log("forceLogout reached");
     jQuery(window).on("load", function () {
-    setTimeout(() => {
-      jQuery("#loginButton").trigger("click");
-      jQuery("#menu-item-42990").trigger("click");
+      setTimeout(() => {
+        jQuery("#loginButton").trigger("click");
+        jQuery("#menu-item-42990").trigger("click");
       }, 400);
     });
 
     document.getElementById("loginInput").value = email_phone;
     document.getElementById("continueButton").disabled = false;
     onBlurvalidatePhone();
-    localStorage.removeItem('Email_Phone');
+    localStorage.removeItem("Email_Phone");
     return;
   }
 }
@@ -2292,7 +2366,7 @@ function handleLogout() {
   document.getElementById("otpSection").style.display = "none";
   document.getElementById("secondaryotpSection").style.display = "none";
   const bars = document.querySelectorAll(
-    ".et_mobile_nav_menu .mobile_menu_bar"
+    ".et_mobile_nav_menu .mobile_menu_bar",
   );
 
   // Remove token from local storage
@@ -2303,24 +2377,39 @@ function handleLogout() {
 
   // Update UI
   if (loginButton) loginButton.style.display = "inline-block";
-  userInfo.forEach( el => el.style.display = "none" );
-  bars.forEach( ele => ele.removeAttribute("style"));
+  userInfo.forEach((el) => (el.style.display = "none"));
+  bars.forEach((ele) => ele.removeAttribute("style"));
   showMobileLoginBtn();
   cleanupUserifyDiviMobileHamburger();
   resetLoginModalState();
-  jQuery(function($) {
-    $('ul#mobile_menu2 li.menu-item-has-children').removeClass('dt-open');
-    $('ul#mobile_menu2 li.menu-item-has-children .sub-menu').removeClass('visible');
+  jQuery(function ($) {
+    $("ul#mobile_menu2 li.menu-item-has-children").removeClass("dt-open");
+    $("ul#mobile_menu2 li.menu-item-has-children .sub-menu").removeClass(
+      "visible",
+    );
   });
-  const redirectUrlPath = ["/my-account/", "/my-contributions/", "/my-giving/", "/baptism-certificate/", "/my-grouplife/", "/my-household/", "/volunteer-requirements/", "/forms-docs/", "/edit-profile/", "/my-account-page/", "/my-giving-page/"]
-  const reloadUrlPath = ["/events/", "/custom-form-2/", "/opportunity/"]
-  if(redirectUrlPath.includes(window.location.pathname)){
-    if(localStorage.getItem('Email_Phone') === null) localStorage.setItem('showLogoutModal', "true")
-    window.location.replace('/');
+  const redirectUrlPath = [
+    "/my-account/",
+    "/my-contributions/",
+    "/my-giving/",
+    "/baptism-certificate/",
+    "/my-grouplife/",
+    "/my-household/",
+    "/volunteer-requirements/",
+    "/forms-docs/",
+    "/edit-profile/",
+    "/my-account-page/",
+    "/my-giving-page/",
+  ];
+  const reloadUrlPath = ["/events/", "/custom-form-2/", "/opportunity/"];
+  if (redirectUrlPath.includes(window.location.pathname)) {
+    if (localStorage.getItem("Email_Phone") === null)
+      localStorage.setItem("showLogoutModal", "true");
+    window.location.replace("/");
     return;
   }
-  if(reloadUrlPath.includes(window.location.pathname)){
-    localStorage.setItem('showLogoutModal', "true")
+  if (reloadUrlPath.includes(window.location.pathname)) {
+    localStorage.setItem("showLogoutModal", "true");
     window.location.reload();
     return;
   }
@@ -2329,13 +2418,15 @@ function handleLogout() {
 }
 
 // On mobile menu open, collapse any expanded submenus
-jQuery(function($) {
-  $('.mobile_menu_bar').on('click', function () {
+jQuery(function ($) {
+  $(".mobile_menu_bar").on("click", function () {
     // Delay to allow menu animation to start before collapsing
     setTimeout(function () {
       // Collapse any expanded submenus
-      $('#mobile_menu2 li.menu-item-has-children').removeClass('dt-open');
-      $('#mobile_menu2 li.menu-item-has-children .sub-menu').removeClass('visible');
+      $("#mobile_menu2 li.menu-item-has-children").removeClass("dt-open");
+      $("#mobile_menu2 li.menu-item-has-children .sub-menu").removeClass(
+        "visible",
+      );
     }, 100);
   });
 });
@@ -2348,13 +2439,13 @@ document.addEventListener(
   "click",
   function (e) {
     const logoutClick = e.target.closest(
-      "#menu-item-43015, #menu-item-43015 a"
+      "#menu-item-43015, #menu-item-43015 a",
     );
     if (!logoutClick) return;
     e.preventDefault(); // stop "#" navigation
     handleLogout();
   },
-  true // capture phase helps if Divi stops propagation
+  true, // capture phase helps if Divi stops propagation
 );
 
 function closeSuccessModal() {
@@ -2387,7 +2478,7 @@ document.addEventListener("keydown", function (e) {
   if (e.key === "Escape" && modal.style.display === "flex") {
     closeSuccessModal();
   }
-  const logoutModal = document.getElementById('logoutModal');
+  const logoutModal = document.getElementById("logoutModal");
   if (e.key === "Escape" && logoutModal.style.display === "flex") {
     closeLogoutModal();
   }
@@ -2396,8 +2487,8 @@ document.addEventListener("keydown", function (e) {
 function setUserDropdownState(userInfoElement, shouldOpen) {
   if (!userInfoElement) return;
 
-  const userDropdownmenu = userInfoElement.querySelector('#user-dropdown-menu');
-  const dropdownIcon = userInfoElement.querySelector('#dropdown-icon');
+  const userDropdownmenu = userInfoElement.querySelector("#user-dropdown-menu");
+  const dropdownIcon = userInfoElement.querySelector("#dropdown-icon");
 
   if (!userDropdownmenu) {
     // console.log('No dropdown menu found in this user-info');
@@ -2405,71 +2496,79 @@ function setUserDropdownState(userInfoElement, shouldOpen) {
   }
 
   if (shouldOpen) {
-    userInfoElement.classList.add('dropdown-open');
-    userDropdownmenu.style.setProperty('display', 'block', 'important');
+    userInfoElement.classList.add("dropdown-open");
+    userDropdownmenu.style.setProperty("display", "block", "important");
     if (dropdownIcon) {
-      dropdownIcon.innerHTML = '<i class="fa fa-chevron-up" aria-hidden="true"></i>';
-      dropdownIcon.classList.remove('is-down');
+      dropdownIcon.innerHTML =
+        '<i class="fa fa-chevron-up" aria-hidden="true"></i>';
+      dropdownIcon.classList.remove("is-down");
     }
     return;
   }
 
-  userInfoElement.classList.remove('dropdown-open');
-  userDropdownmenu.style.setProperty('display', 'none', 'important');
+  userInfoElement.classList.remove("dropdown-open");
+  userDropdownmenu.style.setProperty("display", "none", "important");
   if (dropdownIcon) {
-    dropdownIcon.innerHTML = '<i class="fa fa-chevron-down" aria-hidden="true"></i>';
-    dropdownIcon.classList.add('is-down');
+    dropdownIcon.innerHTML =
+      '<i class="fa fa-chevron-down" aria-hidden="true"></i>';
+    dropdownIcon.classList.add("is-down");
   }
 }
 
 function closeAllUserDropdowns(exceptElement = null) {
-  document.querySelectorAll('#user-info.dropdown-open').forEach((userInfoElement) => {
-    if (userInfoElement !== exceptElement) {
-      setUserDropdownState(userInfoElement, false);
-    }
-  });
+  document
+    .querySelectorAll("#user-info.dropdown-open")
+    .forEach((userInfoElement) => {
+      if (userInfoElement !== exceptElement) {
+        setUserDropdownState(userInfoElement, false);
+      }
+    });
 }
 
 function userInfo(event) {
-  const userInfoElement = event.target.closest('#user-info');
+  const userInfoElement = event.target.closest("#user-info");
   if (!userInfoElement) return;
 
-  if (event.target.closest('#user-dropdown-menu a')) {
+  if (event.target.closest("#user-dropdown-menu a")) {
     // console.log('Clicked on dropdown link, not toggling');
     return;
   }
 
-  const isOpen = userInfoElement.classList.contains('dropdown-open');
+  const isOpen = userInfoElement.classList.contains("dropdown-open");
   closeAllUserDropdowns(userInfoElement);
   setUserDropdownState(userInfoElement, !isOpen);
 }
 
-document.addEventListener('click', function(event) {
-  const userInfoElement = event.target.closest('#user-info');
+document.addEventListener(
+  "click",
+  function (event) {
+    const userInfoElement = event.target.closest("#user-info");
 
-  if (userInfoElement) {
-    if (event.target.closest('#user-dropdown-menu a')) {
+    if (userInfoElement) {
+      if (event.target.closest("#user-dropdown-menu a")) {
+        return;
+      }
+
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      userInfo({ target: userInfoElement });
       return;
     }
 
-    event.preventDefault();
-    event.stopImmediatePropagation();
-    userInfo({ target: userInfoElement });
-    return;
-  }
+    closeAllUserDropdowns();
+  },
+  true,
+);
 
-  closeAllUserDropdowns();
-}, true);
-
-const megaMenuItem = document.querySelector('.mega-menu');
+const megaMenuItem = document.querySelector(".mega-menu");
 
 if (megaMenuItem) {
-  megaMenuItem.addEventListener('mouseenter', () => {
-    megaMenuItem.classList.add('active');
+  megaMenuItem.addEventListener("mouseenter", () => {
+    megaMenuItem.classList.add("active");
   });
 
-  megaMenuItem.addEventListener('mouseleave', () => {
-    megaMenuItem.classList.remove('active');
+  megaMenuItem.addEventListener("mouseleave", () => {
+    megaMenuItem.classList.remove("active");
   });
 }
 
@@ -2492,7 +2591,13 @@ const eyeSlashSVG = `
 document.querySelectorAll(".toggle-visibility").forEach((button) => {
   button.addEventListener("click", function () {
     const container = button.closest(".password-container");
-    const input = container.querySelector("#passwordInput")|| container.querySelector("#exPasswordInput") || container.querySelector("#setPasswordInput") || container.querySelector("#setPasswordConfirmInput") || container.querySelector("#signUpPasswordInput") || container.querySelector("#signUpPasswordConfirmInput");
+    const input =
+      container.querySelector("#passwordInput") ||
+      container.querySelector("#exPasswordInput") ||
+      container.querySelector("#setPasswordInput") ||
+      container.querySelector("#setPasswordConfirmInput") ||
+      container.querySelector("#signUpPasswordInput") ||
+      container.querySelector("#signUpPasswordConfirmInput");
     const eyeIcon = button.querySelector(".eyeIcon");
     const value = input.value.trim();
 
@@ -2525,7 +2630,7 @@ logo.addEventListener("click", () => {
   if (clickCount === 3) {
     document.getElementById("loginForm").style.display = "none";
     usernameDiv.style.display = "flex";
-    clickCount = 0; 
+    clickCount = 0;
   }
 });
 
@@ -2536,17 +2641,15 @@ const usernameErrorDiv = document.getElementById("usernameInputError");
 const error1 = document.querySelector("#usernameInputError .errorText");
 const error2 = document.querySelector("#exPasswordInputError .errorText");
 const exPasswordInput = document.getElementById("exPasswordInput");
-const exPasswordSignInBtn = document.getElementById("exPasswordSignInButton"); 
+const exPasswordSignInBtn = document.getElementById("exPasswordSignInButton");
 const exPasswordErrorDiv = document.getElementById("exPasswordInputError");
 const exPasswordDiv = document.getElementById("exPasswordForm");
 
-
-
-function validateUsernamePasswordInput() {  
-  if (usernameInput.value.trim() !== "" && passwordInput.value.trim() !== "") {    
+function validateUsernamePasswordInput() {
+  if (usernameInput.value.trim() !== "" && passwordInput.value.trim() !== "") {
     usernameSignInBtn.disabled = false;
   } else {
-    usernameSignInBtn.disabled = true;    
+    usernameSignInBtn.disabled = true;
   }
 
   if (error1) {
@@ -2557,10 +2660,10 @@ function validateUsernamePasswordInput() {
   usernameInput.style.borderColor = "";
   passwordInput.style.borderColor = "";
 
-  if (exPasswordInput.value.trim() !== "") {    
+  if (exPasswordInput.value.trim() !== "") {
     exPasswordSignInBtn.disabled = false;
   } else {
-    exPasswordSignInBtn.disabled = true;    
+    exPasswordSignInBtn.disabled = true;
   }
 
   if (error2) {
@@ -2568,12 +2671,11 @@ function validateUsernamePasswordInput() {
     exPasswordErrorDiv.style.visibility = "hidden";
   }
 
-  exPasswordInput.style.borderColor = ""; 
-
+  exPasswordInput.style.borderColor = "";
 }
 
 async function handleUsernameLogin() {
-  if(isLoading) return;
+  if (isLoading) return;
   let usernameValue = usernameInput.value.trim();
   let passwordValue = passwordInput.value.trim();
 
@@ -2586,26 +2688,25 @@ async function handleUsernameLogin() {
   usernameSignInBtn.innerText = "SIGNING IN...";
 
   try {
-    const response = await fetch(
-      `${baseURL}/v1.2/api/LoginUsername`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ UserName: usernameValue, Password: passwordValue }),
-      }
-    );
+    const response = await fetch(`${baseURL}/v1.2/api/LoginUsername`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        UserName: usernameValue,
+        Password: passwordValue,
+      }),
+    });
 
     if (!response.ok) {
       const text = await response.text();
       usernameInput.style.borderColor = "#B91C1C";
       passwordInput.style.borderColor = "#B91C1C";
       usernameErrorDiv.style.visibility = "visible";
-      error1.innerText = text ||"Invalid username or password. Try again.";
+      error1.innerText = text || "Invalid username or password. Try again.";
       usernameSignInBtn.disabled = true;
       usernameSignInBtn.innerText = "SIGN IN";
       usernameSignInBtn.classList.remove("button-loading");
-    } 
-    else {
+    } else {
       const text = await response.json();
 
       // Save JWT Token
@@ -2613,7 +2714,10 @@ async function handleUsernameLogin() {
 
       localStorage.setItem("mpp-widgets_AuthToken", text.AccessToken);
       localStorage.setItem("mpp-widgets_JwtToken", text.JwtToken);
-      localStorage.setItem("mpp-widgets_ExpiresAfter", new Date(token.exp * 1000));
+      localStorage.setItem(
+        "mpp-widgets_ExpiresAfter",
+        new Date(token.exp * 1000),
+      );
 
       // Immediately update header UI
       if (typeof updateUserHeaderUI === "function") {
@@ -2621,7 +2725,6 @@ async function handleUsernameLogin() {
       }
       $.magnificPopup.close();
       usernameSignInBtn.classList.remove("button-loading");
-
     }
   } catch (err) {
     usernameInput.style.borderColor = "#B91C1C";
@@ -2636,7 +2739,7 @@ async function handleUsernameLogin() {
 }
 
 async function handleExPasswordLogin() {
-  if(isLoading) return;
+  if (isLoading) return;
   isLoading = true;
   let exPasswordValue = exPasswordInput.value.trim();
 
@@ -2646,33 +2749,35 @@ async function handleExPasswordLogin() {
   exPasswordSignInBtn.innerText = "SIGNING IN...";
 
   try {
-    const response = await fetch(
-      `${baseURL}/v1.2/api/LoginPassword`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ UserName: phone_email, Password:exPasswordValue }),
-      }
-    );
+    const response = await fetch(`${baseURL}/v1.2/api/LoginPassword`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        UserName: phone_email,
+        Password: exPasswordValue,
+      }),
+    });
 
     if (!response.ok) {
       const text = await response.text();
       exPasswordInput.style.borderColor = "#B91C1C";
       exPasswordErrorDiv.style.visibility = "visible";
-      error2.innerText = text ||"Invalid password. Try again.";
+      error2.innerText = text || "Invalid password. Try again.";
       exPasswordSignInBtn.disabled = true;
       exPasswordSignInBtn.innerText = "SIGN IN";
       exPasswordSignInBtn.classList.remove("button-loading");
-    } 
-    else {
+    } else {
       const data = await response.json();
 
       // Save JWT Token
       const token = JSON.parse(atob(data.AccessToken.split(".")[1]));
-      localStorage.setItem("primaryContact", phone_email.includes('@'));
+      localStorage.setItem("primaryContact", phone_email.includes("@"));
       localStorage.setItem("mpp-widgets_AuthToken", data.AccessToken);
       localStorage.setItem("mpp-widgets_JwtToken", data.JwtToken);
-      localStorage.setItem("mpp-widgets_ExpiresAfter", new Date(token.exp * 1000));
+      localStorage.setItem(
+        "mpp-widgets_ExpiresAfter",
+        new Date(token.exp * 1000),
+      );
 
       // 🔹 Adobe Target Integration
       if (typeof adobe !== "undefined" && adobe.target) {
@@ -2708,20 +2813,24 @@ async function handleExPasswordLogin() {
         document.getElementById("secondaryContactForm").style.display = "flex";
         globalSuccessText.innerText = "You've logged in!";
         // console.log("closing OTP modal");
-        document.querySelectorAll('.submitButtonDiv h5').forEach(el => {
-          el.style.pointerEvents = 'auto';
+        document.querySelectorAll(".submitButtonDiv h5").forEach((el) => {
+          el.style.pointerEvents = "auto";
         });
         const isEmail = data.SecondaryContact == "Email_null";
         const contactType = isEmail ? "email address" : "cell phone number";
         document.querySelector(".Phone_Email").textContent = contactType;
 
         const addButton = document.getElementById("addButton");
-        addButton.innerText = isEmail ? "add email address" : "add cell phone number";
+        addButton.innerText = isEmail
+          ? "add email address"
+          : "add cell phone number";
 
         if (isEmail)
-          document.getElementById("secondaryContactInputEmail").style.display = "flex";
+          document.getElementById("secondaryContactInputEmail").style.display =
+            "flex";
         else
-          document.getElementById("secondaryContactInputPhone").style.display = "flex";
+          document.getElementById("secondaryContactInputPhone").style.display =
+            "flex";
       } else {
         $.magnificPopup.close();
         setTimeout(() => {
@@ -2743,17 +2852,20 @@ async function handleExPasswordLogin() {
 
 // Set Password functionality
 const setPasswordInput = document.getElementById("setPasswordInput");
-const setPasswordConfirmInput = document.getElementById("setPasswordConfirmInput");
+const setPasswordConfirmInput = document.getElementById(
+  "setPasswordConfirmInput",
+);
 const setPasswordBtn = document.getElementById("setPasswordButton");
 const setPasswordErrorDiv = document.getElementById("setPasswordInputsError");
 const errorText = document.querySelector("#setPasswordInputsError .errorText");
 let forgotPasswordFlow = false;
 
-function validateSetPasswordInput(){
+function validateSetPasswordInput() {
   const password = setPasswordInput.value.trim();
   const confirmPassword = setPasswordConfirmInput.value.trim();
 
-  const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9])(?=.{8,}).+$/;
+  const passwordPattern =
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9])(?=.{8,}).+$/;
 
   // Reset error messages
   setPasswordErrorDiv.style.visibility = "hidden";
@@ -2768,12 +2880,12 @@ function validateSetPasswordInput(){
 
   if (password !== "" && !passwordPattern.test(password)) {
     setPasswordInput.style.borderColor = "#B91C1C";
-    errorText.innerText = "Please enter a password that meets the criteria above.";
+    errorText.innerText =
+      "Please enter a password that meets the criteria above.";
     setPasswordErrorDiv.style.visibility = "visible";
     setPasswordConfirmInput.style.borderColor = "";
     return false;
   }
-
 
   if (password !== confirmPassword && confirmPassword !== "") {
     setPasswordConfirmInput.style.borderColor = "#B91C1C";
@@ -2783,7 +2895,7 @@ function validateSetPasswordInput(){
     return false;
   }
 
-  if (password !== "" && confirmPassword !== "") {    
+  if (password !== "" && confirmPassword !== "") {
     setPasswordBtn.disabled = false;
   } else {
     setPasswordBtn.disabled = true;
@@ -2796,7 +2908,7 @@ function validateSetPasswordInput(){
 }
 
 async function handleSetPasswordLogin() {
-  if(isLoading) return;
+  if (isLoading) return;
   isLoading = true;
   const password = setPasswordInput.value.trim();
   const confirmPassword = setPasswordConfirmInput.value.trim();
@@ -2804,34 +2916,41 @@ async function handleSetPasswordLogin() {
   // Start sending
   setPasswordBtn.disabled = true;
   setPasswordBtn.classList.add("button-loading");
-  setPasswordBtn.innerText = forgotPasswordFlow ? "UPDATING PASSWORD..." : "SETTING PASSWORD...";
+  setPasswordBtn.innerText = forgotPasswordFlow
+    ? "UPDATING PASSWORD..."
+    : "SETTING PASSWORD...";
 
   try {
-    const response = await fetch(
-      `${baseURL}/v1.2/api/Login/SetPassword`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code: { Phone_Email: phone_email }, Password: password, Confirm_Password: confirmPassword }),
-      }
-    );
+    const response = await fetch(`${baseURL}/v1.2/api/Login/SetPassword`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        code: { Phone_Email: phone_email },
+        Password: password,
+        Confirm_Password: confirmPassword,
+      }),
+    });
 
     if (!response.ok) {
       const text = await response.text();
       setPasswordInput.style.borderColor = "#B91C1C";
       setPasswordConfirmInput.style.borderColor = "#B91C1C";
       setPasswordErrorDiv.style.visibility = "visible";
-      errorText.innerText = text ||"Failed to set password. Try again.";
+      errorText.innerText = text || "Failed to set password. Try again.";
       setPasswordBtn.disabled = false;
-      setPasswordBtn.innerText = forgotPasswordFlow ? "UPDATE PASSWORD" : "SET PASSWORD";
+      setPasswordBtn.innerText = forgotPasswordFlow
+        ? "UPDATE PASSWORD"
+        : "SET PASSWORD";
       setPasswordBtn.classList.remove("button-loading");
-    } 
-    else {
+    } else {
       document.getElementById("reLoginSuccessSection").style.display = "flex";
       document.getElementById("setPasswordForm").style.display = "none";
       setPasswordBtn.classList.remove("button-loading");
-      if(userNameForgotPass) phone_email="";
-      document.getElementById("reLoginSuccessMessage").innerText = forgotPasswordFlow ? "Done! You’ve successfully reset your password." : "Done! You’ve successfully set your password.";
+      if (userNameForgotPass) phone_email = "";
+      document.getElementById("reLoginSuccessMessage").innerText =
+        forgotPasswordFlow
+          ? "Done! You’ve successfully reset your password."
+          : "Done! You’ve successfully set your password.";
     }
   } catch (err) {
     setPasswordInput.style.borderColor = "#B91C1C";
@@ -2839,38 +2958,48 @@ async function handleSetPasswordLogin() {
     setPasswordErrorDiv.style.visibility = "visible";
     errorText.innerText = "Something went wrong. Please try again.";
     setPasswordBtn.disabled = false;
-    setPasswordBtn.innerText = forgotPasswordFlow ? "UPDATE PASSWORD" : "SET PASSWORD";
+    setPasswordBtn.innerText = forgotPasswordFlow
+      ? "UPDATE PASSWORD"
+      : "SET PASSWORD";
     setPasswordBtn.classList.remove("button-loading");
   }
   isLoading = false;
 }
 
-document.getElementById("reLoginButton")?.addEventListener("click", function() {
-  document.getElementById("reLoginSuccessSection").style.display = "none";
-  document.getElementById("loginForm").style.display = "block";
-  resetLoginModalState();
-  document.getElementById("loginInput").value = phone_email;
-  if(phone_email != "")
-    document.getElementById("continueButton").disabled = false;
-});
+document
+  .getElementById("reLoginButton")
+  ?.addEventListener("click", function () {
+    document.getElementById("reLoginSuccessSection").style.display = "none";
+    document.getElementById("loginForm").style.display = "block";
+    resetLoginModalState();
+    document.getElementById("loginInput").value = phone_email;
+    if (phone_email != "")
+      document.getElementById("continueButton").disabled = false;
+  });
 
 // Sign Up Password functionality
 const signUpPasswordInput = document.getElementById("signUpPasswordInput");
-const signUpPasswordConfirmInput = document.getElementById("signUpPasswordConfirmInput");
+const signUpPasswordConfirmInput = document.getElementById(
+  "signUpPasswordConfirmInput",
+);
 const signUpPasswordBtn = document.getElementById("signUpPasswordButton");
-const signUpPasswordErrorDiv = document.getElementById("signUpPasswordInputsError");
-const signUpErrorText = document.querySelector("#signUpPasswordInputsError .errorText");
+const signUpPasswordErrorDiv = document.getElementById(
+  "signUpPasswordInputsError",
+);
+const signUpErrorText = document.querySelector(
+  "#signUpPasswordInputsError .errorText",
+);
 
-function validateSignUpPasswordInput(){
+function validateSignUpPasswordInput() {
   const password = signUpPasswordInput.value.trim();
   const confirmPassword = signUpPasswordConfirmInput.value.trim();
 
-  const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9])(?=.{8,}).+$/;
+  const passwordPattern =
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9])(?=.{8,}).+$/;
 
   // Reset error messages
   signUpPasswordErrorDiv.style.visibility = "hidden";
   signUpErrorText.innerText = "";
-
 
   if (password === "" && confirmPassword === "") {
     signUpPasswordInput.style.borderColor = "";
@@ -2881,12 +3010,12 @@ function validateSignUpPasswordInput(){
 
   if (password !== "" && !passwordPattern.test(password)) {
     signUpPasswordInput.style.borderColor = "#B91C1C";
-    signUpErrorText.innerText = "Please enter a password that meets the criteria above.";
+    signUpErrorText.innerText =
+      "Please enter a password that meets the criteria above.";
     signUpPasswordErrorDiv.style.visibility = "visible";
     signUpPasswordConfirmInput.style.borderColor = "";
     return false;
   }
-
 
   if (password !== confirmPassword && confirmPassword !== "") {
     signUpPasswordConfirmInput.style.borderColor = "#B91C1C";
@@ -2896,7 +3025,7 @@ function validateSignUpPasswordInput(){
     return false;
   }
 
-  if (password !== "" && confirmPassword !== "") {    
+  if (password !== "" && confirmPassword !== "") {
     signUpPasswordBtn.disabled = false;
   } else {
     signUpPasswordBtn.disabled = true;
@@ -2909,7 +3038,7 @@ function validateSignUpPasswordInput(){
 }
 
 async function handleSignUpPasswordLogin() {
-  if(isLoading) return;
+  if (isLoading) return;
   isLoading = true;
   const password = signUpPasswordInput.value.trim();
   const confirmPassword = signUpPasswordConfirmInput.value.trim();
@@ -2921,44 +3050,46 @@ async function handleSignUpPasswordLogin() {
 
   const payload = {
     code: {
-      Phone_Email: signUpPayload.code.Phone_Email
+      Phone_Email: signUpPayload.code.Phone_Email,
     },
     First_Name: signUpPayload.First_Name,
     Last_Name: signUpPayload.Last_Name,
     Password: password,
-    Confirm_Password: confirmPassword
+    Confirm_Password: confirmPassword,
   };
 
   try {
-    const response = await fetch(
-      `${baseURL}/v1.2/api/Login/NewAccount`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      }
-    );
+    const response = await fetch(`${baseURL}/v1.2/api/Login/NewAccount`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
 
     if (!response.ok) {
       const text = await response.text();
       signUpPasswordInput.style.borderColor = "#B91C1C";
       signUpPasswordConfirmInput.style.borderColor = "#B91C1C";
       signUpPasswordErrorDiv.style.visibility = "visible";
-      signUpErrorText.innerText = text ||"Failed to set password. Try again.";
+      signUpErrorText.innerText = text || "Failed to set password. Try again.";
       signUpPasswordBtn.disabled = false;
       signUpPasswordBtn.innerText = "SIGN IN";
       signUpPasswordBtn.classList.remove("button-loading");
-    } 
-    else {
+    } else {
       const data = await response.json();
       // console.log("✅ OTP Verified:", data);
 
       // Save JWT Token
       const token = JSON.parse(atob(data.AccessToken.split(".")[1]));
-      localStorage.setItem("primaryContact", payload.code.Phone_Email.includes('@'));
+      localStorage.setItem(
+        "primaryContact",
+        payload.code.Phone_Email.includes("@"),
+      );
       localStorage.setItem("mpp-widgets_AuthToken", data.AccessToken);
       localStorage.setItem("mpp-widgets_JwtToken", data.JwtToken);
-      localStorage.setItem("mpp-widgets_ExpiresAfter", new Date(token.exp * 1000));
+      localStorage.setItem(
+        "mpp-widgets_ExpiresAfter",
+        new Date(token.exp * 1000),
+      );
 
       // Immediately update header UI
       if (typeof updateUserHeaderUI === "function") {
@@ -2975,11 +3106,13 @@ async function handleSignUpPasswordLogin() {
         const isEmail = data.SecondaryContact == "Email_null";
         const contactType = isEmail ? "email address" : "cell phone number";
         document.querySelector(".Phone_Email").textContent = contactType;
-        document.querySelectorAll('.submitButtonDiv h5').forEach(el => {
-          el.style.pointerEvents = 'auto';
+        document.querySelectorAll(".submitButtonDiv h5").forEach((el) => {
+          el.style.pointerEvents = "auto";
         });
         const addButton = document.getElementById("addButton");
-        addButton.innerText = isEmail ? "add email address" : "add cell phone number";
+        addButton.innerText = isEmail
+          ? "add email address"
+          : "add cell phone number";
 
         if (isEmail) {
           document.getElementById("secondaryContactInputEmail").style.display =
@@ -2990,18 +3123,18 @@ async function handleSignUpPasswordLogin() {
         }
         document.querySelectorAll(".Phone_Email").textContent = contactType;
       } else {
-          // Need to handle if user created an account but for some reason he has deleted and again trying to signup
-          // in this scenario he might have added an secondary contact when he previously created an account so we are mapping to the old account
-          // so secondary contact will not be null
-          // Close the modal
-          $.magnificPopup.close();
+        // Need to handle if user created an account but for some reason he has deleted and again trying to signup
+        // in this scenario he might have added an secondary contact when he previously created an account so we are mapping to the old account
+        // so secondary contact will not be null
+        // Close the modal
+        $.magnificPopup.close();
 
-          // Show success message or redirect
-          resetLoginModalState();
-          showSuccessModal(true);
-          setTimeout(()=>{
-            lockScroll();
-          }, 700);
+        // Show success message or redirect
+        resetLoginModalState();
+        showSuccessModal(true);
+        setTimeout(() => {
+          lockScroll();
+        }, 700);
       }
       signUpPasswordBtn.classList.remove("button-loading");
     }
@@ -3016,33 +3149,35 @@ async function handleSignUpPasswordLogin() {
   }
   isLoading = false;
 }
-document.getElementById('exPasswordForgotPassword').addEventListener('click', handleResetPassword_EmailPhone);
+document
+  .getElementById("exPasswordForgotPassword")
+  .addEventListener("click", handleResetPassword_EmailPhone);
 
-document.getElementById('forgotPassword').addEventListener('click', function(){
-  document.getElementById('forgotPassword').classList.add('link-loading');
-  document.getElementById("usernameForm").style.display = "none";
-  userNameForgotPass = true; forgotPasswordFlow = true;
-  document.getElementById('resetPasswordForm').style.display = 'block';
-  phone_email="";
-  document.getElementById('forgotPassword').classList.remove('link-loading');
-});
+document
+  .getElementById("forgotPassword")
+  .addEventListener("click", function () {
+    document.getElementById("forgotPassword").classList.add("link-loading");
+    document.getElementById("usernameForm").style.display = "none";
+    userNameForgotPass = true;
+    forgotPasswordFlow = true;
+    document.getElementById("resetPasswordForm").style.display = "block";
+    phone_email = "";
+    document.getElementById("forgotPassword").classList.remove("link-loading");
+  });
 
 let forgotPasswordClick = false;
-async function handleResetPassword_EmailPhone(){
-  if(forgotPasswordClick) return;
+async function handleResetPassword_EmailPhone() {
+  if (forgotPasswordClick) return;
   try {
-    const forgotPass = document.getElementById('exPasswordForgotPassword');
+    const forgotPass = document.getElementById("exPasswordForgotPassword");
     forgotPass.classList.add("link-loading");
     forgotPasswordFlow = true;
     forgotPasswordClick = true;
-    const response = await fetch(
-      `${baseURL}/api/LoginCode`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ Phone_Email: phone_email }),
-      }
-    );
+    const response = await fetch(`${baseURL}/api/LoginCode`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ Phone_Email: phone_email }),
+    });
 
     const text = await response.text();
     if (!response.ok) {
@@ -3054,17 +3189,24 @@ async function handleResetPassword_EmailPhone(){
     if (text.includes("Your authentication code was sent by")) {
       // Success – show OTP section
       document.getElementById("resetPasswordOtpSection").style.display = "flex";
-      timeoutDidnotReceiveMessage = setTimeout(showRPDidnotReceiveMessage, 10000);
-      document.getElementById("resetPasswordValueDisplay").innerText = phone_email;
-      if(phone_email.includes("@")){        
-        document.querySelectorAll("#resetPasswordMessage .mailText").forEach(el => {
-          el.style.display = "contents";
-        });
-      }
-      else {        
-        document.querySelectorAll("#resetPasswordMessage .mailText").forEach(el => {
-          el.style.display = "none";
-        });
+      timeoutDidnotReceiveMessage = setTimeout(
+        showRPDidnotReceiveMessage,
+        10000,
+      );
+      document.getElementById("resetPasswordValueDisplay").innerText =
+        phone_email;
+      if (phone_email.includes("@")) {
+        document
+          .querySelectorAll("#resetPasswordMessage .mailText")
+          .forEach((el) => {
+            el.style.display = "contents";
+          });
+      } else {
+        document
+          .querySelectorAll("#resetPasswordMessage .mailText")
+          .forEach((el) => {
+            el.style.display = "none";
+          });
       }
       error2.innerText = "";
       exPasswordErrorDiv.style.visibility = "hidden";
@@ -3083,7 +3225,6 @@ async function handleResetPassword_EmailPhone(){
         }
       }
     }
-
   } catch (err) {
     forgotPass.classList.remove("link-loading");
     forgotPasswordClick = false;
@@ -3092,17 +3233,16 @@ async function handleResetPassword_EmailPhone(){
   }
 }
 
-
 function validateResetPasswordInput() {
   const inputElement = document.getElementById("resetPasswordInput");
   const errorDiv = document.getElementById("inputRPError");
-  const errorDivText = document.querySelector('#inputRPError .errorText');
+  const errorDivText = document.querySelector("#inputRPError .errorText");
   const input = inputElement.value.trim();
   const continueBtn = document.getElementById("resetPasswordContinueButton");
 
   if (input === "") {
     continueBtn.disabled = true;
-    errorDiv.style.visibility = 'hidden';
+    errorDiv.style.visibility = "hidden";
     errorDivText.textContent = "";
     inputElement.style.borderColor = "#D1D5DB";
     return;
@@ -3110,20 +3250,20 @@ function validateResetPasswordInput() {
 
   if (validateEmail(input) || validatePhone(input)) {
     continueBtn.disabled = false;
-    errorDiv.style.visibility = 'hidden';
+    errorDiv.style.visibility = "hidden";
     errorDivText.textContent = "";
     inputElement.style.borderColor = "#D1D5DB";
   } else {
     continueBtn.disabled = true;
-    errorDiv.style.visibility = 'visible';
+    errorDiv.style.visibility = "visible";
     errorDivText.textContent =
       "Please enter a 10-digit cell phone number or valid email address.";
     // errorDiv.style.color = "#B91C1C";
     inputElement.style.borderColor = "#B91C1C";
   }
 
-  if(input.length == 255){
-    errorDiv.style.visibility = 'visible';
+  if (input.length == 255) {
+    errorDiv.style.visibility = "visible";
     errorDivText.textContent = "You’ve reached the 255-character limit";
     inputElement.style.borderColor = "#D1D5DB";
   }
@@ -3143,7 +3283,7 @@ function onBlurvalidateResetPasswordPhone() {
   if (digitsOnly.length === 10) {
     const formatted = `${digitsOnly.slice(0, 3)}-${digitsOnly.slice(
       3,
-      6
+      6,
     )}-${digitsOnly.slice(6)}`;
     inputElement.value = formatted;
   } else {
@@ -3151,14 +3291,14 @@ function onBlurvalidateResetPasswordPhone() {
   }
 }
 
-async function handleResetPassword(){
-  if(isLoading) return;
+async function handleResetPassword() {
+  if (isLoading) return;
   isLoading = true;
   onBlurvalidateResetPasswordPhone();
   const input = document.getElementById("resetPasswordInput");
   const continueBtn = document.getElementById("resetPasswordContinueButton");
   const error = document.getElementById("inputRPError");
-  const errorDivText = document.querySelector('#inputRPError .errorText');
+  const errorDivText = document.querySelector("#inputRPError .errorText");
   let value = input.value.trim();
 
   // Double check validation before calling API
@@ -3172,25 +3312,22 @@ async function handleResetPassword(){
   continueBtn.disabled = true;
   continueBtn.classList.add("button-loading");
   continueBtn.innerText = "SENDING...";
-  error.style.visibility = 'hidden';
+  error.style.visibility = "hidden";
   errorDivText.innerText = "";
   input.style.borderColor = "#D1D5DB";
 
   try {
-    const response = await fetch(
-      `${baseURL}/v1.2/api/LoginCode?isWeb=true`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ Phone_Email: value }),
-      }
-    );
+    const response = await fetch(`${baseURL}/v1.2/api/LoginCode?isWeb=true`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ Phone_Email: value }),
+    });
 
     const text = await response.text();
     if (!response.ok) {
       // console.log(response);
       input.style.borderColor = "#B91C1C";
-      error.style.visibility = 'visible';
+      error.style.visibility = "visible";
       errorDivText.innerText = text || "Verification Code Generation failed.";
       continueBtn.disabled = false;
       continueBtn.innerText = "CONTINUE";
@@ -3201,17 +3338,24 @@ async function handleResetPassword(){
     if (text.includes("Your authentication code was sent by")) {
       // Success – show OTP section
       document.getElementById("resetPasswordOtpSection").style.display = "flex";
-      timeoutDidnotReceiveMessage = setTimeout(showRPDidnotReceiveMessage, 10000);
+      timeoutDidnotReceiveMessage = setTimeout(
+        showRPDidnotReceiveMessage,
+        10000,
+      );
       document.getElementById("resetPasswordButton").disabled = true;
       document.getElementById("resetPasswordValueDisplay").innerText = value;
       phone_email = value;
-      if(phone_email.includes("@")){        
-        document.querySelectorAll("#resetPasswordMessage .mailText").forEach(el => el.style.display = "contents");
+      if (phone_email.includes("@")) {
+        document
+          .querySelectorAll("#resetPasswordMessage .mailText")
+          .forEach((el) => (el.style.display = "contents"));
       } else {
-        document.querySelectorAll("#resetPasswordMessage .mailText").forEach(el => el.style.display = "none");
+        document
+          .querySelectorAll("#resetPasswordMessage .mailText")
+          .forEach((el) => (el.style.display = "none"));
       }
       document.getElementById("resetPasswordForm").style.display = "none";
-      error.style.visibility = 'hidden';
+      error.style.visibility = "hidden";
       errorDivText.innerText = "";
 
       // Focus OTP box
@@ -3226,10 +3370,9 @@ async function handleResetPassword(){
         }
       }
     }
-
   } catch (err) {
     input.style.borderColor = "#B91C1C";
-    error.style.visibility = 'visible';
+    error.style.visibility = "visible";
     errorDivText.innerText = "Something went wrong. Please try again.";
     continueBtn.disabled = false;
     continueBtn.innerText = "CONTINUE";
@@ -3329,7 +3472,7 @@ function setupResetOtpListeners() {
 }
 
 async function verifyResetPasswordOtp() {
-  if(isLoading) return;
+  if (isLoading) return;
   isLoading = true;
   const signInBtn = document.getElementById("resetPasswordButton");
   const otpInputs = document.querySelectorAll(".resetotpInputBox");
@@ -3353,29 +3496,26 @@ async function verifyResetPasswordOtp() {
   signInBtn.innerText = "VERIFYING...";
 
   try {
-    const response = await fetch(
-      `${baseURL}/v1.2/api/LoginCode/Confirm`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          Phone_Email,
-          Code,
-          DeviceID: "dummy-device-id", // Replace if needed
-          API_Key: "dummy-api-key", // Replace if needed
-        }),
-      }
-    );
+    const response = await fetch(`${baseURL}/v1.2/api/LoginCode/Confirm`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        Phone_Email,
+        Code,
+        DeviceID: "dummy-device-id", // Replace if needed
+        API_Key: "dummy-api-key", // Replace if needed
+      }),
+    });
 
     if (response.ok) {
       const data = await response.json();
       // console.log("✅ OTP Verified:", data);
 
-      document.getElementById('setPasswordButton').innerText = 'UPDATE PASSWORD';
+      document.getElementById("setPasswordButton").innerText =
+        "UPDATE PASSWORD";
       document.getElementById("setPasswordForm").style.display = "flex";
       document.getElementById("resetPasswordOtpSection").style.display = "none";
       phone_email = Phone_Email;
-
     } else {
       // Error: invalid OTP
       otpInputs.forEach((input) => (input.style.border = "2px solid #B91C1C"));
@@ -3386,16 +3526,20 @@ async function verifyResetPasswordOtp() {
       err.style.fontSize = "14px";
       err.style.marginTop = "8px";
       err.style.fontFamily = "Poppins, sans-serif";
-      err.style.visibility = 'visible';
-      const exclamationSpan = document.createElement('span');
-      exclamationSpan.classList.add('helperText');
-      exclamationSpan.textContent = '!';
-      const errorTextSpan = document.createElement('span');
-      errorTextSpan.classList.add('errorText');
+      err.style.visibility = "visible";
+      const exclamationSpan = document.createElement("span");
+      exclamationSpan.classList.add("helperText");
+      exclamationSpan.textContent = "!";
+      const errorTextSpan = document.createElement("span");
+      errorTextSpan.classList.add("errorText");
       errorTextSpan.innerText = "Invalid or expired code. Please try again.";
       document.getElementById("resetPasswordotpResendSection").appendChild(err);
-      document.getElementById("otpResetPasswordErrorMessage").appendChild(exclamationSpan);
-      document.getElementById("otpResetPasswordErrorMessage").appendChild(errorTextSpan);
+      document
+        .getElementById("otpResetPasswordErrorMessage")
+        .appendChild(exclamationSpan);
+      document
+        .getElementById("otpResetPasswordErrorMessage")
+        .appendChild(errorTextSpan);
     }
   } catch (err) {
     alert("Something went wrong. Please try again.");
@@ -3423,14 +3567,11 @@ async function resendResetPasswordOtp() {
   resetCodeLink.textContent = "Resending...";
 
   try {
-    const response = await fetch(
-      `${baseURL}/api/LoginCode`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ Phone_Email: value }),
-      }
-    );
+    const response = await fetch(`${baseURL}/api/LoginCode`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ Phone_Email: value }),
+    });
 
     const text = await response.text();
 
@@ -3464,7 +3605,9 @@ async function resendResetPasswordOtp() {
         otpSucess.style.visibility = "visible";
         otpSucess.innerText = "Verification code sent successfully!";
         otpSucess.classList.add("blink");
-        document.getElementById("resetPasswordotpResendSection").appendChild(otpSucess);
+        document
+          .getElementById("resetPasswordotpResendSection")
+          .appendChild(otpSucess);
 
         setTimeout(() => {
           if (otpSucess) otpSucess.remove();
@@ -3498,9 +3641,8 @@ function checkshowResetPasswordForm(event) {
 }
 
 function showResetPasswordForm() {
-
   // Username/password forgot password flow
-  if(userNameForgotPass){
+  if (userNameForgotPass) {
     // Show login form
     const continueBtn = document.getElementById("resetPasswordContinueButton");
     continueBtn.classList.remove("button-loading");
@@ -3524,57 +3666,57 @@ function showResetPasswordForm() {
 
     document.getElementById("resetPasswordMessage").style.display = "none";
     clearTimeout(timeoutDidnotReceiveMessage);
-    document.querySelectorAll('.submitButtonDiv h5').forEach(el => {
-    el.style.pointerEvents = 'auto';
-  });
+    document.querySelectorAll(".submitButtonDiv h5").forEach((el) => {
+      el.style.pointerEvents = "auto";
+    });
     return;
   }
 
   document.getElementById("resetPasswordOtpSection").style.display = "none";
   document.getElementById("resetPasswordMessage").style.display = "none";
   clearTimeout(timeoutDidnotReceiveMessage);
-  document.querySelectorAll('.submitButtonDiv h5').forEach(el => {
-    el.style.pointerEvents = 'auto';
+  document.querySelectorAll(".submitButtonDiv h5").forEach((el) => {
+    el.style.pointerEvents = "auto";
   });
   document.getElementById("loginForm").style.display = "block";
   resetLoginModalState();
   document.getElementById("loginInput").value = phone_email;
-  document.getElementById('loginInput').focus();
+  document.getElementById("loginInput").focus();
   document.getElementById("continueButton").disabled = false;
 }
 
-function showRPDidnotReceiveMessage(){
-  document.getElementById("resetPasswordMessage").style.display="block";
-  document.querySelectorAll('.submitButtonDiv h5').forEach(el => {
-  el.style.pointerEvents = 'none';
-  });
-  
-}
-
-function showLDidnotReceiveMessage(){
-  document.getElementById("loginCodeMessage").style.display="block";
-  document.querySelectorAll('.submitButtonDiv h5').forEach(el => {
-  el.style.pointerEvents = 'none';
-  });
-}
-function showSUDidnotReceiveMessage(){
-  document.getElementById("signupCodeMessage").style.display="block";
-  document.querySelectorAll('.submitButtonDiv h5').forEach(el => {
-  el.style.pointerEvents = 'none';
+function showRPDidnotReceiveMessage() {
+  document.getElementById("resetPasswordMessage").style.display = "block";
+  document.querySelectorAll(".submitButtonDiv h5").forEach((el) => {
+    el.style.pointerEvents = "none";
   });
 }
 
-function showSCDidnotReceiveMessage(){
-  document.getElementById("secondaryContactCodeMessage").style.display="block";
-  document.querySelectorAll('.submitButtonDiv h5').forEach(el => {
-  el.style.pointerEvents = 'none';
+function showLDidnotReceiveMessage() {
+  document.getElementById("loginCodeMessage").style.display = "block";
+  document.querySelectorAll(".submitButtonDiv h5").forEach((el) => {
+    el.style.pointerEvents = "none";
+  });
+}
+function showSUDidnotReceiveMessage() {
+  document.getElementById("signupCodeMessage").style.display = "block";
+  document.querySelectorAll(".submitButtonDiv h5").forEach((el) => {
+    el.style.pointerEvents = "none";
+  });
+}
+
+function showSCDidnotReceiveMessage() {
+  document.getElementById("secondaryContactCodeMessage").style.display =
+    "block";
+  document.querySelectorAll(".submitButtonDiv h5").forEach((el) => {
+    el.style.pointerEvents = "none";
   });
 }
 
 function isAccessTokenValid(token, expectedIssuer, expectedAudience) {
   if (!token) return false;
   try {
-    const payload = JSON.parse(atob(token.split('.')[1]));
+    const payload = JSON.parse(atob(token.split(".")[1]));
     const { exp, iss, aud } = payload;
 
     return (
@@ -3590,81 +3732,79 @@ function isAccessTokenValid(token, expectedIssuer, expectedAudience) {
 
 async function refetchProfileImage(token) {
   try {
-      const userInfo = document.getElementById("user-info");
-      const payload = JSON.parse(atob(token.split(".")[1]));
-      const userAvatar = document.getElementById("user-avatar");
-      const loginButton = document.getElementById("loginButton");
+    const userInfo = document.getElementById("user-info");
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    const userAvatar = document.getElementById("user-avatar");
+    const loginButton = document.getElementById("loginButton");
 
-      // console.log("Decoded JWT payload:", payload);
+    // console.log("Decoded JWT payload:", payload);
 
-      const response = await fetch(
-        `${baseURL}/api/My/Contact`,
-        { method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-        }});
+    const response = await fetch(`${baseURL}/api/My/Contact`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
-      const text = await response.json();
-      
-      if(text.Web_Image_URL != null){
-        document.querySelectorAll('#user-avatar-mbl').forEach(container => {
-          let img = container.querySelector('img');
-          if (img) img.src = text.Web_Image_URL;
-          else {
-            container.innerHTML = "";
-            img = document.createElement('img');
-            img.src = text.Web_Image_URL;
-            img.style.borderRadius = "50%";
-            img.style.height = "100%";
-            img.style.width = "100%";
-            container.appendChild(img);
-          }
-        });
-        document.querySelectorAll('#user-avatar').forEach(container => {
-          let img = container.querySelector('img');
-          if (img) img.src = text.Web_Image_URL;
-          else {
-            container.innerHTML = "";
-            img = document.createElement('img');
-            img.src = text.Web_Image_URL;
-            img.style.borderRadius = "50%";
-            img.style.height = "100%";
-            img.style.width = "100%";
-            container.appendChild(img);
-          }
-        });
-      }
-      else {
-        const firstName = payload.FirstName || "";
-        const lastName = payload.LastName || "";
-        const email = payload.UserName || "";
-        const initials =
-          firstName && lastName
-              ? `${firstName.charAt(0).toUpperCase()}${lastName.charAt(0).toUpperCase()}`
-            : email.charAt(0).toUpperCase();
-        if (userInfo) {
-          userInfo.style.display = "flex";
-          userAvatar.textContent = initials;
+    const text = await response.json();
+
+    if (text.Web_Image_URL != null) {
+      document.querySelectorAll("#user-avatar-mbl").forEach((container) => {
+        let img = container.querySelector("img");
+        if (img) img.src = text.Web_Image_URL;
+        else {
+          container.innerHTML = "";
+          img = document.createElement("img");
+          img.src = text.Web_Image_URL;
+          img.style.borderRadius = "50%";
+          img.style.height = "100%";
+          img.style.width = "100%";
+          container.appendChild(img);
         }
-        userifyDiviMobileHamburger(initials);
+      });
+      document.querySelectorAll("#user-avatar").forEach((container) => {
+        let img = container.querySelector("img");
+        if (img) img.src = text.Web_Image_URL;
+        else {
+          container.innerHTML = "";
+          img = document.createElement("img");
+          img.src = text.Web_Image_URL;
+          img.style.borderRadius = "50%";
+          img.style.height = "100%";
+          img.style.width = "100%";
+          container.appendChild(img);
+        }
+      });
+    } else {
+      const firstName = payload.FirstName || "";
+      const lastName = payload.LastName || "";
+      const email = payload.UserName || "";
+      const initials =
+        firstName && lastName
+          ? `${firstName.charAt(0).toUpperCase()}${lastName.charAt(0).toUpperCase()}`
+          : email.charAt(0).toUpperCase();
+      if (userInfo) {
+        userInfo.style.display = "flex";
+        userAvatar.textContent = initials;
       }
-      if (loginButton) loginButton.style.display = "none";
-      hideMobileLoginBtn();
-
-    } catch (error) {
-      console.error("Invalid JWT token", error);
+      userifyDiviMobileHamburger(initials);
     }
+    if (loginButton) loginButton.style.display = "none";
+    hideMobileLoginBtn();
+  } catch (error) {
+    console.error("Invalid JWT token", error);
+  }
 }
 async function myBackHandler() {
-  jQuery('ul#mobile_menu2').css('display', 'none');
+  jQuery("ul#mobile_menu2").css("display", "none");
   const token = localStorage.getItem("mpp-widgets_JwtToken");
-  if(token) await refetchProfileImage(token);
+  if (token) await refetchProfileImage(token);
 }
 
-window.addEventListener('popstate', myBackHandler);
+window.addEventListener("popstate", myBackHandler);
 
-window.addEventListener('pageshow', function (e) {
+window.addEventListener("pageshow", function (e) {
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
       myBackHandler();
@@ -3685,7 +3825,7 @@ window.addEventListener('pageshow', function (e) {
 //   font-weight: bold;
 //   font-size: 14px;
 // }
- 
+
 // #user-avatar-mbl {
 //   width: 40px;
 //   height: 40px;
@@ -3696,21 +3836,21 @@ window.addEventListener('pageshow', function (e) {
 // #user-avatar img{
 //   object-fit: cover;
 // }
- 
+
 // #user-info {
 //   display: flex;
 //   align-items: center;
 //   gap: 8px;
 //   cursor: pointer;
 // }
- 
+
 // .et_pb_column_1_4.et-last-child {
 //   display: flex !important;
 //   justify-content: flex-end;
 //   align-items: center;
 //   gap: 12px; /* space between items */
 // }
- 
+
 // #user-dropdown-menu {
 //   display: none;
 //   position: absolute;
@@ -3725,7 +3865,7 @@ window.addEventListener('pageshow', function (e) {
 //   padding: 10px 10px;
 //   z-index: 1000;
 // }
- 
+
 // #user-dropdown-menu li a {
 //   font-family: Poppins;
 //   display: block;
@@ -3733,15 +3873,15 @@ window.addEventListener('pageshow', function (e) {
 //   color: white;
 //   text-decoration: none;
 // }
- 
+
 // #user-dropdown-menu li a:hover {
 //   color: #003e5c !important; /* Example: change text color */
 // }
- 
+
 // #user-info {
 //   position: relative;
 // }
- 
+
 // #user-info::before {
 //   content: "";
 //   position: absolute;
