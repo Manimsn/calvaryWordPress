@@ -7,7 +7,7 @@
   color: white;
 }
 
-.loginForm h2 {
+.loginForm h2, .resetPasswordForm h2 {
   font-size: 40px;
   font-weight: 600;
   text-align: center;
@@ -15,13 +15,13 @@
   color: white;
 }
 
-.loginForm p {
+.loginForm p, .resetPasswordForm p {
   font-size: 18px;
   text-align: left;
   margin-bottom: 8px;
 }
 
-.loginForm h5 {
+.loginForm h5, .resetPasswordForm h5 {
   font-size: 24px;
   font-weight: 700;
   line-height: 32px;
@@ -64,7 +64,8 @@
 #inputErrorFirstName,
 #inputErrorLastName,
 #inputErrorEmail,
-#inputErrorSecondary {
+#inputErrorSecondary,
+#inputRPError {
   color: #b91c1c;
   font-size: 14px;
   line-height: 24px;
@@ -81,13 +82,21 @@
 #signupOTPButton:hover,
 #secondaryOTPButton:hover,
 #addButton:hover,
-#skipButton:hover {
+#skipButton:hover,
+#usernameSignInButton:hover,
+#exPasswordSignInButton:hover,
+#setPasswordButton:hover,
+#reLoginButton:hover,
+#signUpPasswordButton:hover,
+#resetPasswordContinueButton:hover,
+#resetPasswordButton:hover {
   opacity: 0.8;
 }
 
 #signUpButton:disabled,
 .cta-button:disabled,
-#continueButton:disabled {
+#continueButton:disabled,
+#resetPasswordContinueButton:disabled {
   background: transparent !important; 
   color: white !important;
   border: 1px solid white !important; 
@@ -97,7 +106,8 @@
 
 .cta-button,
 #signUpButton,
-#continueButton {
+#continueButton,
+#resetPasswordContinueButton {
   color: #00B5EF !important;
   cursor: pointer;
   transition: background-color 0.3s ease, cursor 0.3s ease;
@@ -119,20 +129,34 @@
 
 #signInButton,
 #signupOTPButton,
-#secondaryOTPButton{
+#secondaryOTPButton,
+#usernameSignInButton,
+#exPasswordSignInButton,
+#setPasswordButton,
+#reLoginButton,
+#signUpPasswordButton,
+#resetPasswordButton {
   margin: 0 auto; 
   padding: 10px 30px; 
   border-radius: 50px; 
   background: white; 
   color: #00B5EF;
   border: 1px solid white; 
-  font-weight: bold; 
   cursor: pointer;
+	font-size: 16px;
+	font-style: normal;
+	font-weight: 600;
+	line-height: 24px; 
 }
 
 #signInButton:disabled,
 #signupOTPButton:disabled,
-#secondaryOTPButton:disabled{
+#secondaryOTPButton:disabled,
+#usernameSignInButton:disabled,
+#exPasswordSignInButton:disabled,
+#setPasswordButton:disabled,
+#signUpPasswordButton:disabled,
+#resetPasswordButton:disabled {
   cursor: not-allowed;
   opacity: 0.6;
   background-color: transparent;
@@ -146,7 +170,15 @@
 #emailInput,
 #loginInput,
 #secondaryContactInputEmail,
-#secondaryContactInputPhone {
+#secondaryContactInputPhone,
+#usernameInput,
+#passwordInput,
+#exPasswordInput,
+#setPasswordInput,
+#setPasswordConfirmInput,
+#signUpPasswordInput,
+#signUpPasswordConfirmInput,
+#resetPasswordInput{
   width: 100%;
 }
 
@@ -159,7 +191,15 @@
 #emailInput,
 #loginInput,
 #secondaryContactInputEmail,
-#secondaryContactInputPhone {
+#secondaryContactInputPhone,
+#usernameInput,
+#passwordInput,
+#exPasswordInput,
+#setPasswordInput,
+#setPasswordConfirmInput,
+#signUpPasswordInput,
+#signUpPasswordConfirmInput,
+#resetPasswordInput{
   padding: 12px 16px;
   border-radius: 12px !important;
   border: 2px solid #d1d5db;
@@ -172,14 +212,39 @@
   box-sizing: border-box;
 }
 
+#passwordInput,
+#exPasswordInput,
+#setPasswordInput,
+#setPasswordConfirmInput,
+#signUpPasswordInput,
+#signUpPasswordConfirmInput{
+  padding-right: 40px;
+}
 
+#loginInput:-webkit-autofill, #loginInput:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0px 1000px white inset !important;
+	-webkit-text-fill-color: #007fa7 !important;
+}
+
+/* #et_pb_button_0_tb_header:focus{  
+  border-radius: 20px;
+  outline: 2px solid white;
+} */
 
 #firstNameInput:focus,
 #lastNameInput:focus,
 #emailInput:focus,
 #loginInput:focus,
 #secondaryContactInputEmail:focus,
-#secondaryContactInputPhone:focus{
+#secondaryContactInputPhone:focus,
+#usernameInput:focus,
+#passwordInput:focus,
+#exPasswordInput:focus,
+#setPasswordInput:focus,
+#setPasswordConfirmInput:focus,
+#signUpPasswordInput:focus,
+#signUpPasswordConfirmInput:focus,
+#resetPasswordInput:focus{
   border: 2px solid #146DFC;
 }
 
@@ -188,24 +253,30 @@
 #skipButton:focus,
 #addButton:focus,
 #secondaryOTPButton:focus,
-#signUpButton:focus{
+#signupOTPButton:focus,
+#usernameSignInButton:focus,
+#exPasswordSignInButton:focus,
+#setPasswordButton:focus,
+#reLoginButton:focus,
+#signUpPasswordButton:focus,
+#resetPasswordContinueButton:focus,
+#resetPasswordButton:focus,
+#signUpButton:focus {
   outline: 1px solid white;
   outline-offset: 2px;
 }
 
-#resetCodeLink:focus,
-#secondaryLoginresetCodeLink:focus,
-#signupResetCodeLink:focus{
+#resetCodeLink:focus-visible,
+#secondaryLoginresetCodeLink:focus-visible,
+#signupResetCodeLink:focus-visible,
+#resetPasswordCodeLink:focus-visible,
+#secondaryotpBackArrow:focus-visible,
+#otpBackArrow:focus-visible,
+#signupotpBackArrow:focus-visible,
+#resetPasswordotpBackArrow:focus-visible,
+#forgotPassword:focus-visible, 
+#exPasswordForgotPassword:focus-visible {
 	outline: 1px solid white;
-  outline-offset: 2px;
-  border-radius: 15px;
-}
-
-#secondaryotpBackArrow:focus,
-#otpBackArrow:focus,
-#signupotpBackArrow:focus,
-#signupOTPButton:focus{
-  outline: 1px solid white;
   outline-offset: 2px;
   border-radius: 15px;
 }
@@ -218,7 +289,8 @@
 
 .signupotpInputBox,
 .otpInputBox,
-.secondaryotpInputBox {
+.secondaryotpInputBox,
+.resetotpInputBox {
   width: 64px;
   height: 55px;
   text-align: center;
@@ -232,7 +304,23 @@
   padding : 0 !important;
 }
 
-#otpErrorMessage {
+.signupotpInputBox:-webkit-autofill,
+.otpInputBox:-webkit-autofill,
+.secondaryotpInputBox:-webkit-autofill,
+.resetotpInputBox:-webkit-autofill,
+.signupotpInputBox:-webkit-autofill:focus,
+.otpInputBox:-webkit-autofill:focus,
+.secondaryotpInputBox:-webkit-autofill:focus,
+.resetotpInputBox:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0px 1000px rgba(0,0,0,0) inset !important; /* fully transparent */
+    -webkit-text-fill-color: #007fa7 !important;
+    background-color: transparent !important; /* force transparency */
+    transition: background-color 5000s ease-in-out 0s; /* prevents autofill flash */
+}
+
+
+#otpErrorMessage,
+#nickName {
   font-family: "Poppins", sans-serif !important;
 }
 
@@ -281,16 +369,97 @@
   line-height: 32px;
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: 8px;
+}
+
+#secondaryContact_Button_Div{
+  align-self: flex-end; 
+  margin-top: 24px;
+}
+
+.submitButtonDiv{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-weight: 500;
+  font-family: 'Poppins', sans-serif !important;
+}
+
+.submitButtonDiv h5{
+  margin-top: 40px;
+  margin-bottom: 10px;
+  font-size: 14px;
+  position: relative;
+  color: white;
+  cursor: pointer;
+}
+
+.submitButtonDiv h6 {
+  width: 390px;
+  font-size: 14px;
+  text-align: center;
+  position: absolute;
+  bottom: -40px;
+  color: #6B7280;
+  line-height: 16px;
+}
+
+.mailText {
+  font-family: 'Poppins', sans-serif !important;
+  font-size: 14px;
+  line-height: 16px;
+}
+
+#resetPasswordMessage,
+#loginCodeMessage,
+#signupCodeMessage,
+#secondaryContactCodeMessage{
+  display: none;
+}
+
+#inputError,
+#inputErrorFirstName,
+#inputErrorLastName,
+#inputErrorEmail,
+#inputErrorSecondary,
+#inputRPError,
+#otpErrorMessage,
+#otpSignupErrorMessage,
+#otpSecondaryLoginErrorMessage,
+#otpResetPasswordErrorMessage,
+#usernameInputError, 
+#exPasswordInputError, 
+#setPasswordInputsError, 
+#signUpPasswordInputsError {
+  display: flex;
+  align-items: flex-start;      
+  gap: 16px;                
+  justify-content: flex-start;
+  width: 100%;  
+  min-height: 24px;
+  visibility: hidden;             
 }
 
 @media (min-width: 800px) {
   #inputError,
+  #inputErrorSecondary,
+  #inputRPError{
+    min-height: 48px !important;
+  }
+
   #inputErrorFirstName,
   #inputErrorLastName,
-  #inputErrorEmail,
-  #inputErrorSecondary {
-    min-height: 48px !important;
+  #inputErrorEmail{
+    min-height: 24px !important;
+  }
+}
+@media (max-width:980px) {
+  .submitButtonDiv h5{
+    margin-bottom: 30px;
+  }
+
+  .submitButtonDiv h6 {
+    bottom: -20px;
   }
 }
 
@@ -308,11 +477,15 @@
     margin-left: 30px !important;
   }
 
-  .loginForm h5 {
+  .loginForm h5, .resetPasswordForm h5 {
     font-size: 20px;
     font-weight: 600;
     line-height: 28px;
     color: white;
+  }
+
+  .resetPasswordForm h2 {
+    font-size: 28px;
   }
 
   .form-row {
@@ -339,14 +512,21 @@
   }
 
   #skipButton {
-    margin-left: 14px;
+    margin-left: 0px;
     padding: 6px 18px;
     font-size: 14px;
+    width: 100%;
+    margin-top: 15px;
   }
 
   #addButton {
     padding: 6px 18px;
     font-size: 14px;
+    width: 100%;
+  }
+
+  #secondaryContact_Button_Div{
+    align-self: auto;
   }
 
   #successModal h4{
@@ -355,8 +535,44 @@
   }
 
   .secondaryotpInputBox, 
-  .signupotpInputBox {
+  .signupotpInputBox,
+  .resetotpInputBox {
     width: 40px !important;
+  }
+  
+  .usernameForm h2, .exPasswordForm h2, .setPasswordForm h2, .signUpPasswordForm h2 {
+    font-size: 24px !important;
+    font-style: normal;
+    font-weight: 600 !important;
+    line-height: 28px !important;
+    letter-spacing: -0.48px !important;
+    color: white;
+  }
+
+  #reLoginSuccessMessage {
+    font-family: 'Poppins', sans-serif !important;
+    color: white;
+    text-align: center;
+    font-size: 24px !important;
+    font-style: normal;
+    font-weight: 500 !important;
+    line-height: 32px !important;
+    letter-spacing: -0.48px !important;
+  }
+
+  .submitButtonDiv h5{
+    margin-bottom: 45px;
+  }
+
+  .submitButtonDiv h6 {
+    width: 360px;
+  }
+
+  #otpErrorMessage,
+  #otpSignupErrorMessage,
+  #otpSecondaryLoginErrorMessage,
+  #otpResetPasswordErrorMessage{
+    gap: 8px;
   }
 }
 
@@ -459,4 +675,200 @@
   background: none !important;
   backdrop-filter: none !important;
   opacity: 0 !important;
+}
+
+.usernameForm{
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+}
+
+.usernameForm h2, .exPasswordForm h2 {
+  font-size: 40px;
+  font-weight: 600;
+  text-align: center;
+  color: white;
+}
+
+.inputsWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  gap: 24px;
+}
+
+.inputsWrapper label {
+  font-weight: 400;
+  font-style: normal;
+  font-size: 18px;
+  line-height: 28px;
+  letter-spacing: normal;
+}
+
+.wrapper{
+  width: 100%;
+}
+
+#forgotPassword, #exPasswordForgotPassword {
+  color: white;
+  font-family: 'Poppins', sans-serif !important;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 20px;
+  text-decoration-line: underline;
+  text-decoration-style: solid;
+  margin-top: 8px;
+  float: right;
+  pointer-events: auto;
+}
+
+.password-container {
+  position: relative;
+  display: inline-block;
+  width: 100%
+}
+
+.password-container input {
+   padding-right: 40px;
+   font-family: 'Poppins', sans-serif !important;
+}
+
+.toggle-visibility {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  pointer-events: auto;
+}
+
+.toggle-visibility:focus-visible {
+  outline: 1px solid #146DFC;
+}
+
+.toggle-visibility svg {
+  width: 24px;
+  height: 24px;
+}
+
+.helperText {
+ color: #b91c1c;
+ border-radius: 50px;
+ border: 1px solid #b91c1c;
+ padding: 1px 6px;
+ font-size: 14px;
+ font-weight: 600;
+ display: inline-flex;
+ align-items: center;
+ justify-content: center;
+ line-height: 1;
+ margin-top: 4px;
+}
+
+.errorText {
+  color: #b91c1c;
+  font-size: 14px;
+  line-height: 24px;
+  text-align: left;
+  word-break: break-word;
+  font-family: "Poppins", sans-serif !important;
+}
+
+.exPasswordForm { 
+  display: none;
+  align-items: center;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.passwordHint {
+  color: white;
+  font-family: 'Poppins', sans-serif !important;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 14px;
+  text-align: left;
+  width: 100%;
+}
+
+.setPasswordForm h2, .signUpPasswordForm h2 {
+  font-size: 28px;
+  font-weight: 600;
+  text-align: left;
+  color: white;
+  width: 100%;
+  line-height: 36px;
+  letter-spacing: -0.56px;
+}
+
+.setPasswordForm{
+  display: none;
+  align-items: center;
+  flex-direction: column;
+  gap: 24px;
+}
+
+#reLoginSuccessSection {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 32px;
+}
+
+.reLoginWrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+}
+
+#reLoginSuccessMessage {
+  font-family: 'Poppins', sans-serif !important;
+  color: white;
+  text-align: center;
+  font-size: 28px;
+  font-weight: 600;
+  line-height: 36px;
+  letter-spacing: -0.56px;
+}
+
+.signUpPasswordForm{
+  display: none;
+  align-items: center;
+  flex-direction: column;
+  gap: 24px;
+}
+
+@media (pointer: coarse) {
+  #addButton:hover {
+    opacity: 1;
+  }
+}
+
+#passwordInput::-ms-reveal,
+#passwordInput::-ms-clear,
+#exPasswordInput::-ms-reveal, 
+#exPasswordInput::-ms-clear,
+#setPasswordInput::-ms-reveal,
+#setPasswordInput::-ms-clear,
+#setPasswordConfirmInput::-ms-reveal,
+#setPasswordConfirmInput::-ms-clear,
+#signUpPasswordInput::-ms-reveal,
+#signUpPasswordInput::-ms-clear,
+#signUpPasswordConfirmInput::-ms-reveal,
+#signUpPasswordConfirmInput::-ms-clear{
+  display: none !important;
 }
