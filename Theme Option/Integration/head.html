@@ -7,7 +7,7 @@
 
 <script>
   (function () {
-    console.log("[vm-tip] delegated script loaded");
+    // console.log("[vm-tip] delegated script loaded");
 
     function positionTip(tip) {
       tip.classList.remove(
@@ -36,16 +36,16 @@
 
       if (spaceTop >= minSpace || spaceTop >= spaceBottom) {
         tip.classList.add("vm-tip-top");
-        console.log("[vm-tip] TOP", {
-          spaceTop: spaceTop,
-          spaceBottom: spaceBottom,
-        });
+        // console.log("[vm-tip] TOP", {
+        //   spaceTop: spaceTop,
+        //   spaceBottom: spaceBottom,
+        // });
       } else {
         tip.classList.add("vm-tip-bottom");
-        console.log("[vm-tip] BOTTOM", {
-          spaceTop: spaceTop,
-          spaceBottom: spaceBottom,
-        });
+        // console.log("[vm-tip] BOTTOM", {
+        //   spaceTop: spaceTop,
+        //   spaceBottom: spaceBottom,
+        // });
       }
 
       var overflowLeft = safePadding - (centerX - tooltipWidth / 2);
@@ -62,12 +62,12 @@
     function activateTip(tip, source) {
       positionTip(tip);
       tip.classList.add("vm-tip-active");
-      console.log("[vm-tip] active via", source);
+      // console.log("[vm-tip] active via", source);
     }
 
     function deactivateTip(tip, source) {
       tip.classList.remove("vm-tip-active");
-      console.log("[vm-tip] inactive via", source);
+      // console.log("[vm-tip] inactive via", source);
     }
 
     // Mouse hover (delegated)
@@ -124,7 +124,7 @@
     // Debug heartbeat to confirm widget is eventually rendered
     setInterval(function () {
       var count = document.querySelectorAll(".vm-tip").length;
-      console.log("[vm-tip] current count:", count);
+      // console.log("[vm-tip] current count:", count);
     }, 3000);
   })();
 </script>
