@@ -124,7 +124,9 @@ async function handleLogin() {
     const text = await response.text();
 
     if (!response.ok) {
-      // // console.log(response);
+      console.log(response);
+      console.log(text);
+
       if (response.status === 404) {
         document.getElementById("loginForm").style.display = "none";
         document.getElementById("signupSection").style.display = "flex";
@@ -599,8 +601,8 @@ async function verifySecondaryContact() {
     const text = await response.text();
 
     if (!response.ok) {
-      // console.log("API Response:", response);
-      // console.log("API Response:text", text);
+      console.log("API Response:", response);
+      console.log("API Response:text", text);
 
       // Success – close modal
       // $.magnificPopup.close();
@@ -609,8 +611,23 @@ async function verifySecondaryContact() {
         ? (email_input.style.borderColor = "#B91C1C")
         : (phone_input.style.borderColor = "#B91C1C");
       error.style.visibility = "visible";
-      errorDivText.innerText =
-        text || "Something went wrong. Please try again.";
+      // errorDivText.innerText =
+      //   text || "Something went wrong. Please try again.";
+      // -------------------------
+      if (text && text.includes("WebHelp@CalvaryFTL.org")) {
+        console.log("included");
+        const updatedText = text.replace(
+          "WebHelp@CalvaryFTL.org",
+          `<a href="mailto:WebHelp@CalvaryFTL.org" style="color:#B91C1C; text-decoration:underline;">
+      WebHelp@CalvaryFTL.org
+    </a>`,
+        );
+        errorDivText.innerHTML = updatedText;
+      } else {
+        console.log("not included");
+        errorDivText.innerText = text || "Something went wrong. Please try again.";
+      }
+      // -------------------------
       addButton.disabled = false;
       addButton.classList.remove("button-loading");
       addButton.innerText = isEmail
@@ -2702,7 +2719,23 @@ async function handleUsernameLogin() {
       usernameInput.style.borderColor = "#B91C1C";
       passwordInput.style.borderColor = "#B91C1C";
       usernameErrorDiv.style.visibility = "visible";
-      error1.innerText = text || "Invalid username or password. Try again.";
+      // error1.innerText = text || "Invalid username or password. Try again.";
+
+      // -------------------------
+      if (text && text.includes("WebHelp@CalvaryFTL.org")) {
+        console.log("included");
+        const updatedText = text.replace(
+          "WebHelp@CalvaryFTL.org",
+          `<a href="mailto:WebHelp@CalvaryFTL.org" style="color:#B91C1C; text-decoration:underline;">
+      WebHelp@CalvaryFTL.org
+    </a>`,
+        );
+        error1.innerHTML = updatedText;
+      } else {
+        console.log("not included");
+        error1.innerText = text || "Invalid username or password. Try again.";
+      }
+      // -------------------------
       usernameSignInBtn.disabled = true;
       usernameSignInBtn.innerText = "SIGN IN";
       usernameSignInBtn.classList.remove("button-loading");
