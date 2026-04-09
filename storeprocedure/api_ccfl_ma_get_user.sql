@@ -21,7 +21,7 @@ BEGIN
     IF @UserID > 0  
         SELECT u.[User_ID]  
              , u.[User_Name]  
-             , u.[Display_Name]  
+             , COALESCE(u.[Display_Name], '') AS Display_Name  
              , u.[Password]  
              , u.[Admin]  
              , u.[Domain_ID]  
@@ -49,16 +49,16 @@ BEGIN
              , u.[Delete_Requested_Date]  
              , u.[Reason_Deleted]  
              , u.[__Unmerge_Date]  
-             , c.First_Name  
-             , c.Last_Name  
-             , c.Nickname  
+             , COALESCE(c.First_Name, '') AS First_Name  
+             , COALESCE(c.Last_Name, '') AS Last_Name  
+             , COALESCE(c.Nickname, '') AS Nickname  
         FROM dp_Users u  
              LEFT OUTER JOIN Contacts c ON c.User_Account = u.User_ID  
         WHERE User_ID = @UserID;  
     ELSE IF @UserName IS NOT NULL  
         SELECT u.[User_ID]  
              , u.[User_Name]  
-             , u.[Display_Name]  
+             , COALESCE(u.[Display_Name], '') AS Display_Name  
              , u.[Password]  
              , u.[Admin]  
              , u.[Domain_ID]  
@@ -86,16 +86,16 @@ BEGIN
              , u.[Delete_Requested_Date]  
              , u.[Reason_Deleted]  
              , u.[__Unmerge_Date]  
-             , c.First_Name  
-             , c.Last_Name  
-             , c.Nickname  
+             , COALESCE(c.First_Name, '') AS First_Name  
+             , COALESCE(c.Last_Name, '') AS Last_Name  
+             , COALESCE(c.Nickname, '') AS Nickname  
         FROM dp_Users u  
              LEFT OUTER JOIN Contacts c ON c.User_Account = u.User_ID  
         WHERE User_Name LIKE @UserName;  
     ELSE IF @Email IS NOT NULL  
         SELECT u.[User_ID]  
              , u.[User_Name]  
-             , u.[Display_Name]  
+             , COALESCE(u.[Display_Name], '') AS Display_Name  
              , u.[Password]  
              , u.[Admin]  
              , u.[Domain_ID]  
@@ -123,9 +123,9 @@ BEGIN
              , u.[Delete_Requested_Date]  
              , u.[Reason_Deleted]  
              , u.[__Unmerge_Date]  
-             , c.First_Name  
-             , c.Last_Name  
-             , c.Nickname  
+             , COALESCE(c.First_Name, '') AS First_Name  
+             , COALESCE(c.Last_Name, '') AS Last_Name  
+             , COALESCE(c.Nickname, '') AS Nickname  
         FROM dp_Users u  
              LEFT OUTER JOIN Contacts c ON c.User_Account = u.User_ID  
         WHERE User_Name LIKE @Email  
@@ -133,7 +133,7 @@ BEGIN
     ELSE  
         SELECT u.[User_ID]  
              , u.[User_Name]  
-             , u.[Display_Name]  
+             , COALESCE(u.[Display_Name], '') AS Display_Name  
              , u.[Password]  
              , u.[Admin]  
              , u.[Domain_ID]  
@@ -161,9 +161,9 @@ BEGIN
              , u.[Delete_Requested_Date]  
              , u.[Reason_Deleted]  
              , u.[__Unmerge_Date]  
-             , c.First_Name  
-             , c.Last_Name  
-             , c.Nickname  
+             , COALESCE(c.First_Name, '') AS First_Name  
+             , COALESCE(c.Last_Name, '') AS Last_Name  
+             , COALESCE(c.Nickname, '') AS Nickname  
         FROM dp_Users u  
              INNER JOIN Contacts c ON c.Contact_ID = u.Contact_ID  
         WHERE REPLACE (REPLACE (REPLACE (c.Mobile_Phone, '-', ''), ')', ''), '(', '') LIKE REPLACE (  
