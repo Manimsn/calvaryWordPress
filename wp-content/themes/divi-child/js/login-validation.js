@@ -2865,11 +2865,25 @@ async function handleExPasswordLogin() {
           document.getElementById("secondaryContactInputPhone").style.display =
             "flex";
       } else {
-        $.magnificPopup.close();
-        setTimeout(() => {
-          exPasswordDiv.style.display = "none";
-        }, 1000);
-      }
+  $.magnificPopup.close();
+
+  setTimeout(() => {
+    exPasswordDiv.style.display = "none";
+  }, 1000);
+
+  // ✅ REDIRECT AFTER LOGIN
+  const redirectUrl = localStorage.getItem("redirectAfterLogin");
+
+  if (redirectUrl) {
+    localStorage.removeItem("redirectAfterLogin");
+
+    setTimeout(() => {
+      window.location.href = redirectUrl;
+    }, 300);
+  } else {
+    window.location.href = "/";
+  }
+}
       exPasswordSignInBtn.classList.remove("button-loading");
     }
   } catch (err) {
