@@ -11,9 +11,14 @@
     if (redirectUrl) {
       localStorage.removeItem("redirectAfterLogin");
 
-      setTimeout(() => {
-        window.location.href = redirectUrl;
-      }, 300);
+      // prevent multiple redirects
+      if (!window.redirectInProgress) {
+        window.redirectInProgress = true;
+
+        setTimeout(() => {
+          window.location.href = redirectUrl;
+        }, 300);
+      }
     }
   }
 
