@@ -6,55 +6,60 @@
 
 
 <script>
-(function () {
-  var token = localStorage.getItem('mpp-widgets_AuthToken');
+  (function () {
+    var token = localStorage.getItem("mpp-widgets_AuthToken");
 
-  var protectedPages = [
-    '/my-account-page',
-    '/my-giving-page',
-    '/baptism-certificate',
-	  '/edit-profile'
-  ];
+    var protectedPages = [
+      "/my-account-page",
+      "/my-giving-page",
+      "/baptism-certificate",
+      "/edit-profile",
+    ];
 
-  var currentPath = window.location.pathname;
+    var currentPath = window.location.pathname;
+    var currentHash = window.location.hash;
 
-  var isProtected = protectedPages.some(function(page) {
-    return currentPath.includes(page);
-  });
+    var isProtected = protectedPages.some(function (page) {
+      return currentPath.includes(page);
+    });
 
-  // If not logged in → redirect immediately
-  if (isProtected && !token) {
-    window.location.replace('/?openLogin=true');
-  }
-})();
+    if (isProtected && !token) {
+      // ✅ Save FULL URL (including hash)
+      var redirectUrl = currentPath + currentHash;
+      localStorage.setItem("redirectAfterLogin", redirectUrl);
+
+      // Redirect to home with login trigger
+      window.location.replace("/?openLogin=true");
+    }
+  })();
 </script>
 
 <script>
-document.addEventListener("DOMContentLoaded", function () {
-  // ✅ Only run on homepage
-  if (window.location.pathname !== "/") return;
+  document.addEventListener("DOMContentLoaded", function () {
+    // ✅ Only run on homepage
+    if (window.location.pathname !== "/") return;
 
-  var urlParams = new URLSearchParams(window.location.search);
+    var urlParams = new URLSearchParams(window.location.search);
 
-  if (urlParams.get('openLogin') === 'true') {
-    var interval = setInterval(function () {
-      var loginBtn = document.querySelector('#loginButton');
+    if (urlParams.get("openLogin") === "true") {
+      var interval = setInterval(function () {
+        var loginBtn = document.querySelector("#loginButton");
 
-      if (loginBtn) {
-        loginBtn.click();
+        if (loginBtn) {
+          loginBtn.click();
 
-        // ✅ Clean URL after opening modal
-        history.replaceState({}, document.title, "/");
+          // ✅ Clean URL after opening modal
+          history.replaceState({}, document.title, "/");
 
+          clearInterval(interval);
+        }
+      }, 300);
+
+      setTimeout(function () {
         clearInterval(interval);
-      }
-    }, 300);
-
-    setTimeout(function () {
-      clearInterval(interval);
-    }, 5000);
-  }
-});
+      }, 5000);
+    }
+  });
 </script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
@@ -213,9 +218,7 @@ document.addEventListener("DOMContentLoaded", function () {
       if (left + tipRect.width > vw - pad) left = vw - pad - tipRect.width;
 
       var showAbove = rect.top >= tipRect.height + gap + pad;
-      var top = showAbove
-        ? rect.top - tipRect.height - gap
-        : rect.bottom + gap;
+      var top = showAbove ? rect.top - tipRect.height - gap : rect.bottom + gap;
 
       if (top + tipRect.height > vh - pad) {
         top = vh - pad - tipRect.height;
