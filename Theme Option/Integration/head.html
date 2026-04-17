@@ -4,6 +4,29 @@
   href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css"
 />
 
+<script>
+  function redirectAfterLoginHandler() {
+    const redirectUrl = localStorage.getItem("redirectAfterLogin");
+
+    if (redirectUrl) {
+      localStorage.removeItem("redirectAfterLogin");
+
+      setTimeout(() => {
+        window.location.href = redirectUrl;
+      }, 300);
+    }
+  }
+
+  $(document).on("mfpClose", function () {
+    console.log("modal closing check");
+    //   Check if user is logged in
+    const token = localStorage.getItem("mpp-widgets_AuthToken");
+
+    if (token) {
+      redirectAfterLoginHandler();
+    }
+  });
+</script>
 
 <script>
   (function () {
