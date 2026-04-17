@@ -1,7 +1,7 @@
 <?php
 namespace MinistryPlatform;
 /**
- * Staging Version
+ * Staging- DEv Version
  * Plugin Name: Ministry Platform Data Access
  * Description: A wordpress plugin wrapper for accessing Ministry Platform
  * utilizing the the ministry platform API
@@ -332,7 +332,18 @@ class MP_API_SHORTCODES
                 $lastName = $person['Last_Name'] ?? '';
                 $fullName = urlencode(trim($firstName . ' ' . $lastName));
 
-                $date = new \DateTime($person['Date_Accomplished']);
+                $dateAccomplished = isset($person['Date_Accomplished']) ? trim((string) $person['Date_Accomplished']) : '';
+
+                if ($dateAccomplished === '') {
+                    continue;
+                }
+
+                try {
+                    $date = new \DateTime($dateAccomplished);
+                } catch (\Exception $e) {
+                    continue;
+                }
+
                 $year = $date->format('Y');
                 $month = $date->format('F');
                 $displayDay = (int) $date->format('j');
@@ -357,8 +368,8 @@ class MP_API_SHORTCODES
                 }
 
                 $iframe = '<iframe 
-                src="https://calvary2024stg.wpenginepowered.com/certificate/en.php?name=' . $fullName . '&year=' . $year . '&month=' . $month . '&date=' . $displayDay . $suffix . '" 
-                frameborder="0" 
+                src="https://calvary2024dev.wpenginepowered.com/certificate/en.php?name=' . $fullName . '&year=' . $year . '&month=' . $month . '&date=' . $displayDay . $suffix . '"
+                frameborder="0"
                 class="baptism-iframe"
             >
             </iframe>';
@@ -385,86 +396,113 @@ class MP_API_SHORTCODES
 
     public static function mpapi_family_certificates_ajax()
     {
-        $token = isset($_POST['token']) ? wp_unslash($_POST['token']) : '';
+        try {
+            $token = isset($_POST['token']) ? wp_unslash($_POST['token']) : '';
 
-        if (!$token) {
-            wp_send_json_error(['message' => 'Token missing.'], 400);
+            if (!$token) {
+                wp_send_json_error(['message' => 'Token missing.'], 400);
+            }
+
+            $payload = self::decode_jwt_payload($token);
+            $contactId = isset($payload['ContactId']) ? (int) $payload['ContactId'] : 0;
+
+            if (!$contactId) {
+                wp_send_json_error(['message' => 'ContactId not found in token.'], 400);
+            }
+
+            $html = self::build_family_certificates_html($contactId);
+
+            wp_send_json_success(['html' => $html]);
+        } catch (\Throwable $e) {
+            error_log('mpapi_family_certificates_ajax error for contact ' . (isset($contactId) ? $contactId : 'unknown') . ': ' . $e->getMessage());
+            wp_send_json_error(['message' => 'Server error while loading certificates.'], 500);
         }
-
-        $payload = self::decode_jwt_payload($token);
-        $contactId = isset($payload['ContactId']) ? (int) $payload['ContactId'] : 0;
-
-        if (!$contactId) {
-            wp_send_json_error(['message' => 'ContactId not found in token.'], 400);
-        }
-
-        $html = self::build_family_certificates_html($contactId);
-
-        wp_send_json_success(['html' => $html]);
     }
 
     public static function mpapi_family_certificates_sc($name = null)
     {
         ob_start();
         ?>
-            <div id="mp-family-certificates-output">
-                <p>Loading...</p>
-            </div>
+        <div id="mp-family-certificates-output">
+            <p>Loading...</p>
+        </div>
 
-            <script>
+        <script>
             function parseJwt(token) {
-              try {
-                const base64Url = token.split('.')[1];
-                const base64 = decodeURIComponent(atob(base64Url).split('').map(function(c) {
-                  return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-                }).join(''));
-                return JSON.parse(base64);
-              } catch (e) {
-                return null;
-              }
+                try {
+                    const base64Url = token.split('.')[1];
+                    const base64 = decodeURIComponent(atob(base64Url).split('').map(function (c) {
+                        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                    }).join(''));
+                    return JSON.parse(base64);
+                } catch (e) {
+                    return null;
+                }
             }
 
             document.addEventListener("DOMContentLoaded", function () {
-              const container = document.getElementById("mp-family-certificates-output");
-              const token = localStorage.getItem("mpp-widgets_JwtToken");
+                const container = document.getElementById("mp-family-certificates-output");
+                const token = localStorage.getItem("mpp-widgets_JwtToken");
 
-              if (!token) {
-                container.innerHTML = "<p>User needs to Login.</p>";
-                return;
-              }
+                if (!token) {
+                    container.innerHTML = "<p>User needs to Login.</p>";
+                    return;
+                }
 
-              const payload = parseJwt(token);
-              const contactId = payload?.ContactId;
+                const payload = parseJwt(token);
+                const contactId = payload?.ContactId;
 
-              if (!contactId) {
-                container.innerHTML = "<p>ContactId not found in token.</p>";
-                return;
-              }
+                console.log('mp family certificates payload:', payload);
+                console.log('mp family certificates contactId:', contactId);
 
-              fetch("<?php echo admin_url('admin-ajax.php'); ?>", {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/x-www-form-urlencoded"
-                },
-                body: "action=mpapi_family_certificates_ajax&token=" + encodeURIComponent(token)
-              })
-                .then(function(res) {
-                  return res.json();
+                if (!contactId) {
+                    container.innerHTML = "<p>ContactId not found in token.</p>";
+                    return;
+                }
+
+                fetch("<?php echo admin_url('admin-ajax.php'); ?>", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    },
+                    body: "action=mpapi_family_certificates_ajax&token=" + encodeURIComponent(token)
                 })
-                .then(function(data) {
-                  if (data.success && data.data && data.data.html) {
-                    container.innerHTML = data.data.html;
-                  } else {
-                    container.innerHTML = "<p>Unable to load certificates.</p>";
-                  }
-                })
-                .catch(function() {
-                  container.innerHTML = "<p>AJAX request failed.</p>";
-                });
+                    .then(function (res) {
+                        return res.text().then(function (text) {
+                            let data;
+
+                            try {
+                                data = JSON.parse(text);
+                            } catch (e) {
+                                throw new Error(text || ('HTTP ' + res.status));
+                            }
+
+                            if (!res.ok) {
+                                throw new Error((data && data.data && data.data.message) || ('HTTP ' + res.status));
+                            }
+
+                            return data;
+                        });
+                    })
+                    .then(function (data) {
+                        console.log('mp family certificates response:', data);
+
+                        if (data.success && data.data && data.data.html) {
+                            container.innerHTML = data.data.html;
+                        } else if (data.data && data.data.message) {
+                            container.innerHTML = "<p>" + data.data.message + "</p>";
+                        } else {
+                            container.innerHTML = "<p>Unable to load certificates.</p>";
+                        }
+                    })
+                    .catch(function (err) {
+                        console.error('mp family certificates AJAX error:', err);
+                        container.innerHTML = "<p>AJAX request failed.</p>";
+                    });
             });
-            </script>
-            <?php
-            return ob_get_clean();
+        </script>
+        <?php
+        return ob_get_clean();
     }
     // ------------------
 
@@ -485,7 +523,7 @@ class MP_API_SHORTCODES
     //         if ($mp->authenticate()) {
 
     //             // echo '<script>console.log("dp_Users result:", ' . json_encode($user) . ');</script>';
-//             // echo '<script>console.log("dp_Users result:", ' . json_encode($name) . ');</script>';         
+//             // echo '<script>console.log("dp_Users result:", ' . json_encode($name) . ');</script>';
 
     //             $contact = $mp->table('Contacts')
 //                 // ->select('Contact_ID, Household_ID') // fetch only specific fields
@@ -553,25 +591,25 @@ class MP_API_SHORTCODES
 //                     }
 
 
-    //                     $iframe = '<iframe 
-//                     src="https://calvary2024stg.wpenginepowered.com/certificate/en.php?name=' . $fullName . '&year=' . $year . '&month=' . $month . '&date=' . $displayDay . $suffix . '" 
-//                     frameborder="0" 
+    //                     $iframe = '<iframe
+//                     src="https://calvary2024stg.wpenginepowered.com/certificate/en.php?name=' . $fullName . '&year=' . $year . '&month=' . $month . '&date=' . $displayDay . $suffix . '"
+//                     frameborder="0"
 //                     class="baptism-iframe"
 //                     >
 //                 </iframe>';
 
     //                     $printButtons = '
 // <div class="baptism-buttons-container">
-//     <a 
+//     <a
 
-    //         target="_blank" class="btn"  
+    //         target="_blank" class="btn"
 //         href="' . site_url('/certificate/en.php') . '?name=' . $fullName . '&year=' . $year . '&month=' . $month . '&date=' . $displayDay . $suffix . '" >
 //         Print Baptism Certificate
 //     </a>
 
-    //     <a 
+    //     <a
 
-    //         target="_blank" class="btn"  
+    //         target="_blank" class="btn"
 //         href="' . site_url('/certificate/es.php') . '?name=' . $fullName . '&date=' . urlencode($spanishDate) . '">
 //         Imprimir Certificado de Bautismo
 //     </a>
@@ -830,7 +868,7 @@ class MP_API_SHORTCODES
                     Event_ID,
                     Event_Title,
                     Event_End_Date,
-                    Meeting_Instructions,    
+                    Meeting_Instructions,
                     Event_Start_Date,
                     Congregation_ID_Table.Congregation_ID,
                     Congregation_ID_Table.Congregation_Name,
@@ -890,7 +928,7 @@ class MP_API_SHORTCODES
                     Event_ID,
                     Event_Title,
                     Event_End_Date,
-                    Meeting_Instructions,    
+                    Meeting_Instructions,
                     Event_Start_Date,
                     Congregation_ID_Table.Congregation_ID,
                     Congregation_ID_Table.Congregation_Name,
@@ -901,7 +939,7 @@ class MP_API_SHORTCODES
                 ')
 
                     ->filter("(Events.Event_Start_Date between getdate() and dateadd(day, 60, getdate())) AND Visibility_Level_ID_Table.[Visibility_Level_ID] = 4 AND Events.[_Approved] = 1 AND Hashtag = '{$hashtag}')")
-                    // ->filter("(Events.Event_Start_Date between getdate() and dateadd(day, 60, getdate())) AND Visibility_Level_ID_Table.[Visibility_Level_ID] = 4 AND Events.[_Approved] = 1 AND Hashtag LIKE '%{$hashtag}%'")                    
+                    // ->filter("(Events.Event_Start_Date between getdate() and dateadd(day, 60, getdate())) AND Visibility_Level_ID_Table.[Visibility_Level_ID] = 4 AND Events.[_Approved] = 1 AND Hashtag LIKE '%{$hashtag}%'")
                     ->orderBy('Event_Start_Date')
                     ->get();
 
@@ -1083,8 +1121,8 @@ position: absolute;
     min-width: 80px;
     padding: 12px 0;
     position: relative;
-    height: 100%;  
-    min-height: 0;  
+    height: 100%;
+    min-height: 0;
 }
 }
 
@@ -1252,8 +1290,8 @@ position: absolute;
     min-width: 80px;
     padding: 12px 0;
     position: relative;
-    height: 100%;  
-    min-height: 0;  
+    height: 100%;
+    min-height: 0;
   }
 }
 .mp-event-card-basic {
@@ -1376,8 +1414,8 @@ position: absolute;
     min-width: 80px;
     padding: 12px 0;
     position: relative;
-    height: 100%;  
-    min-height: 0;  
+    height: 100%;
+    min-height: 0;
 }
 }
 
@@ -1509,7 +1547,7 @@ position: absolute;
             max-width: 1400px;
             width: 100%;
             margin: 0 auto;
-            padding: 20px;            
+            padding: 20px;
             font-family: Poppins, sans-serif;
         }
 
@@ -1568,7 +1606,7 @@ position: absolute;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;            
+            justify-content: center;
             font-family: Poppins, sans-serif;
             font-weight: bold;
             font-size: 0.8rem;
@@ -1603,7 +1641,7 @@ position: absolute;
             background: #4ab6f5;
             color: white;
             padding: 5px 12px;
-            border-radius: 20px;            
+            border-radius: 20px;
             font-family: Poppins, sans-serif;
             font-size: 0.8rem;
             display: inline-flex;
@@ -1980,7 +2018,7 @@ position: absolute;
                 }
 
                 .swiper {
-                    width: 100%;                    
+                    width: 100%;
                     padding: 20px 0;
                 }
 
@@ -2288,13 +2326,13 @@ position: absolute;
                 <script>
                 document.addEventListener("DOMContentLoaded", function() {
                     var swiper = new Swiper(".mySwiper", {
-                        slidesPerView: 1.2,      
-                        spaceBetween: 20,   
-                        mousewheel: true,                         
+                        slidesPerView: 1.2,
+                        spaceBetween: 20,
+                        mousewheel: true,
                         navigation: {
                           nextEl: ".swiper-button-next",
                           prevEl: ".swiper-button-prev",
-                        },      
+                        },
                         breakpoints: {
                             480: {
                                 slidesPerView: 1.5,
@@ -2443,7 +2481,7 @@ position: absolute;
         max-width: 1400px;
         width: 100%;
         margin: 0 auto;
-        padding: 20px;            
+        padding: 20px;
         font-family: Poppins, sans-serif;
     }
 
@@ -2499,7 +2537,7 @@ position: absolute;
         display: flex;
         flex-direction: column;
         align-items: center;
-        justify-content: center;            
+        justify-content: center;
         font-family: Poppins, sans-serif;
         font-weight: bold;
         font-size: 0.8rem;
@@ -2532,7 +2570,7 @@ position: absolute;
         background: #4ab6f5;
         color: white;
         padding: 5px 12px;
-        border-radius: 20px;            
+        border-radius: 20px;
         font-family: Poppins, sans-serif;
         font-size: 0.8rem;
         display: inline-flex;
@@ -2827,9 +2865,9 @@ position: absolute;
                 <h4 style="margin-top: 0;">Search & Filter</h4>
                 
                 <div style="position: relative; margin-bottom: 15px;">
-                    <input type="text" id="group-search" placeholder="Search groups..." 
+                    <input type="text" id="group-search" placeholder="Search groups..."
                            style="width: 100%; padding: 12px 40px 12px 15px; border: 1px solid #ddd; border-radius: 25px; box-sizing: border-box;">
-                    <svg style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; color: #666; pointer-events: none;" 
+                    <svg style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; color: #666; pointer-events: none;"
                          fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path>
                     </svg>
@@ -2896,8 +2934,8 @@ position: absolute;
         headers: {
             "Content-Type": "application/x-www-form-urlencoded",
         },
-        body: "action=mpapi_search_groups_finder_ajax&search=" + encodeURIComponent(searchTerm) + 
-              "&congregation_id=" + encodeURIComponent(congregationId) + 
+        body: "action=mpapi_search_groups_finder_ajax&search=" + encodeURIComponent(searchTerm) +
+              "&congregation_id=" + encodeURIComponent(congregationId) +
               "&life_stages=" + encodeURIComponent(selectedLifeStages)
     })
     .then(response => response.text())
@@ -2966,8 +3004,8 @@ window.performSearch = function() {
         headers: {
             "Content-Type": "application/x-www-form-urlencoded",
         },
-        body: "action=mpapi_search_groups_finder_ajax&search=" + encodeURIComponent(searchTerm) + 
-              "&congregation_id=" + encodeURIComponent(congregationId) + 
+        body: "action=mpapi_search_groups_finder_ajax&search=" + encodeURIComponent(searchTerm) +
+              "&congregation_id=" + encodeURIComponent(congregationId) +
               "&life_stages=" + encodeURIComponent(selectedLifeStages)
     })
     .then(response => response.text())
@@ -3624,9 +3662,9 @@ window.performSearch = function() {
                 <h4 style="margin-top: 0;">Search & Filter</h4>
                 
                 <div style="position: relative; margin-bottom: 15px;">
-                    <input type="text" id="group-search" placeholder="Search groups..." 
+                    <input type="text" id="group-search" placeholder="Search groups..."
                            style="width: 100%; padding: 12px 40px 12px 15px; border: 1px solid #ddd; border-radius: 25px; box-sizing: border-box;">
-                    <svg style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; color: #666; pointer-events: none;" 
+                    <svg style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; color: #666; pointer-events: none;"
                          fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path>
                     </svg>
