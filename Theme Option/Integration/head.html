@@ -1,3 +1,140 @@
+<script>
+  (function () {
+    var HOST_SELECTOR = "mpp-event-details";
+    var STYLE_ID = "ccfl-shadow-backlink-style";
+    var CUSTOM_CLASS = "ccfl-custom-all-events";
+
+    function injectShadowStyle(root) {
+      if (!root || root.getElementById(STYLE_ID)) {
+        return;
+      }
+
+      var style = document.createElement("style");
+      style.id = STYLE_ID;
+      style.textContent =
+        ".mpp-innerpage--back." +
+        CUSTOM_CLASS +
+        " > a{display:inline-flex!important;align-items:center!important;gap:8px!important;padding:8px 14px!important;border:1px solid #000!important;border-radius:9999px!important;background:#fff!important;color:#000!important;text-decoration:none!important;font-size:14px!important;line-height:1!important;}" +
+        ".mpp-innerpage--back." +
+        CUSTOM_CLASS +
+        " > a .mppw-arrow.back{color:#000!important;border-color:#000!important;}" +
+        ".mpp-innerpage--back." +
+        CUSTOM_CLASS +
+        " > a:hover{background:#f3f3f3!important;}";
+
+      root.appendChild(style);
+    }
+
+    function replaceBackLink(root) {
+      if (!root) {
+        return false;
+      }
+
+      injectShadowStyle(root);
+
+      var oldHeading = root.querySelector("h3.mpp-innerpage--back");
+      if (!oldHeading) {
+        return false;
+      }
+
+      if (oldHeading.classList.contains(CUSTOM_CLASS)) {
+        return true;
+      }
+
+      var oldAnchor = oldHeading.querySelector("a");
+      var href =
+        (oldAnchor && oldAnchor.getAttribute("href")) || "/event-finder";
+
+      var newHeading = document.createElement("h3");
+      newHeading.className = "mpp-innerpage--back " + CUSTOM_CLASS;
+
+      var newAnchor = document.createElement("a");
+      newAnchor.setAttribute("href", href);
+      newAnchor.setAttribute("aria-label", "All Events");
+
+      var icon = document.createElement("i");
+      icon.className = "mppw-arrow back";
+
+      var label = document.createElement("span");
+      label.className = "ccfl-back-label";
+      label.textContent = "All Events";
+
+      newAnchor.appendChild(icon);
+      newAnchor.appendChild(label);
+      newHeading.appendChild(newAnchor);
+
+      oldHeading.parentNode.replaceChild(newHeading, oldHeading);
+      return true;
+    }
+
+    function watchRoot(root) {
+      if (!root || root.__ccflBackLinkObserver) {
+        return;
+      }
+
+      var observer = new MutationObserver(function () {
+        replaceBackLink(root);
+      });
+
+      observer.observe(root, { childList: true, subtree: true });
+      root.__ccflBackLinkObserver = observer;
+    }
+
+    function processHost(host) {
+      if (!host) {
+        return;
+      }
+
+      var root = host.shadowRoot || host.__ccflShadowRoot;
+      if (!root) {
+        return;
+      }
+
+      replaceBackLink(root);
+      watchRoot(root);
+    }
+
+    var originalAttachShadow = Element.prototype.attachShadow;
+    Element.prototype.attachShadow = function (init) {
+      var root = originalAttachShadow.call(this, init);
+      this.__ccflShadowRoot = root;
+      processHost(this);
+      return root;
+    };
+
+    function boot() {
+      var hosts = document.querySelectorAll(HOST_SELECTOR);
+      for (var i = 0; i < hosts.length; i++) {
+        processHost(hosts[i]);
+      }
+    }
+
+    var hostObserver = new MutationObserver(function () {
+      boot();
+    });
+
+    hostObserver.observe(document.documentElement, {
+      childList: true,
+      subtree: true,
+    });
+
+    var retries = 0;
+    var interval = setInterval(function () {
+      boot();
+      retries += 1;
+      if (retries > 40) {
+        clearInterval(interval);
+      }
+    }, 250);
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", boot);
+    } else {
+      boot();
+    }
+  })();
+</script>
+
 <!-- Cropper.js Library -->
 <link
   rel="stylesheet"
@@ -23,7 +160,19 @@
   }
 
   $(document).on("mfpClose", function () {
+    const loginTitle = document.querySelector(".login-title");
+    if (!loginTitle) return;
     console.log("modal closing check");
+    localStorage.removeItem("redirectAfterLogin");
+
+    const redirectAfterLogin = localStorage.getItem("redirectAfterLogin");
+    const showRedirectMessage = Boolean(redirectAfterLogin);
+    loginTitle.textContent = redirectAfterLogin
+      ? "The content you requested requires a login. Please login to continue."
+      : "Welcome!";
+
+    loginTitle.style.fontSize = showRedirectMessage ? "32px" : "40px";
+    loginTitle.style.lineHeight = showRedirectMessage ? "1.2" : "";
     //   Check if user is logged in
     const token = localStorage.getItem("mpp-widgets_AuthToken");
 
