@@ -2211,6 +2211,8 @@ function cleanupUserifyDiviMobileHamburger() {
 }
 
 async function updateUserHeaderUI() {
+  updateLoginTitleForRedirect();
+
   const token = localStorage.getItem("mpp-widgets_JwtToken");
   const AccessToken = localStorage.getItem("mpp-widgets_AuthToken");
   const valid = isAccessTokenValid(
@@ -2345,6 +2347,21 @@ async function updateUserHeaderUI() {
     localStorage.removeItem("Email_Phone");
     return;
   }
+}
+
+function updateLoginTitleForRedirect() {
+  const loginTitle = document.querySelector(".login-title");
+  if (!loginTitle) return;
+
+  const redirectAfterLogin = localStorage.getItem("redirectAfterLogin");
+  const showRedirectMessage = Boolean(redirectAfterLogin);
+
+  loginTitle.textContent = showRedirectMessage
+    ? "The content you requested requires a login. Please login to continue."
+    : "Welcome!";
+
+  loginTitle.style.fontSize = showRedirectMessage ? "32px" : "40px";
+  loginTitle.style.lineHeight = showRedirectMessage ? "1.2" : "";
 }
 
 document.addEventListener("DOMContentLoaded", updateUserHeaderUI);
