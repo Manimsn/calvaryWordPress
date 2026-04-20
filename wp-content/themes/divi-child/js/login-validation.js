@@ -625,7 +625,8 @@ async function verifySecondaryContact() {
         errorDivText.innerHTML = updatedText;
       } else {
         console.log("not included");
-        errorDivText.innerText = text || "Something went wrong. Please try again.";
+        errorDivText.innerText =
+          text || "Something went wrong. Please try again.";
       }
       // -------------------------
       addButton.disabled = false;
@@ -1847,6 +1848,9 @@ async function secodaryLoginverifyOtp() {
       resetLoginModalState();
       showSuccessModal(true);
       lockScroll();
+
+      // ✅ ADD THIS
+      redirectAfterLoginHandler();
     } else {
       // console.log("✅ OTP failed:", response);
       secondaryLoginotpInputs.forEach(
@@ -2865,25 +2869,25 @@ async function handleExPasswordLogin() {
           document.getElementById("secondaryContactInputPhone").style.display =
             "flex";
       } else {
-  $.magnificPopup.close();
+        $.magnificPopup.close();
 
-  setTimeout(() => {
-    exPasswordDiv.style.display = "none";
-  }, 1000);
+        setTimeout(() => {
+          exPasswordDiv.style.display = "none";
+        }, 1000);
 
-  // ✅ REDIRECT AFTER LOGIN
-  const redirectUrl = localStorage.getItem("redirectAfterLogin");
+        // ✅ REDIRECT AFTER LOGIN
+        const redirectUrl = localStorage.getItem("redirectAfterLogin");
 
-  if (redirectUrl) {
-    localStorage.removeItem("redirectAfterLogin");
+        if (redirectUrl) {
+          localStorage.removeItem("redirectAfterLogin");
 
-    setTimeout(() => {
-      window.location.href = redirectUrl;
-    }, 300);
-  } else {
-    window.location.href = "/";
-  }
-}
+          setTimeout(() => {
+            window.location.href = redirectUrl;
+          }, 300);
+        } else {
+          window.location.href = "/";
+        }
+      }
       exPasswordSignInBtn.classList.remove("button-loading");
     }
   } catch (err) {
