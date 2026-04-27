@@ -20,7 +20,15 @@
         " > a .mppw-arrow.back{color:#000!important;border-color:#000!important;}" +
         ".mpp-innerpage--back." +
         CUSTOM_CLASS +
-        " > a:hover{background:#f3f3f3!important;}";
+        " > a:hover{background:#f3f3f3!important;}" +
+        ".ccfl-event-headline{display:flex!important;align-items:center!important;gap:14px!important;margin:14px 0 10px!important;}" +
+        ".ccfl-event-date-badge{width:clamp(56px,9vw,70px)!important;height:clamp(56px,9vw,70px)!important;border-radius:9999px!important;background:#000!important;color:#fff!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;flex:0 0 auto!important;line-height:1!important;}" +
+        ".ccfl-event-date-month{text-transform:uppercase!important;font-size:11px!important;font-weight:700!important;letter-spacing:.08em!important;}" +
+        ".ccfl-event-date-day{font-size:24px!important;font-weight:700!important;margin-top:2px!important;}" +
+        ".ccfl-event-title-wrap{min-width:0!important;flex:1 1 auto!important;}" +
+        ".ccfl-event-title-wrap .mpp-innerpage--subtitle{margin:0!important;color:#000!important;font-size:clamp(20px,3.2vw,34px)!important;line-height:1.2!important;font-weight:700!important;display:-webkit-box!important;-webkit-box-orient:vertical!important;-webkit-line-clamp:2!important;overflow:hidden!important;text-overflow:ellipsis!important;}" +
+        ".mpp-innerpage--datetime{display:none!important;}" +
+        "@media screen and (max-width:767px){.ccfl-event-headline{gap:10px!important;}.ccfl-event-date-month{font-size:10px!important;}.ccfl-event-date-day{font-size:20px!important;}.ccfl-event-title-wrap .mpp-innerpage--subtitle{font-size:clamp(18px,6vw,24px)!important;}}";
 
       root.appendChild(style);
     }
@@ -67,6 +75,124 @@
       return true;
     }
 
+    function getDateParts(rangeText) {
+      var fallback = { month: "TBD", day: "--" };
+      if (!rangeText) {
+        return fallback;
+      }
+
+      var match = rangeText.match(/,\s*([A-Za-z]{3,})\s+(\d{1,2}),/);
+      if (match) {
+        return {
+          month: match[1].slice(0, 3).toUpperCase(),
+          day: match[2],
+        };
+      }
+
+      var firstHalf = rangeText.split(" - ")[0] || rangeText;
+      var date = new Date(firstHalf);
+      if (!isNaN(date.getTime())) {
+        var months = [
+          "JAN",
+          "FEB",
+          "MAR",
+          "APR",
+          "MAY",
+          "JUN",
+          "JUL",
+          "AUG",
+          "SEP",
+          "OCT",
+          "NOV",
+          "DEC",
+        ];
+
+        return {
+          month: months[date.getMonth()],
+          day: String(date.getDate()),
+        };
+      }
+
+      return fallback;
+    }
+
+    function formatEventHeadline(root) {
+      if (!root) {
+        return false;
+      }
+
+      injectShadowStyle(root);
+
+      var section = root.querySelector("section.mpp-innerpage");
+      if (!section) {
+        return false;
+      }
+
+      var title = section.querySelector("h1.mpp-innerpage--subtitle");
+      var dateRange = section.querySelector(".event-date-range");
+      if (!title || !dateRange) {
+        return false;
+      }
+
+      var dateParts = getDateParts((dateRange.textContent || "").trim());
+      var headline = section.querySelector(".ccfl-event-headline");
+
+      if (!headline) {
+        headline = document.createElement("div");
+        headline.className = "ccfl-event-headline";
+
+        var badge = document.createElement("div");
+        badge.className = "ccfl-event-date-badge";
+
+        var month = document.createElement("span");
+        month.className = "ccfl-event-date-month";
+
+        var day = document.createElement("span");
+        day.className = "ccfl-event-date-day";
+
+        badge.appendChild(month);
+        badge.appendChild(day);
+
+        var titleWrap = document.createElement("div");
+        titleWrap.className = "ccfl-event-title-wrap";
+
+        headline.appendChild(badge);
+        headline.appendChild(titleWrap);
+
+        var anchorPoint = section.querySelector(
+          ".mpp-innerpage--fixed-imgcontainer",
+        );
+        if (anchorPoint && anchorPoint.nextSibling) {
+          section.insertBefore(headline, anchorPoint.nextSibling);
+        } else {
+          section.insertBefore(headline, title);
+        }
+      }
+
+      var monthEl = headline.querySelector(".ccfl-event-date-month");
+      var dayEl = headline.querySelector(".ccfl-event-date-day");
+      var titleWrapEl = headline.querySelector(".ccfl-event-title-wrap");
+
+      if (monthEl) {
+        monthEl.textContent = dateParts.month;
+      }
+
+      if (dayEl) {
+        dayEl.textContent = dateParts.day;
+      }
+
+      if (titleWrapEl && title.parentNode !== titleWrapEl) {
+        titleWrapEl.appendChild(title);
+      }
+
+      var oldDateContainer = section.querySelector(".mpp-innerpage--datetime");
+      if (oldDateContainer) {
+        oldDateContainer.remove();
+      }
+
+      return true;
+    }
+
     function watchRoot(root) {
       if (!root || root.__ccflBackLinkObserver) {
         return;
@@ -74,6 +200,7 @@
 
       var observer = new MutationObserver(function () {
         replaceBackLink(root);
+        formatEventHeadline(root);
       });
 
       observer.observe(root, { childList: true, subtree: true });
@@ -91,6 +218,7 @@
       }
 
       replaceBackLink(root);
+      formatEventHeadline(root);
       watchRoot(root);
     }
 
@@ -142,6 +270,7 @@
 />
 
 <script>
+  window.isLoginFlowCompleted = false;
   function redirectAfterLoginHandler() {
     const redirectUrl = localStorage.getItem("redirectAfterLogin");
 
@@ -163,16 +292,20 @@
     const loginTitle = document.querySelector(".login-title");
     if (!loginTitle) return;
     console.log("modal closing check");
-    localStorage.removeItem("redirectAfterLogin");
 
-    const redirectAfterLogin = localStorage.getItem("redirectAfterLogin");
-    const showRedirectMessage = Boolean(redirectAfterLogin);
-    loginTitle.textContent = redirectAfterLogin
-      ? "The content you requested requires a login. Please login to continue."
-      : "Welcome!";
+    if (!window.isLoginFlowCompleted) {
+      localStorage.removeItem("redirectAfterLogin");
 
-    loginTitle.style.fontSize = showRedirectMessage ? "32px" : "40px";
-    loginTitle.style.lineHeight = showRedirectMessage ? "1.2" : "";
+      const redirectAfterLogin = localStorage.getItem("redirectAfterLogin");
+      const showRedirectMessage = Boolean(redirectAfterLogin);
+      loginTitle.textContent = redirectAfterLogin
+        ? "The content you requested requires a login. Please login to continue."
+        : "Welcome!";
+
+      loginTitle.style.fontSize = showRedirectMessage ? "32px" : "40px";
+      loginTitle.style.lineHeight = showRedirectMessage ? "1.2" : "";
+    }
+
     //   Check if user is logged in
     const token = localStorage.getItem("mpp-widgets_AuthToken");
 
