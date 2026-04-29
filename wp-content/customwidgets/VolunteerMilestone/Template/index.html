@@ -3,10 +3,10 @@
   {%  assign bg_tooltip = "To schedule your background check, please email
   VolunteerHelp@CalvaryFTL.org" %} 
   {% assign cvas_tooltip = "To receive your Child and Vulnerable Adult Safety Training, please email   VolunteerHelp@CalvaryFTL.org" %} 
-  {% assign ce_anchor =  "https://calvaryftl.org/connect" %} 
+  {% assign ce_anchor =  "https://calvary2024dev.wpenginepowered.com/connect" %} 
   {% assign lc_anchor =  "https://calvary2024dev.wpenginepowered.com/custom-form-2/?id=d8316fac-a136-403c-a93f-4573869f9e81"%} 
   {% assign cvas_anchor =
-  "https://calvaryftl.org/calvary-chapel-is-grace-ministry-certified/" %}
+  "https://calvary2024dev.wpenginepowered.com/calvary-chapel-is-grace-ministry-certified/" %}
 
     <div class="table-responsive">
 
@@ -17,48 +17,48 @@
                 <td>
                 {% if record.Milestone_Title == 'Background Check' %}
                     {% if record.MilestoneAchieved %}                    
-                        <!-- <span class="vm-tip" data-tip="{{ bg_tooltip }}"><img class="img-fluid img-thumbnail" src="https://calvaryftl.org/wp-content/customwidgets/VolunteerMilestone/Assets/BackgroundCheck_YAY.png"></span> -->
-                        <img class="img-fluid img-thumbnail cvas-native-tip" src="https://calvaryftl.org/wp-content/customwidgets/VolunteerMilestone/Assets/BackgroundCheck_YAY.png" title="{{ bg_tooltip }}">
+                        <!-- <span class="vm-tip" data-tip="{{ bg_tooltip }}"><img class="img-fluid img-thumbnail" src="https://calvary2024dev.wpenginepowered.com/wp-content/customwidgets/VolunteerMilestone/Assets/BackgroundCheck_YAY.png"></span> -->
+                        <img class="img-fluid img-thumbnail cvas-native-tip" src="https://calvary2024dev.wpenginepowered.com/wp-content/customwidgets/VolunteerMilestone/Assets/BackgroundCheck_YAY.png" title="{{ bg_tooltip }}">
                     {% else %}
-                        <!-- <span class="vm-tip" data-tip="{{ bg_tooltip }}"><img class="img-fluid img-thumbnail" src="https://calvaryftl.org/wp-content/customwidgets/VolunteerMilestone/Assets/BackgroundCheck_BOO.png"></span> -->
+                        <!-- <span class="vm-tip" data-tip="{{ bg_tooltip }}"><img class="img-fluid img-thumbnail" src="https://calvary2024dev.wpenginepowered.com/wp-content/customwidgets/VolunteerMilestone/Assets/BackgroundCheck_BOO.png"></span> -->
                          <a>
-                        <img class="img-fluid img-thumbnail cvas-native-tip" src="https://calvaryftl.org/wp-content/customwidgets/VolunteerMilestone/Assets/BackgroundCheck_BOO.png"  title="{{ bg_tooltip }}">
+                        <img class="img-fluid img-thumbnail cvas-native-tip" src="https://calvary2024dev.wpenginepowered.com/wp-content/customwidgets/VolunteerMilestone/Assets/BackgroundCheck_BOO.png"  title="{{ bg_tooltip }}">
 						</a>
                     {% endif %}
 
                 {% elsif record.Milestone_Title == 'Connect Experience' %}
                     {% if record.MilestoneAchieved %}
-                        <img class="img-fluid img-thumbnail" src="https://calvaryftl.org/wp-content/customwidgets/VolunteerMilestone/Assets/ConnectExperience_YAY.png">
+                        <img class="img-fluid img-thumbnail" src="https://calvary2024dev.wpenginepowered.com/wp-content/customwidgets/VolunteerMilestone/Assets/ConnectExperience_YAY.png">
                     {% else %}
                         <a href={{ ce_anchor }}>
-                        <img class="img-fluid img-thumbnail" src="https://calvaryftl.org/wp-content/customwidgets/VolunteerMilestone/Assets/ConnectExperience_BOO.png">
+                        <img class="img-fluid img-thumbnail" src="https://calvary2024dev.wpenginepowered.com/wp-content/customwidgets/VolunteerMilestone/Assets/ConnectExperience_BOO.png">
                         </a>
                     {% endif %}
 
                 {% elsif record.Milestone_Title == 'CVAS (Child and Vulnerable Adult Safety) Training' %}
                     {% if record.MilestoneAchieved %}
-                        <img class="img-fluid img-thumbnail cvas-native-tip" src="https://calvaryftl.org/wp-content/customwidgets/VolunteerMilestone/Assets/CVASTraining_YAY.png" title="{{ cvas_tooltip }}">
+                        <img class="img-fluid img-thumbnail cvas-native-tip" src="https://calvary2024dev.wpenginepowered.com/wp-content/customwidgets/VolunteerMilestone/Assets/CVASTraining_YAY.png" title="{{ cvas_tooltip }}">
                     {% else %}
 						<!-- <a href={{ cvas_anchor }}> -->
 						<a>
-                        <img class="img-fluid img-thumbnail cvas-native-tip" src="https://calvaryftl.org/wp-content/customwidgets/VolunteerMilestone/Assets/CVASTraining_BOO.png"  title="{{ cvas_tooltip }}">
+                        <img class="img-fluid img-thumbnail cvas-native-tip" src="https://calvary2024dev.wpenginepowered.com/wp-content/customwidgets/VolunteerMilestone/Assets/CVASTraining_BOO.png"  title="{{ cvas_tooltip }}">
 						</a>
                     {% endif %}
 
                 {% elsif record.Milestone_Title == 'Signed Leadership Covenant' %}
                     {% if record.MilestoneAchieved %}
-                        <img class="img-fluid img-thumbnail" src="https://calvary2024stg.wpenginepowered.com/wp-content/customwidgets/VolunteerMilestone/Assets/LeadershipCovenant_YAY.png">
+                        <img class="img-fluid img-thumbnail" src="https://calvary2024dev.wpenginepowered.com/wp-content/customwidgets/VolunteerMilestone/Assets/LeadershipCovenant_YAY.png">
                     {% else %}
                         <a href={{ lc_anchor }}>
-                        <img class="img-fluid img-thumbnail" src="https://calvary2024stg.wpenginepowered.com/wp-content/customwidgets/VolunteerMilestone/Assets/LeadershipCovenant_BOO.png">
+                        <img class="img-fluid img-thumbnail" src="https://calvary2024dev.wpenginepowered.com/wp-content/customwidgets/VolunteerMilestone/Assets/LeadershipCovenant_BOO.png">
                         </a>
                     {% endif %}
 				{% comment %}
                 {% elsif record.Milestone_Title == 'Attended Volunteer Orientation' %}
                     {% if record.MilestoneAchieved %}
-                        <img class="img-fluid img-thumbnail" src="https://calvaryftl.org/wp-content/customwidgets/VolunteerMilestone/Assets/VolunteerTraining_YAY.png">
+                        <img class="img-fluid img-thumbnail" src="https://calvary2024dev.wpenginepowered.com/wp-content/customwidgets/VolunteerMilestone/Assets/VolunteerTraining_YAY.png">
                     {% else %}
-                        <img class="img-fluid img-thumbnail" src="https://calvaryftl.org/wp-content/customwidgets/VolunteerMilestone/Assets/VolunteerTraining_BOO.png">
+                        <img class="img-fluid img-thumbnail" src="https://calvary2024dev.wpenginepowered.com/wp-content/customwidgets/VolunteerMilestone/Assets/VolunteerTraining_BOO.png">
                     {% endif %}
 				{% endcomment %}
                 {% endif %}

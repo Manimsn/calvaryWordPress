@@ -1039,7 +1039,8 @@ document.querySelectorAll('.download_button.mobile, .download_button.desktop')
           errSymbol.textContent = '!';
           const statementErrorMessage = document.createElement('p');
           statementErrorMessage.id = 'statementErrorMessage';
-          statementErrorMessage.textContent = "Oops! Encountered an issue. Try again later or contact WebHelp@CalvaryFTL.org";
+          // statementErrorMessage.textContent = "Oops! Encountered an issue. Try again later or contact WebHelp@CalvaryFTL.org";
+          statementErrorMessage.textContent = "Your 2026 Contribution will be available in January 2027.";
           statementErrorDiv.appendChild(errSymbol);
           statementErrorDiv.appendChild(statementErrorMessage);
           setTimeout(()=>{

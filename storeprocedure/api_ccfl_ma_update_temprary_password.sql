@@ -15,9 +15,11 @@ BEGIN
  DECLARE @AuditOnBehalfOfUserName NVARCHAR(254) = NULL;  
     DECLARE @AuditOnBehalfOfUserID INT = NULL;  
   
- SELECT @AuditOnBehalfOfUserName = Display_Name, @AuditOnBehalfOfUserID = User_ID  
+ SELECT @AuditOnBehalfOfUserName = COALESCE(NULLIF(LTRIM(RTRIM(Display_Name)), ''), NULLIF(LTRIM(RTRIM(User_Name)), ''), @AuditUserName), @AuditOnBehalfOfUserID = User_ID  
     FROM dp_Users  
     WHERE User_ID = @User_ID;  
+
+ SET @AuditOnBehalfOfUserName = COALESCE(NULLIF(LTRIM(RTRIM(@AuditOnBehalfOfUserName)), ''), @AuditUserName);  
   
     DECLARE @ToBeAudited mp_ServiceAuditLog_ccfl;  
   

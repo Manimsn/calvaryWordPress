@@ -1,4 +1,3 @@
-/* W:\MinistryPlatform\wwwroot\Widgets\wwwroot\Content */
 /*--------------------------------------------*/
 /* CSS Color Variables                        */
 /*--------------------------------------------*/
@@ -1246,7 +1245,7 @@
 	padding-left: 12px;
 }
 
-.mpp-card-row-donor--header {
+.mpp-card-row-donor--header, .mpp-card-row-member--header {
 	font-family: var(--root-font-face);
 	font-size: 18px;
 	font-weight: 900;
@@ -1256,7 +1255,7 @@
 	padding-bottom: 16px;
 }
 
-.mpp-card-row-donor--container {
+.mpp-card-row-donor--container, .mpp-card-row-team--container {
 	display: block;
 	width: 100%;
 	padding-top: 8px;
@@ -1265,14 +1264,13 @@
 	border-radius: var(--card-row-borderRadius);
 	overflow: auto;
 	border: 1px solid var(--card-row-donor-border);
-	overflow: hidden;
 }
 
-.mpp-card-row-donor-grid--container{
+.mpp-card-row-donor-grid--container, .mpp-card-row-member-grid--container {
 	min-width: 680px;
 }
 
-.mpp-card-row-donor-grid--header {
+.mpp-card-row-donor-grid--header, .mpp-card-row-member-grid--header {
 	width: 100%;
 	background-color: var(--card-row-donor-rows);
 	color: var(--card-row-textColor);
@@ -1290,13 +1288,31 @@
 	width: 25%;
 }
 
-.mpp-card-row-donor-grid--item {
+.mpp-card-row-member-grid--cell {
+	min-width: 108px;
+	float: left;
+	width: 20%;
+}
+
+.mpp-card-row-member-grid--cell:first-child {
+	min-width: 260px;
+}
+
+.mpp-card-row-member-grid--cell.mpp-image-cell {
+	min-width: 260px;
+}
+
+.mpp-card-row-donor-grid--item, .mpp-card-row-member-grid--item {
 	float: left;
 	max-width: calc(100% - 60px);
 	word-break: break-all;
 }
 
-.mpp-card-row-donor-grid--row {
+.mpp-card-row-member-grid--contact-item {
+	line-height: 20px;
+}
+
+.mpp-card-row-donor-grid--row, .mpp-card-row-member-grid--row {
 	width: 100%;
 	background-color: var(--card-row-donor-rows);
 	color: var(--card-row-goal-text);
@@ -1304,10 +1320,14 @@
 	padding-left: 8px;
 	padding-top: 10px;
 	min-height: 78px;
-	overflow: hidden;
 }
 
-.mpp-card-row-donor-row--divider {
+.mpp-card-row-member-grid--cell {
+	float: left;
+	width: 20%;
+}
+
+.mpp-card-row-donor-row--divider, .mpp-card-row-member-row--divider {
 	border-top: 1px solid var(--card-row-donor-border);
 }
 
@@ -1362,13 +1382,33 @@
 	-o-transition: height 1.5s;
 }
 
-.mpp-card-row-donor-grid--records {
-	overflow-y: scroll;
+.mpp-card-row-donor-grid--records, .mpp-card-row-member-grid--records {
 	max-height: 500px;
 }
 
 .mpp-alt-row {
 	background-color: var(--card-row-donor-rows);
+}
+
+.mpp-form--tabs {
+	margin-bottom: 0px;
+	margin-top: 16px;
+}
+
+.progress-row--container {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding-right: 20px;
+}
+
+.progress-row--cell {
+	flex: 1;
+	margin-top: 5px;
+}
+
+.progress-row--percentage {
+	white-space: nowrap;
 }
 
 @media only screen and (max-width: 768px) {
@@ -1396,7 +1436,7 @@
 		width: 100%;
 	}
 
-	.mpp-card-row-donor-grid--header {
+	.mpp-card-row-donor-grid--header, .mpp-card-row-member-grid--header {
 		display: none;
 	}
 
@@ -1414,22 +1454,23 @@
 		padding-bottom: 6px;
 	}
 
-	.mpp-card-row-donor-grid--records {
+	.mpp-card-row-donor-grid--records, .mpp-card-row-member-grid--records {
 		height: auto;
 		max-height: 300px;
 	}
 
-	.mpp-card-row-donor-grid--cell {
-		float: none;
+	.mpp-card-row-donor-grid--cell, .mpp-card-row-member-grid--cell {
+		float: left;
 		width: 100%;
 	}
 
-	.mpp-card-row-donor-grid--row {
+	.mpp-card-row-donor-grid--row, .mpp-card-row-member-grid--row {
 		display: block;
 		min-height: fit-content;
+		overflow: hidden;
 	}
 
-	.mpp-card-row-donor-grid--container {
+	.mpp-card-row-donor-grid--container, .mpp-card-row-member-grid--container {
 		min-width: auto;
 	}
 
@@ -3100,7 +3141,6 @@ input::-webkit-date-and-time-value {
 .mpp-innerpage .mpp-innerpage--labels,
 .mpp-innerpage--contacts-wrapper {
     margin-bottom: 24px;
-	display: none !important;
 }
 
 .mpp-innerpage--label {
@@ -3171,7 +3211,6 @@ input::-webkit-date-and-time-value {
     align-items: center;
     justify-content: space-between;
     margin-bottom: 40px;
-	display:none !important;
 }
 
 .mpp-innerpage--map {
@@ -4094,7 +4133,7 @@ select:focus + .focus {
     justify-content: flex-end;
 }
 
-.donation-spouse, .donation-soft-credit {
+.donation-spouse, .donation-soft-credit, .donation-non-deductible {
     padding-right: 5px;
     background-color: #efefef;
     font-size: 10px;
@@ -4278,6 +4317,16 @@ select:focus + .focus {
     .donation-amount {
         margin-top: 10px;
     }
+}
+.mpp-my-mission-trips label.mpp-form--tab{
+		font-size: 18px;
+		margin-bottom: 0px;
+		line-height: 24px;
+}
+
+.mpp-my-mission-trips .mpp-card-row-donor-grid--header .mpp-card-row-member-grid--cell,
+.mpp-my-mission-trips .mpp-card-row-donor-grid--header .mpp-card-row-donor-grid--cell {
+	font-weight: 400;
 }
 /*--------------------------------------------*/
 /* Online Directory                           */
@@ -5471,4 +5520,3 @@ select:focus + .focus {
     padding-left: 10px;
     vertical-align: -10px;
 }
-

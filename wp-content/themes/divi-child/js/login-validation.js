@@ -1,4 +1,5 @@
 // // console.log("QA CAN PROCEED");
+console.log("isLoginFlowCompleted:", window.isLoginFlowCompleted);
 const login = document.getElementById("loginButton");
 const inputElement = document.getElementById("loginInput");
 const errorDiv = document.getElementById("inputError");
@@ -2822,7 +2823,7 @@ async function handleExPasswordLogin() {
       exPasswordSignInBtn.classList.remove("button-loading");
     } else {
       const data = await response.json();
-
+      window.isLoginFlowCompleted = true;
       // Save JWT Token
       const token = JSON.parse(atob(data.AccessToken.split(".")[1]));
       localStorage.setItem("primaryContact", phone_email.includes("@"));

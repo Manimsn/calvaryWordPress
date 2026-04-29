@@ -1,4 +1,4 @@
-  // Profile Name Elements
+// Profile Name Elements
 let firstNameInput = document.getElementById("firstNameInputEP");
 let lastNameInput = document.getElementById("lastNameInputEP");
 let middleNameInput = document.getElementById("middleNameInput");
@@ -18,7 +18,7 @@ let inputErrorLastName = document.getElementById("inputErrorLastNameEP");
 let genderID = null;
 let maritalStatusID = null;
 let prefixID = null;
-let suffixID = null; 
+let suffixID = null;
 let nickNameVar = "";
 let webImageURL = "";
 let originalProfile = null;
@@ -29,14 +29,14 @@ let suffixObj = null;
 let maritalStatusObj = null;
 
 // Email and Phone Validation Elements
-const emailIcon = document.getElementById('emailIcon');
-const phoneIcon = document.getElementById('phoneIcon');
-const label = document.getElementById('VerifyLabel');
+const emailIcon = document.getElementById("emailIcon");
+const phoneIcon = document.getElementById("phoneIcon");
+const label = document.getElementById("VerifyLabel");
 const codeBtn = document.getElementById("codeBtn");
-const phoneEmailInput = document.getElementById('inputFieldEP');
+const phoneEmailInput = document.getElementById("inputFieldEP");
 const inputErrorDiv = document.getElementById("inputErrorEP");
-const inputErrorDivText = document.querySelector('#inputErrorEP .errorText');
-let iconId = 'emailIcon';
+const inputErrorDivText = document.querySelector("#inputErrorEP .errorText");
+let iconId = "emailIcon";
 let ph_email = "";
 let profileImageCamera = null;
 const token = localStorage.getItem("mpp-widgets_JwtToken");
@@ -54,17 +54,19 @@ function ensureCropModuleLoaded() {
   }
 
   cropModuleLoadPromise = new Promise((resolve, reject) => {
-    const script = document.createElement('script');
-    script.src = '/wp-content/themes/divi-child/js/edit-profile/crop-profile-image.js';
+    const script = document.createElement("script");
+    script.src =
+      "/wp-content/themes/divi-child/js/edit-profile/crop-profile-image.js";
     script.async = true;
     script.onload = () => {
       if (window.ProfileCrop) {
         resolve(window.ProfileCrop);
       } else {
-        reject(new Error('ProfileCrop module loaded but not available'));
+        reject(new Error("ProfileCrop module loaded but not available"));
       }
     };
-    script.onerror = () => reject(new Error('Failed to load crop-profile-image.js'));
+    script.onerror = () =>
+      reject(new Error("Failed to load crop-profile-image.js"));
     document.head.appendChild(script);
   });
 
@@ -81,17 +83,19 @@ function ensureFirstModalModuleLoaded() {
   }
 
   firstModalModuleLoadPromise = new Promise((resolve, reject) => {
-    const script = document.createElement('script');
-    script.src = '/wp-content/themes/divi-child/js/edit-profile/first-modal-photo-actions.js';
+    const script = document.createElement("script");
+    script.src =
+      "/wp-content/themes/divi-child/js/edit-profile/first-modal-photo-actions.js";
     script.async = true;
     script.onload = () => {
       if (window.ProfileFirstModal) {
         resolve(window.ProfileFirstModal);
       } else {
-        reject(new Error('ProfileFirstModal module loaded but not available'));
+        reject(new Error("ProfileFirstModal module loaded but not available"));
       }
     };
-    script.onerror = () => reject(new Error('Failed to load first-modal-photo-actions.js'));
+    script.onerror = () =>
+      reject(new Error("Failed to load first-modal-photo-actions.js"));
     document.head.appendChild(script);
   });
 
@@ -109,18 +113,20 @@ function initializeCropModuleBridge() {
       hasChanges = true;
       document.getElementById("profileMessage").style.visibility = "hidden";
 
-      const profileContainer = document.querySelector('.profile-photo-container');
-      const initialsDiv = profileContainer?.querySelector('.initials-avatar');
+      const profileContainer = document.querySelector(
+        ".profile-photo-container",
+      );
+      const initialsDiv = profileContainer?.querySelector(".initials-avatar");
       if (initialsDiv) initialsDiv.remove();
 
-      const profilePhoto = document.getElementById('profilePhoto');
+      const profilePhoto = document.getElementById("profilePhoto");
       const imageURL = URL.createObjectURL(finalFile);
       profilePhoto.src = imageURL;
       profilePhoto.style.display = "block";
       profilePhoto.onload = () => URL.revokeObjectURL(imageURL);
     },
     afterClose: () => {
-      if (typeof $.magnificPopup !== 'undefined') {
+      if (typeof $.magnificPopup !== "undefined") {
         $.magnificPopup.close();
       }
     },
@@ -133,7 +139,10 @@ function initializeCropModuleBridge() {
 }
 
 function initializeFirstModalModuleBridge() {
-  if (!window.ProfileFirstModal || window.ProfileFirstModal._epBridgeInitialized) {
+  if (
+    !window.ProfileFirstModal ||
+    window.ProfileFirstModal._epBridgeInitialized
+  ) {
     return;
   }
 
@@ -152,16 +161,18 @@ function openCropModal(imageFile) {
       window.ProfileCrop.open(imageFile);
     })
     .catch((error) => {
-      console.error('Failed to open crop modal:', error);
-      alert('Unable to load image crop functionality. Please refresh and try again.');
+      console.error("Failed to open crop modal:", error);
+      alert(
+        "Unable to load image crop functionality. Please refresh and try again.",
+      );
     });
 }
 
 // Page-level loader: create once and provide show/hide helpers
 function ensurePageLoader() {
-  if (document.getElementById('pageLoader')) return;
-  const style = document.createElement('style');
-  style.id = 'pageLoaderStyles';
+  if (document.getElementById("pageLoader")) return;
+  const style = document.createElement("style");
+  style.id = "pageLoaderStyles";
   style.innerHTML = `
     #pageLoader { position: fixed; inset: 0; background: rgba(0,181,239,0.3); z-index: 99999; backdrop-filter: blur(8px); display:flex; align-items:center; justify-content:center; }
     #pageLoader .loaderBox { text-align:center; font-family: 'Poppins', sans-serif; color: white; }
@@ -171,9 +182,9 @@ function ensurePageLoader() {
   `;
   document.head.appendChild(style);
 
-  const loader = document.createElement('div');
-  loader.id = 'pageLoader';
-  loader.style.display = 'none';
+  const loader = document.createElement("div");
+  loader.id = "pageLoader";
+  loader.style.display = "none";
   loader.innerHTML = `
     <div class="loaderBox">
       <div class="spinner" aria-hidden="true"></div>
@@ -185,14 +196,14 @@ function ensurePageLoader() {
 
 function showPageLoader() {
   ensurePageLoader();
-  const l = document.getElementById('pageLoader');
-  if (l) l.style.display = 'flex';
+  const l = document.getElementById("pageLoader");
+  if (l) l.style.display = "flex";
   lockScroll();
 }
 
 function hidePageLoader() {
-  const l = document.getElementById('pageLoader');
-  if (l) l.style.display = 'none';
+  const l = document.getElementById("pageLoader");
+  if (l) l.style.display = "none";
   unlockScroll();
 }
 
@@ -217,8 +228,6 @@ style.innerHTML = `
   }
 `;
 
-
-
 function updateName(name, punctuation = "!") {
   const oval = document.getElementById("nameOval");
 
@@ -229,22 +238,29 @@ function updateName(name, punctuation = "!") {
   const baseWidth = 190;
 
   const scaleX = rect.width / baseWidth;
-  const scaleY = 1 + ((scaleX - 1) * 0.3);
+  const scaleY = 1 + (scaleX - 1) * 0.3;
 
   oval.style.transform = `translate(-50%, -50%) scale(${scaleX}, ${scaleY}) rotate(-8deg)`;
 }
 
-function createCustomDropdown({ dropdownId, buttonId, listId, data, selectedItem, onSelect }) {
+function createCustomDropdown({
+  dropdownId,
+  buttonId,
+  listId,
+  data,
+  selectedItem,
+  onSelect,
+}) {
   const dropdown = document.getElementById(dropdownId);
   const dropdownBtn = document.getElementById(buttonId);
   const dropdownList = document.getElementById(listId);
 
-   // Clear dropdown list content first (if any)
+  // Clear dropdown list content first (if any)
   dropdownList.innerHTML = "";
 
   // Set placeholder text and style in button
   // Determine initial button text
-  let currentSelected = selectedItem; 
+  let currentSelected = selectedItem;
 
   // Set placeholder text and style in button
   if (currentSelected) {
@@ -278,7 +294,7 @@ function createCustomDropdown({ dropdownId, buttonId, listId, data, selectedItem
       if (item.name.toLowerCase() === "de-select") {
         currentBtn.textContent = "-- Select --";
         currentBtn.classList.add("placeholder");
-        currentSelected = null; 
+        currentSelected = null;
       } else {
         currentBtn.textContent = item.name;
         currentBtn.classList.remove("placeholder");
@@ -287,7 +303,9 @@ function createCustomDropdown({ dropdownId, buttonId, listId, data, selectedItem
 
       dropdown.classList.remove("open");
 
-      dropdownList.querySelectorAll(".dropdownItem").forEach(o => o.classList.remove("active"));
+      dropdownList
+        .querySelectorAll(".dropdownItem")
+        .forEach((o) => o.classList.remove("active"));
       option.classList.add("active");
 
       // Call the onSelect callback with selected value
@@ -301,14 +319,15 @@ function createCustomDropdown({ dropdownId, buttonId, listId, data, selectedItem
     });
 
     option.addEventListener("keydown", (e) => {
-      if(e.key === "Enter"){
-        const currentBtn = dropdown.querySelector(`#${buttonId}`) || dropdownBtn;
+      if (e.key === "Enter") {
+        const currentBtn =
+          dropdown.querySelector(`#${buttonId}`) || dropdownBtn;
         currentBtn.classList.remove("placeholder");
 
         if (item.name.toLowerCase() === "de-select") {
           currentBtn.textContent = "-- Select --";
           currentBtn.classList.add("placeholder");
-          currentSelected = null; 
+          currentSelected = null;
         } else {
           currentBtn.textContent = item.name;
           currentBtn.classList.remove("placeholder");
@@ -317,7 +336,9 @@ function createCustomDropdown({ dropdownId, buttonId, listId, data, selectedItem
 
         dropdown.classList.remove("open");
 
-        dropdownList.querySelectorAll(".dropdownItem").forEach(o => o.classList.remove("active"));
+        dropdownList
+          .querySelectorAll(".dropdownItem")
+          .forEach((o) => o.classList.remove("active"));
         option.classList.add("active");
 
         // Call the onSelect callback with selected value
@@ -329,7 +350,7 @@ function createCustomDropdown({ dropdownId, buttonId, listId, data, selectedItem
           }
         }
       }
-    })
+    });
   });
 
   // Make init idempotent: remove/replace old handlers so re-calling this function
@@ -339,19 +360,22 @@ function createCustomDropdown({ dropdownId, buttonId, listId, data, selectedItem
 
   // Remove previously attached document click handler for this dropdown (if any)
   if (dropdown._docClickHandler) {
-    document.removeEventListener('click', dropdown._docClickHandler);
+    document.removeEventListener("click", dropdown._docClickHandler);
     dropdown._docClickHandler = null;
   }
 
   // Remove previously attached keydown handler for this dropdown (if any)
   if (dropdown._docKeyHandler) {
-    document.removeEventListener('keydown', dropdown._docKeyHandler);
+    document.removeEventListener("keydown", dropdown._docKeyHandler);
     dropdown._docKeyHandler = null;
   }
 
   // Remove previously attached mouseenter handler for this list (if any)
   if (dropdownList._mouseenterHandler) {
-    dropdownList.removeEventListener('mouseenter', dropdownList._mouseenterHandler);
+    dropdownList.removeEventListener(
+      "mouseenter",
+      dropdownList._mouseenterHandler,
+    );
     dropdownList._mouseenterHandler = null;
   }
 
@@ -363,32 +387,37 @@ function createCustomDropdown({ dropdownId, buttonId, listId, data, selectedItem
   const btn = freshBtn;
 
   // Toggle dropdown open/close
-  btn.addEventListener('click', () => {
-    dropdown.classList.toggle('open');
+  btn.addEventListener("click", () => {
+    dropdown.classList.toggle("open");
 
     // Ensure initial load items are restored
-    if (dropdown.classList.contains('open')) {
+    if (dropdown.classList.contains("open")) {
       // If there's a currently selected item, make sure the list scrolls to it
       if (!currentSelected) {
-        const activeEl = dropdownList.querySelector('.dropdownItem.active');
+        const activeEl = dropdownList.querySelector(".dropdownItem.active");
         if (activeEl) {
           currentSelected = {
             id: activeEl.dataset.id,
-            name: activeEl.textContent.trim()
+            name: activeEl.textContent.trim(),
           };
         }
       }
       if (currentSelected) {
-        dropdownList.querySelectorAll('.dropdownItem').forEach(o => {
-          o.classList.toggle('active', o.dataset.id === String(currentSelected.id));
+        dropdownList.querySelectorAll(".dropdownItem").forEach((o) => {
+          o.classList.toggle(
+            "active",
+            o.dataset.id === String(currentSelected.id),
+          );
         });
 
         // scroll the selected item into view rather than always jumping to top
-        const target = dropdownList.querySelector(`.dropdownItem[data-id="${currentSelected.id}"]`);
+        const target = dropdownList.querySelector(
+          `.dropdownItem[data-id="${currentSelected.id}"]`,
+        );
         if (target) {
           // prefer nearest block so it stays within view
           try {
-            target.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+            target.scrollIntoView({ block: "nearest", inline: "nearest" });
           } catch (e) {
             // fallback
             dropdownList.scrollTop = target.offsetTop;
@@ -405,33 +434,38 @@ function createCustomDropdown({ dropdownId, buttonId, listId, data, selectedItem
     }
   });
 
-   btn.addEventListener('keydown', (e) => {
-    if (e.key !== 'Enter' || e.key !== 'Escape' || e.key !== 'Space') {
-      dropdown.classList.toggle('open');
-  
+  btn.addEventListener("keydown", (e) => {
+    if (e.key !== "Enter" || e.key !== "Escape" || e.key !== "Space") {
+      dropdown.classList.toggle("open");
+
       // Ensure initial load items are restored
-      if (dropdown.classList.contains('open')) {
+      if (dropdown.classList.contains("open")) {
         // If there's a currently selected item, make sure the list scrolls to it
         if (!currentSelected) {
-          const activeEl = dropdownList.querySelector('.dropdownItem.active');
+          const activeEl = dropdownList.querySelector(".dropdownItem.active");
           if (activeEl) {
             currentSelected = {
               id: activeEl.dataset.id,
-              name: activeEl.textContent.trim()
+              name: activeEl.textContent.trim(),
             };
           }
         }
         if (currentSelected) {
-          dropdownList.querySelectorAll('.dropdownItem').forEach(o => {
-            o.classList.toggle('active', o.dataset.id === String(currentSelected.id));
+          dropdownList.querySelectorAll(".dropdownItem").forEach((o) => {
+            o.classList.toggle(
+              "active",
+              o.dataset.id === String(currentSelected.id),
+            );
           });
-  
+
           // scroll the selected item into view rather than always jumping to top
-          const target = dropdownList.querySelector(`.dropdownItem[data-id="${currentSelected.id}"]`);
+          const target = dropdownList.querySelector(
+            `.dropdownItem[data-id="${currentSelected.id}"]`,
+          );
           if (target) {
             // prefer nearest block so it stays within view
             try {
-              target.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+              target.scrollIntoView({ block: "nearest", inline: "nearest" });
             } catch (e) {
               // fallback
               dropdownList.scrollTop = target.offsetTop;
@@ -452,18 +486,18 @@ function createCustomDropdown({ dropdownId, buttonId, listId, data, selectedItem
   // Close dropdown if clicked outside — store handler reference so it can be removed next init
   const docHandler = (e) => {
     if (!btn.contains(e.target)) {
-      dropdown.classList.remove('open');
+      dropdown.classList.remove("open");
     }
   };
-  document.addEventListener('click', docHandler);
+  document.addEventListener("click", docHandler);
 
   // Close on Escape — create a named handler so it can be removed on re-init
   const keyHandler = (e) => {
-    if (e.key === 'Escape' || e.key === 'Esc') {
-      dropdown.classList.remove('open');
+    if (e.key === "Escape" || e.key === "Esc") {
+      dropdown.classList.remove("open");
     }
   };
-  document.addEventListener('keydown', keyHandler);
+  document.addEventListener("keydown", keyHandler);
 
   // store handlers so they can be removed next time createCustomDropdown runs
   dropdown._docClickHandler = docHandler;
@@ -471,14 +505,16 @@ function createCustomDropdown({ dropdownId, buttonId, listId, data, selectedItem
 
   // Remove active highlight on hover — store handler reference
   const mouseEnterHandler = () => {
-    dropdownList.querySelectorAll('.dropdownItem').forEach(o => o.classList.remove('active'));
+    dropdownList
+      .querySelectorAll(".dropdownItem")
+      .forEach((o) => o.classList.remove("active"));
   };
-  dropdownList.addEventListener('pointerenter', mouseEnterHandler);
-  dropdownList.addEventListener('touchstart', mouseEnterHandler, { passive: true });
+  dropdownList.addEventListener("pointerenter", mouseEnterHandler);
+  dropdownList.addEventListener("touchstart", mouseEnterHandler, {
+    passive: true,
+  });
   dropdownList._mouseenterHandler = mouseEnterHandler;
-
 }
-
 
 let prefixData = [];
 let suffixData = [];
@@ -489,29 +525,57 @@ let selectedMaritalStatus = null;
 
 // Date Picker Initialization
 let locale = {
-  days: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
-  daysShort: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
-  daysMin: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
+  days: [
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+  ],
+  daysShort: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+  daysMin: ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"],
   months: [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
   ],
   monthsShort: [
-    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
   ],
-  today: 'Today',
-  clear: 'Clear',
-  dateFormat: 'MM/dd/yyyy',
-  timeFormat: 'hh:mm aa',
-  firstDay: 0
-}
+  today: "Today",
+  clear: "Clear",
+  dateFormat: "MM/dd/yyyy",
+  timeFormat: "hh:mm aa",
+  firstDay: 0,
+};
 
 // Initialize datepicker and ensure it opens to the input date when present
-let dp = new AirDatepicker('#birthdayInput', {
+let dp = new AirDatepicker("#birthdayInput", {
   locale: locale,
-  position: 'bottom left',
-  dateFormat: 'M/d/yyyy',
+  position: "bottom left",
+  dateFormat: "M/d/yyyy",
   maxDate: new Date(),
   minDate: new Date(new Date().setFullYear(new Date().getFullYear() - 120)),
   onShow() {
@@ -526,11 +590,11 @@ let dp = new AirDatepicker('#birthdayInput', {
   onSelect({ date, formattedDate, datepicker }) {
     datepicker.hide(); // close the datepicker after date selection
   },
-  selectedDates: []
+  selectedDates: [],
 });
 
-const profilePhoto = document.getElementById('profilePhoto');
-const profileContainer = document.querySelector('.profile-photo-container');
+const profilePhoto = document.getElementById("profilePhoto");
+const profileContainer = document.querySelector(".profile-photo-container");
 let uploadedProfileFile = null;
 
 function fileToBase64(file) {
@@ -538,14 +602,14 @@ function fileToBase64(file) {
     const reader = new FileReader();
     reader.readAsDataURL(file);
     reader.onload = () => {
-      const base64Data = reader.result.split(',')[1]; // remove "data:image/png;base64,"
+      const base64Data = reader.result.split(",")[1]; // remove "data:image/png;base64,"
       resolve(base64Data);
     };
-    reader.onerror = error => reject(error);
+    reader.onerror = (error) => reject(error);
   });
 }
 
-function updateProfilePhoto(data,payload) {
+function updateProfilePhoto(data, payload) {
   const img = document.getElementById("profilePhoto");
   const container = img.parentElement;
 
@@ -606,42 +670,41 @@ function showEPForm() {
   const otpError = document.getElementById("otpErrorMessageEP");
   if (otpError) otpError.remove();
 
-  document.getElementById("codeMessage").style.display="none";
+  document.getElementById("codeMessage").style.display = "none";
   clearTimeout(timeoutDidnotReceiveMessage);
-  document.querySelectorAll('.submitButtonDiv h5').forEach(el => {
-    el.style.pointerEvents = 'auto';
+  document.querySelectorAll(".submitButtonDiv h5").forEach((el) => {
+    el.style.pointerEvents = "auto";
   });
 }
 
-function showDidnotReceiveMessage(){
-  document.getElementById("codeMessage").style.display="block";
-  document.querySelectorAll('.submitButtonDiv h5').forEach(el => {
-  el.style.pointerEvents = 'none';
+function showDidnotReceiveMessage() {
+  document.getElementById("codeMessage").style.display = "block";
+  document.querySelectorAll(".submitButtonDiv h5").forEach((el) => {
+    el.style.pointerEvents = "none";
   });
 }
 
-phoneIcon.addEventListener('click', function() {
+phoneIcon.addEventListener("click", function () {
   changePlaceholder(this.id);
-  iconId = 'phoneIcon';
-  resetModalState()
+  iconId = "phoneIcon";
+  resetModalState();
 });
 
-emailIcon.addEventListener('click', function() {
+emailIcon.addEventListener("click", function () {
   changePlaceholder(this.id);
-  iconId = 'emailIcon';
-  resetModalState()
+  iconId = "emailIcon";
+  resetModalState();
 });
-
 
 function changePlaceholder(IconId) {
-  if (IconId === 'phoneIcon') {
-    phoneEmailInput.placeholder = '999-999-9999';
+  if (IconId === "phoneIcon") {
+    phoneEmailInput.placeholder = "999-999-9999";
     phoneEmailInput.maxLength = 12;
-    label.textContent = "Enter the new cell phone number"
-  } else if (IconId === 'emailIcon') {
-    phoneEmailInput.placeholder = 'sampleuser@yourdomain.com';
+    label.textContent = "Enter the new cell phone number";
+  } else if (IconId === "emailIcon") {
+    phoneEmailInput.placeholder = "sampleuser@yourdomain.com";
     label.textContent = "Enter the new email address";
-    phoneEmailInput.removeAttribute('maxlength');
+    phoneEmailInput.removeAttribute("maxlength");
   }
 }
 
@@ -653,25 +716,24 @@ function validateEmail(email) {
 function validateInput() {
   let input = phoneEmailInput.value.trim();
   let isValid = false;
-  
+
   if (input === "") {
     codeBtn.disabled = true;
     inputErrorDivText.textContent = "";
-    inputErrorDiv.style.visibility = 'hidden';
+    inputErrorDiv.style.visibility = "hidden";
     phoneEmailInput.style.borderColor = "#D1D5DB";
     return;
   }
 
-  if (iconId === 'phoneIcon') {
-
-    let cleaned = input.replace(/\D/g, '');
+  if (iconId === "phoneIcon") {
+    let cleaned = input.replace(/\D/g, "");
 
     if (cleaned.length > 10) cleaned = cleaned.slice(0, 10);
 
     if (cleaned.length > 6) {
-      input = cleaned.replace(/(\d{3})(\d{3})(\d{0,4})/, '$1-$2-$3');
+      input = cleaned.replace(/(\d{3})(\d{3})(\d{0,4})/, "$1-$2-$3");
     } else if (cleaned.length > 3) {
-      input = cleaned.replace(/(\d{3})(\d{0,3})/, '$1-$2');
+      input = cleaned.replace(/(\d{3})(\d{0,3})/, "$1-$2");
     } else {
       input = cleaned;
     }
@@ -681,26 +743,24 @@ function validateInput() {
     const isIndian = /^[6-9]\d{9}$/.test(cleaned);
     const isUS = /^\d{10}$/.test(cleaned);
     isValid = isIndian || isUS;
-
-  } else if (iconId === 'emailIcon') {
+  } else if (iconId === "emailIcon") {
     isValid = validateEmail(input);
   }
 
   if (isValid) {
     codeBtn.disabled = false;
     inputErrorDivText.textContent = "";
-    inputErrorDiv.style.visibility = 'hidden';
+    inputErrorDiv.style.visibility = "hidden";
     phoneEmailInput.style.borderColor = "#D1D5DB"; // Reset to normal border
-  } else if (iconId === 'emailIcon' && !isValid) {
+  } else if (iconId === "emailIcon" && !isValid) {
     codeBtn.disabled = true;
-    inputErrorDiv.style.visibility = 'visible';
+    inputErrorDiv.style.visibility = "visible";
     inputErrorDivText.textContent = "Please enter a valid email address.";
     phoneEmailInput.style.borderColor = "#B91C1C"; // Add red border
   }
-
 }
 
-function resetModalState() {     
+function resetModalState() {
   phoneEmailInput.value = "";
   phoneEmailInput.style.borderColor = "";
   inputErrorDiv.style.visibility = "hidden";
@@ -710,7 +770,7 @@ function resetModalState() {
 
   const otpInputs = document.querySelectorAll(".otpInputBoxEP");
   const oldErr = document.getElementById("otpErrorMessageEP");
-  document.getElementById("codeMessage").style.display="none";
+  document.getElementById("codeMessage").style.display = "none";
 
   if (oldErr) oldErr.remove();
 
@@ -722,10 +782,13 @@ function resetModalState() {
   }
 
   clearTimeout(timeoutDidnotReceiveMessage);
-  document.querySelectorAll('.submitButtonDiv h5').forEach(el => {
-    el.style.pointerEvents = 'auto';
+  document.querySelectorAll(".submitButtonDiv h5").forEach((el) => {
+    el.style.pointerEvents = "auto";
   });
-  if (window.ProfileFirstModal && typeof window.ProfileFirstModal.stopCamera === 'function') {
+  if (
+    window.ProfileFirstModal &&
+    typeof window.ProfileFirstModal.stopCamera === "function"
+  ) {
     window.ProfileFirstModal.stopCamera();
   }
 
@@ -733,14 +796,14 @@ function resetModalState() {
     // Reset form sections
     document.getElementById("verificationForm").style.display = "block";
     document.getElementById("otpSectionEP").style.display = "none";
-    document.getElementById('selectPhotoOption').style.display = 'flex';
-    document.getElementById('photoModal').style.display = 'none';
-    document.getElementById('video').style.display = 'block';
-    document.getElementById('takePhoto').style.display = 'block';
-    document.getElementById('retakePhoto').style.display = 'none';
-    document.getElementById('usePhoto').style.display = 'none';
-    document.getElementById('photoPreview').style.display = 'none';
-  }, 900); 
+    document.getElementById("selectPhotoOption").style.display = "flex";
+    document.getElementById("photoModal").style.display = "none";
+    document.getElementById("video").style.display = "block";
+    document.getElementById("takePhoto").style.display = "block";
+    document.getElementById("retakePhoto").style.display = "none";
+    document.getElementById("usePhoto").style.display = "none";
+    document.getElementById("photoPreview").style.display = "none";
+  }, 900);
 }
 
 // Close button click listener
@@ -748,15 +811,15 @@ document.addEventListener("click", function (e) {
   const isCloseButton = e.target.closest(".mfp-close");
 
   if (isCloseButton) {
-    console.log("✅ DIVI modal close button clicked");
+    // console.log("✅ DIVI modal close button clicked");
     resetModalState();
   }
 });
 
 // ESC key listener
 document.addEventListener("keydown", function (e) {
-  if ( e.key === "Escape" ) {
-    console.log("✅ ESC key pressed");
+  if (e.key === "Escape") {
+    // console.log("✅ ESC key pressed");
     resetModalState();
   }
 });
@@ -764,9 +827,9 @@ document.addEventListener("keydown", function (e) {
 // DIVI modal closed via overlay or close button
 jQuery(document).ready(function ($) {
   $(document).on("mfpClose", function () {
-    console.log("✅ Modal closed (by close button or outside click)");
+    // console.log("✅ Modal closed (by close button or outside click)");
     // Enable scrolling
-      resetModalState();
+    resetModalState();
   });
 });
 
@@ -776,22 +839,24 @@ function validateName(fieldId, inputErrorDivId, maxLength = 25) {
   const errorText = document.querySelector(`#${inputErrorDivId} .errorText`);
 
   // Allow only letters, ., ', -, spaces; limit length
-  let input = inputElement.value.replace(/[^a-zA-Z.,'’‘\- ]/g, "").slice(0, maxLength);
+  let input = inputElement.value
+    .replace(/[^a-zA-Z.,'’‘\- ]/g, "")
+    .slice(0, maxLength);
   inputElement.value = input;
 
   if (input === "") {
-    inputErrorDiv.style.removeProperty('display');
-    inputErrorDiv.style.visibility = 'hidden';
+    inputErrorDiv.style.removeProperty("display");
+    inputErrorDiv.style.visibility = "hidden";
     errorText.textContent = "";
     inputElement.style.borderColor = "";
     document.getElementById("save").disabled = false;
   } else if (input.length === maxLength) {
-    inputErrorDiv.style.setProperty('display', 'flex', 'important');
-    inputErrorDiv.style.visibility = 'visible';
+    inputErrorDiv.style.setProperty("display", "flex", "important");
+    inputErrorDiv.style.visibility = "visible";
     errorText.textContent = `You’ve reached the ${maxLength}-character limit`;
   } else {
-    inputErrorDiv.style.removeProperty('display');
-    inputErrorDiv.style.visibility = 'hidden';
+    inputErrorDiv.style.removeProperty("display");
+    inputErrorDiv.style.visibility = "hidden";
     errorText.textContent = "";
     inputElement.style.borderColor = "";
     document.getElementById("save").disabled = false;
@@ -806,7 +871,7 @@ function validateNameFields() {
 function checkInputs() {
   const firstName = document.getElementById("firstNameInput");
   const lastName = document.getElementById("lastNameInput");
-  
+
   const firstNameValue = firstName.value.trim();
   const lastNameValue = lastName.value.trim();
 
@@ -831,7 +896,9 @@ function setGenderRadio(genderId) {
   else if (genderId === 2) genderValue = "Female";
   else return;
 
-  const radio = document.querySelector(`input[name="gender"][value="${genderValue}"]`);
+  const radio = document.querySelector(
+    `input[name="gender"][value="${genderValue}"]`,
+  );
   if (radio) radio.checked = true;
 }
 
@@ -851,7 +918,7 @@ function getSelectedGenderId() {
 
 function formatDateForPayload(date) {
   const d = new Date(date);
-  const pad = n => n.toString().padStart(2, '0');
+  const pad = (n) => n.toString().padStart(2, "0");
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
 }
 
@@ -1023,8 +1090,7 @@ function closeForceLogoutModal() {
   document.getElementById("forceLogoutDiv").style.display = "none";
   unlockScroll();
   const existingStyle = document.getElementById("removeZindexStyle");
-  if (existingStyle)
-    existingStyle.remove();
+  if (existingStyle) existingStyle.remove();
 
   document.getElementById("logout-btn")?.click();
   document.getElementById("menu-item-43015")?.click();
@@ -1046,83 +1112,82 @@ document.addEventListener("keydown", function (e) {
 });
 
 $(document).on("mfpOpen", function () {
-    // Disable scrolling
-    const width = window.screen.width;
-    if(width < 768 || width > 1024){
-      lockScroll();
-    }
-    else{
-      document.body.style.position = "fixed";
-    }
+  // Disable scrolling
+  const width = window.screen.width;
+  if (width < 768 || width > 1024) {
+    lockScroll();
+  } else {
+    document.body.style.position = "fixed";
+  }
 });
 
 // API Integration
 async function loadProfile() {
-  
   if (token) {
     // Show loader for the whole profile load (lookups + contact fetch)
     showPageLoader();
     await fetchData();
     try {
       const payload = JSON.parse(atob(token.split(".")[1]));
-      console.log("Decoded JWT payload:", payload);
+      // console.log("Decoded JWT payload:", payload);
 
-      const response = await fetch(
-        `${baseURL}/api/My/Contact`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          }
-        }
-      );
+      const response = await fetch(`${baseURL}/api/My/Contact`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
       const data = await response.json();
-      console.log("My profile",data);
+      // console.log("My profile",data);
       originalProfile = JSON.parse(JSON.stringify(data));
       originalProfile.Web_Image_URL = null;
-      console.log(originalProfile);
+      // console.log(originalProfile);
       if (response.ok) {
         // Populate profile fields
         prefixID = data.Prefix_ID;
         suffixID = data.Suffix_ID;
         maritalStatusID = data.Marital_Status_ID;
 
-        prefixObj = prefixData.find(p => p.id === prefixID);
-        suffixObj = suffixData.find(s => s.id === suffixID);
-        maritalStatusObj = maritalStatusData.find(m => m.id === maritalStatusID);
+        prefixObj = prefixData.find((p) => p.id === prefixID);
+        suffixObj = suffixData.find((s) => s.id === suffixID);
+        maritalStatusObj = maritalStatusData.find(
+          (m) => m.id === maritalStatusID,
+        );
 
         selectedPrefix = prefixObj ? prefixObj : null;
         selectedSuffix = suffixObj ? suffixObj : null;
         selectedMaritalStatus = maritalStatusObj ? maritalStatusObj : null;
 
         const prefixEl = document.querySelector(
-          `#prefixList .dropdownItem[data-id="${selectedPrefix?.id}"]`
+          `#prefixList .dropdownItem[data-id="${selectedPrefix?.id}"]`,
         );
-        
-        if (prefixEl)prefixEl.classList.add("active");
-         
+
+        if (prefixEl) prefixEl.classList.add("active");
+
         const suffixEl = document.querySelector(
-          `#suffixList .dropdownItem[data-id="${selectedSuffix?.id}"]`
+          `#suffixList .dropdownItem[data-id="${selectedSuffix?.id}"]`,
         );
 
         if (suffixEl) suffixEl.classList.add("active");
 
         const maritalStatusEl = document.querySelector(
-          `#maritalStatusList .dropdownItem[data-id="${selectedMaritalStatus?.id}"]`
+          `#maritalStatusList .dropdownItem[data-id="${selectedMaritalStatus?.id}"]`,
         );
 
         if (maritalStatusEl) maritalStatusEl.classList.add("active");
 
-        if (!data.Nickname) {
-          nickNameVar = data.First_Name;
-        }
-        else {
-          nickNameVar = data.Nickname;
-        }
+        // if (!data.Nickname) {
+        //   nickNameVar = data.First_Name;
+        // } else {
+        //   nickNameVar = data.Nickname;
+        // }
+        nickNameVar = data.Nickname || data.First_Name || "User";
         updateName(nickNameVar);
-        updateProfilePhoto(data,payload);
-        formatDate(data.Date_of_Birth) ? birthdayInput.value = formatDate(data.Date_of_Birth) : birthdayInput.value = "";
+        updateProfilePhoto(data, payload);
+        formatDate(data.Date_of_Birth)
+          ? (birthdayInput.value = formatDate(data.Date_of_Birth))
+          : (birthdayInput.value = "");
         setGenderRadio(data.Gender_ID);
 
         if (birthdayInput.value) {
@@ -1138,28 +1203,29 @@ async function loadProfile() {
         webImageURL = data.Web_Image_URL || "";
 
         // Re-query button elements to avoid stale references (createCustomDropdown may replace nodes)
-        const prefixBtnEl = document.getElementById('prefixBtn');
-        const suffixBtnEl = document.getElementById('suffixBtn');
-        const maritalBtnEl = document.getElementById('maritalStatusBtn');
+        const prefixBtnEl = document.getElementById("prefixBtn");
+        const suffixBtnEl = document.getElementById("suffixBtn");
+        const maritalBtnEl = document.getElementById("maritalStatusBtn");
 
         if (prefixBtnEl) {
           prefixBtnEl.textContent = prefixObj ? prefixObj.name : "-- Select --";
-          if (prefixObj) prefixBtnEl.classList.remove('placeholder');
-          else prefixBtnEl.classList.add('placeholder');
+          if (prefixObj) prefixBtnEl.classList.remove("placeholder");
+          else prefixBtnEl.classList.add("placeholder");
         }
 
         if (suffixBtnEl) {
           suffixBtnEl.textContent = suffixObj ? suffixObj.name : "-- Select --";
-          if (suffixObj) suffixBtnEl.classList.remove('placeholder');
-          else suffixBtnEl.classList.add('placeholder');
+          if (suffixObj) suffixBtnEl.classList.remove("placeholder");
+          else suffixBtnEl.classList.add("placeholder");
         }
 
         if (maritalBtnEl) {
-          maritalBtnEl.textContent = maritalStatusObj ? maritalStatusObj.name : "-- Select --";
-          if (maritalStatusObj) maritalBtnEl.classList.remove('placeholder');
-          else maritalBtnEl.classList.add('placeholder');
+          maritalBtnEl.textContent = maritalStatusObj
+            ? maritalStatusObj.name
+            : "-- Select --";
+          if (maritalStatusObj) maritalBtnEl.classList.remove("placeholder");
+          else maritalBtnEl.classList.add("placeholder");
         }
-
       } else {
         console.error("Error fetching profile:", data);
       }
@@ -1175,83 +1241,87 @@ async function loadProfile() {
 async function fetchData() {
   try {
     // Fetch all APIs in parallel
-    const [genderRes, prefixRes, suffixRes, maritalStatusRes] = await Promise.all([
-      fetch(`${baseURL}/api/Gender`),
-      fetch(`${baseURL}/api/Prefix`),
-      fetch(`${baseURL}/api/Suffix`),
-      fetch(`${baseURL}/api/MaritalStatus`),
-    ]);
+    const [genderRes, prefixRes, suffixRes, maritalStatusRes] =
+      await Promise.all([
+        fetch(`${baseURL}/api/Gender`),
+        fetch(`${baseURL}/api/Prefix`),
+        fetch(`${baseURL}/api/Suffix`),
+        fetch(`${baseURL}/api/MaritalStatus`),
+      ]);
 
-    const [GenderData, PrefixData, SuffixData, MaritalStatusData] = await Promise.all([
-      genderRes.json(),
-      prefixRes.json(),
-      suffixRes.json(),
-      maritalStatusRes.json(),
-    ]);
+    const [GenderData, PrefixData, SuffixData, MaritalStatusData] =
+      await Promise.all([
+        genderRes.json(),
+        prefixRes.json(),
+        suffixRes.json(),
+        maritalStatusRes.json(),
+      ]);
 
-    console.log("Gender:", GenderData);
-    console.log("Prefix:", PrefixData);
-    console.log("Suffix:", SuffixData);
-    console.log("Marital Status:", MaritalStatusData);
+    // console.log("Gender:", GenderData);
+    // console.log("Prefix:", PrefixData);
+    // console.log("Suffix:", SuffixData);
+    // console.log("Marital Status:", MaritalStatusData);
 
-    prefixData = PrefixData.map(p => ({
+    prefixData = PrefixData.map((p) => ({
       id: p.Prefix_ID,
-      name: p.Prefix
+      name: p.Prefix,
     }));
 
-    suffixData = SuffixData.map(s => ({
+    suffixData = SuffixData.map((s) => ({
       id: s.Suffix_ID,
-      name: s.Suffix
+      name: s.Suffix,
     }));
 
-    maritalStatusData = MaritalStatusData.map(m => ({
+    maritalStatusData = MaritalStatusData.map((m) => ({
       id: m.Marital_Status_ID,
-      name: m.Marital_Status
+      name: m.Marital_Status,
     }));
 
     createCustomDropdown({
-        dropdownId: "Prefix",
-        buttonId: "prefixBtn",
-        listId: "prefixList",
-        data: prefixData,
-        selectedItem: selectedPrefix,
-        onSelect: (value) => {
-            selectedPrefix = value;
-            // mark as changed if different from original profile
-            const newId = value?.id ?? null;
-            if (originalProfile && (newId != originalProfile.Prefix_ID)) hasChanges = true;
-            else hasChanges = false;
-        }
+      dropdownId: "Prefix",
+      buttonId: "prefixBtn",
+      listId: "prefixList",
+      data: prefixData,
+      selectedItem: selectedPrefix,
+      onSelect: (value) => {
+        selectedPrefix = value;
+        // mark as changed if different from original profile
+        const newId = value?.id ?? null;
+        if (originalProfile && newId != originalProfile.Prefix_ID)
+          hasChanges = true;
+        else hasChanges = false;
+      },
     });
 
     createCustomDropdown({
-        dropdownId: "Suffix",
-        buttonId: "suffixBtn",
-        listId: "suffixList",
-        data: suffixData,
-        selectedItem: selectedSuffix,
-        onSelect: (value) => {
-            selectedSuffix = value;
-            const newId = value?.id ?? null;
-            if (originalProfile && (newId != originalProfile.Suffix_ID)) hasChanges = true;
-            else hasChanges = false;
-        }
+      dropdownId: "Suffix",
+      buttonId: "suffixBtn",
+      listId: "suffixList",
+      data: suffixData,
+      selectedItem: selectedSuffix,
+      onSelect: (value) => {
+        selectedSuffix = value;
+        const newId = value?.id ?? null;
+        if (originalProfile && newId != originalProfile.Suffix_ID)
+          hasChanges = true;
+        else hasChanges = false;
+      },
     });
 
     createCustomDropdown({
-        dropdownId: "maritalStatus",
-        buttonId: "maritalStatusBtn",
-        listId: "maritalStatusList",
-        data: maritalStatusData,
-        selectedItem: selectedMaritalStatus,
-        onSelect: (value) => {
-            selectedMaritalStatus = value;
-            const newId = value?.id ?? null;
-            if (originalProfile && (newId != originalProfile.Marital_Status_ID)) hasChanges = true;
-            else hasChanges = false;
-        }
+      dropdownId: "maritalStatus",
+      buttonId: "maritalStatusBtn",
+      listId: "maritalStatusList",
+      data: maritalStatusData,
+      selectedItem: selectedMaritalStatus,
+      onSelect: (value) => {
+        selectedMaritalStatus = value;
+        const newId = value?.id ?? null;
+        if (originalProfile && newId != originalProfile.Marital_Status_ID)
+          hasChanges = true;
+        else hasChanges = false;
+      },
     });
-
   } catch (err) {
     console.error("Error fetching data:", err);
   }
@@ -1266,7 +1336,7 @@ async function updateProfile() {
   let image = null;
   const payload = { Contact: originalProfile };
 
-  if (profilePhoto.src.startsWith('blob:')) {
+  if (profilePhoto.src.startsWith("blob:")) {
     const base64String = await fileToBase64(uploadedProfileFile);
 
     const FileName = uploadedProfileFile.name;
@@ -1282,14 +1352,14 @@ async function updateProfile() {
       ContentType: mimeType,
       DefaultImage: true,
     };
-    console.log("file changes");
-    
+    // console.log("file changes");
+
     hasChanges = true;
     payload.File = image;
   }
-  if (profilePhoto.src.startsWith('data:')) {
+  if (profilePhoto.src.startsWith("data:")) {
     const FileName = `photo_${Date.now()}.png`;
-    const [meta, base64String] = profileImageCamera.split(',');
+    const [meta, base64String] = profileImageCamera.split(",");
     const mimeType = meta.match(/data:(.*);base64/)[1];
     const image = {
       FileName,
@@ -1297,25 +1367,25 @@ async function updateProfile() {
       ContentType: mimeType,
       DefaultImage: true,
     };
-    console.log("file changes");
-    
+    // console.log("file changes");
+
     hasChanges = true;
     payload.File = image;
   }
 
   const fields = [
-    { input: firstNameInput, key: 'First_Name' },
-    { input: lastNameInput, key: 'Last_Name' },
-    { input: middleNameInput, key: 'Middle_Name' },
-    { input: preferredNameInput, key: 'Nickname' },
-    { input: emailAddress, key: 'Email_Address' },
-    { input: phoneNumber, key: 'Mobile_Phone' },
+    { input: firstNameInput, key: "First_Name" },
+    { input: lastNameInput, key: "Last_Name" },
+    { input: middleNameInput, key: "Middle_Name" },
+    { input: preferredNameInput, key: "Nickname" },
+    { input: emailAddress, key: "Email_Address" },
+    { input: phoneNumber, key: "Mobile_Phone" },
   ];
-  
+
   const additionalFields = [
     { input: selectedPrefix, key: "Prefix_ID" },
     { input: selectedSuffix, key: "Suffix_ID" },
-    { input: selectedMaritalStatus, key: "Marital_Status_ID" }
+    { input: selectedMaritalStatus, key: "Marital_Status_ID" },
   ];
 
   additionalFields.forEach(({ input, key }) => {
@@ -1323,34 +1393,41 @@ async function updateProfile() {
     const newValue = input?.id;
     const oldValue = originalProfile?.[key];
 
-    console.log(newValue, typeof(newValue));
-    console.log(oldValue, typeof(oldValue));
+    // console.log(newValue, typeof(newValue));
+    // console.log(oldValue, typeof(oldValue));
 
-    if (newValue != oldValue ) {
+    if (newValue != oldValue) {
       payload.Contact[key] = newValue;
       hasChanges = true;
-      console.log("input changed", input);
-      
+      // console.log("input changed", input);
     }
   });
 
   fields.forEach(({ input, key }) => {
-    const newValue = (input?.value || '').trim();
-    const oldValue = (originalProfile?.[key] || '').trim();
+    const newValue = (input?.value || "").trim();
+    const oldValue = (originalProfile?.[key] || "").trim();
 
     if (newValue !== oldValue) {
       payload.Contact[key] = newValue;
       hasChanges = true;
-      console.log("select changed", input);
-      if(primaryContact != null && key == 'Email_Address' && primaryContact === 'true'){
-        console.log("reached email condition");
+      // console.log("select changed", input);
+      if (
+        primaryContact != null &&
+        key == "Email_Address" &&
+        primaryContact === "true"
+      ) {
+        // console.log("reached email condition");
         forceLogout = true;
-        localStorage.setItem('Email_Phone', newValue);
+        localStorage.setItem("Email_Phone", newValue);
       }
-      if(primaryContact != null && key == 'Mobile_Phone' && primaryContact === "false"){
-        console.log("reached phone condition");
+      if (
+        primaryContact != null &&
+        key == "Mobile_Phone" &&
+        primaryContact === "false"
+      ) {
+        // console.log("reached phone condition");
         forceLogout = true;
-        localStorage.setItem('Email_Phone', newValue);
+        localStorage.setItem("Email_Phone", newValue);
       }
     }
   });
@@ -1358,31 +1435,39 @@ async function updateProfile() {
   const formattedBirthday = formatDateForPayload(birthdayInput.value);
   if (formattedBirthday !== originalProfile.Date_of_Birth) {
     payload.Contact.Date_of_Birth = formattedBirthday;
-    hasChanges = true;    
+    hasChanges = true;
   }
 
   const selectedGenderId = getSelectedGenderId();
   if (selectedGenderId && selectedGenderId !== originalProfile.Gender_ID) {
     payload.Contact.Gender_ID = selectedGenderId;
-    hasChanges = true;    
+    hasChanges = true;
   }
 
-  console.log("PUT Payload:", payload, payload.Contact == originalProfile);
+  // console.log("PUT Payload:", payload, payload.Contact == originalProfile);
 
-  if(!firstNameInput.value.trim() && window.getComputedStyle(inputErrorFirstName).display === 'none'){
-    inputErrorFirstName.style.setProperty('display', 'flex', 'important');
-    inputErrorFirstName.style.visibility = 'visible';
-    document.querySelector('#inputErrorFirstNameEP .errorText').textContent = 'First Name is required.';
+  if (
+    !firstNameInput.value.trim() &&
+    window.getComputedStyle(inputErrorFirstName).display === "none"
+  ) {
+    inputErrorFirstName.style.setProperty("display", "flex", "important");
+    inputErrorFirstName.style.visibility = "visible";
+    document.querySelector("#inputErrorFirstNameEP .errorText").textContent =
+      "First Name is required.";
   }
-  if(!lastNameInput.value.trim() && window.getComputedStyle(inputErrorLastName).display === 'none'){
-    inputErrorLastName.style.setProperty('display', 'flex', 'important');
-    inputErrorLastName.style.visibility = 'visible';
-    document.querySelector('#inputErrorLastNameEP .errorText').textContent = 'Last Name is required.';
+  if (
+    !lastNameInput.value.trim() &&
+    window.getComputedStyle(inputErrorLastName).display === "none"
+  ) {
+    inputErrorLastName.style.setProperty("display", "flex", "important");
+    inputErrorLastName.style.visibility = "visible";
+    document.querySelector("#inputErrorLastNameEP .errorText").textContent =
+      "Last Name is required.";
   }
-  if(!lastNameInput.value.trim() || !firstNameInput.value.trim()) return;
+  if (!lastNameInput.value.trim() || !firstNameInput.value.trim()) return;
 
-  console.log("reached");
-  if(!hasChanges){
+  // console.log("reached");
+  if (!hasChanges) {
     document.head.appendChild(style); // Add z-index style on popup trigger
     lockScroll();
     document.getElementById("noChangesDiv").style.display = "flex";
@@ -1396,20 +1481,23 @@ async function updateProfile() {
   saveLoader.style.display = "inline-block";
   btnContent.innerText = "";
 
-  try{
-    const response = await fetch(`${baseURL}/v1.3/api/CurrentUser/Profile?isWeb=true`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
+  try {
+    const response = await fetch(
+      `${baseURL}/v1.3/api/CurrentUser/Profile?isWeb=true`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
       },
-      body: JSON.stringify(payload),
-    });
+    );
 
     const result = await response.json();
-    console.log("Update result:", result);
+    // console.log("Update result:", result);
 
-    if (response.ok){
+    if (response.ok) {
       showMessage("success", "Your profile has been updated successfully!");
       saveBtn.disabled = false;
       saveLoader.style.display = "none";
@@ -1417,13 +1505,13 @@ async function updateProfile() {
       hasChanges = false;
       loadProfile();
 
-      if(result.Web_Image_URL){
-        document.querySelectorAll('#user-avatar-mbl').forEach(container => {
-          let img = container.querySelector('img');
+      if (result.Web_Image_URL) {
+        document.querySelectorAll("#user-avatar-mbl").forEach((container) => {
+          let img = container.querySelector("img");
           if (img) img.src = result.Web_Image_URL;
           else {
             container.innerHTML = "";
-            img = document.createElement('img');
+            img = document.createElement("img");
             img.src = result.Web_Image_URL;
             img.style.borderRadius = "50%";
             img.style.height = "100%";
@@ -1431,13 +1519,13 @@ async function updateProfile() {
             container.appendChild(img);
           }
         });
-        
-        document.querySelectorAll('#user-avatar').forEach(container => {
-          let img = container.querySelector('img');
+
+        document.querySelectorAll("#user-avatar").forEach((container) => {
+          let img = container.querySelector("img");
           if (img) img.src = result.Web_Image_URL;
           else {
             container.innerHTML = "";
-            img = document.createElement('img');
+            img = document.createElement("img");
             img.src = result.Web_Image_URL;
             img.style.borderRadius = "50%";
             img.style.height = "100%";
@@ -1448,24 +1536,23 @@ async function updateProfile() {
       }
 
       // force logout
-      if(forceLogout){
-        console.log("reached force logout");
+      if (forceLogout) {
+        // console.log("reached force logout");
         document.head.appendChild(style);
         lockScroll();
-        const logoutDiv = document.getElementById("forceLogoutDiv")
+        const logoutDiv = document.getElementById("forceLogoutDiv");
         logoutDiv.style.display = "flex";
         const logoutMessage = logoutDiv.querySelector("h3");
-        const email = localStorage.getItem('Email_Phone').includes('@');
+        const email = localStorage.getItem("Email_Phone").includes("@");
         logoutMessage.textContent = `You've changed your ${email ? "email address" : "phone number"}. Login again to continue.`;
       }
-    }
-    else{
+    } else {
       showMessage("error", "Something went wrong. Please try again later.");
       saveBtn.disabled = false;
       saveLoader.style.display = "none";
       btnContent.innerText = "SAVE";
     }
-  }catch(err){
+  } catch (err) {
     console.error("Error preparing payload:", err);
     showMessage("error", "Something went wrong. Please try again later.");
     saveBtn.disabled = false;
@@ -1481,17 +1568,20 @@ async function handleVerification() {
   codeBtn.disabled = true;
   codeBtn.classList.add("button-loading");
   codeBtn.innerText = "SENDING...";
-  inputErrorDiv.style.visibility = 'hidden';
+  inputErrorDiv.style.visibility = "hidden";
   inputErrorDivText.innerText = "";
   phoneEmailInput.style.borderColor = "#D1D5DB";
 
-  if(emailAddress.value.toLowerCase() == value.toLowerCase() || phoneNumber.value == value){
+  if (
+    emailAddress.value.toLowerCase() == value.toLowerCase() ||
+    phoneNumber.value == value
+  ) {
     phoneEmailInput.style.borderColor = "#B91C1C";
-    inputErrorDiv.style.visibility = 'visible';
-    inputErrorDivText.innerText = 
-    iconId == 'emailIcon' ? 
-      "The entered email address matches the current email address" : 
-      "The entered cell phone number matches the current cell phone number";
+    inputErrorDiv.style.visibility = "visible";
+    inputErrorDivText.innerText =
+      iconId == "emailIcon"
+        ? "The entered email address matches the current email address"
+        : "The entered cell phone number matches the current cell phone number";
     codeBtn.disabled = true;
     codeBtn.innerText = "SEND VERIFICATION CODE";
     codeBtn.classList.remove("button-loading");
@@ -1501,45 +1591,63 @@ async function handleVerification() {
   }
 
   try {
-    const response = await fetch(
-      `${baseURL}/v1.2/api/ProfileCode?isWeb=true`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({ Phone_Email: value }),
-      }
-    );
+    const response = await fetch(`${baseURL}/v1.2/api/ProfileCode?isWeb=true`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ Phone_Email: value }),
+    });
 
     const text = await response.text();
 
     if (!response.ok) {
-      console.log(response);
+      console.log("Web clickable", response);
+      console.log("Web clickable", text);
+      // console.log(response);
       phoneEmailInput.style.borderColor = "#B91C1C";
-      inputErrorDiv.style.visibility = 'visible';
-      inputErrorDivText.innerText = text || "Login failed.";
+      inputErrorDiv.style.visibility = "visible";
+      // inputErrorDivText.innerText = text || "Login failed.";
+      // -------------------------
+      if (text && text.includes("WebHelp@CalvaryFTL.org")) {
+        const updatedText = text.replace(
+          "WebHelp@CalvaryFTL.org",
+          `<a href="mailto:WebHelp@CalvaryFTL.org" style="color:#B91C1C; text-decoration:underline;">
+      WebHelp@CalvaryFTL.org
+    </a>`,
+        );
+        inputErrorDivText.innerHTML = updatedText;
+      } else {
+        inputErrorDivText.innerText = text || "Login failed.";
+      }
+      // -------------------------
       codeBtn.disabled = true;
       codeBtn.innerText = "SEND VERIFICATION CODE";
       codeBtn.classList.remove("button-loading");
       codeBtn.style.border = "1px solid white";
       codeBtn.style.color = "white";
     } else {
+      console.log("Web clickable", text);
       // Success – show OTP section
       document.getElementById("otpSectionEP").style.display = "flex";
       timeoutDidnotReceiveMessage = setTimeout(showDidnotReceiveMessage, 10000);
       document.getElementById("verifyButton").disabled = true;
       document.getElementById("userValueDisplayEP").innerText = value;
       ph_email = value;
-      if(ph_email.includes("@")){        
-        document.querySelectorAll("#codeMessage .mailText").forEach(el => el.style.display = "contents");
+      if (ph_email.includes("@")) {
+        document
+          .querySelectorAll("#codeMessage .mailText")
+          .forEach((el) => (el.style.display = "contents"));
       } else {
-        document.querySelectorAll("#codeMessage .mailText").forEach(el => el.style.display = "none");
+        document
+          .querySelectorAll("#codeMessage .mailText")
+          .forEach((el) => (el.style.display = "none"));
       }
       document.getElementById("verificationForm").style.display = "none";
       // input.style.display = "none";
       // codeBtn.style.display = "none";
-      inputErrorDiv.style.visibility = 'hidden';
+      inputErrorDiv.style.visibility = "hidden";
       inputErrorDivText.innerText = "";
 
       // Focus OTP box
@@ -1548,15 +1656,16 @@ async function handleVerification() {
 
       // Optional: Attach OTP listeners once
       // if (!window.otpListenersAttached) {
-        if (typeof setupOtpListeners === "function") {
-          setupOtpListeners();
+      if (typeof setupOtpListeners === "function") {
+        setupOtpListeners();
         //   window.otpListenersAttached = true;
         // }
-        }
       }
+    }
   } catch (err) {
+    console.log("Web clickable", err);
     phoneEmailInput.style.borderColor = "#B91C1C";
-    inputErrorDiv.style.visibility = 'visible';
+    inputErrorDiv.style.visibility = "visible";
     inputErrorDivText.innerText = "Something went wrong. Please try again.";
     codeBtn.disabled = true;
     codeBtn.innerText = "SEND VERIFICATION CODE";
@@ -1565,7 +1674,7 @@ async function handleVerification() {
 }
 
 async function resendOtp() {
-  console.log("CALLING RESEND OTP", isResending);
+  // console.log("CALLING RESEND OTP", isResending);
   if (isResending) return; // Prevent multiple clicks
   const value = phoneEmailInput.value.trim();
   const resetCodeLink = document.getElementById("resetCodeLinkEP");
@@ -1577,24 +1686,21 @@ async function resendOtp() {
   resetCodeLink.textContent = "Resending...";
 
   try {
-    const response = await fetch(
-      `${baseURL}/api/ProfileCode`,
-      {
-        method: "POST",
-        headers: { 
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
-         },
-        body: JSON.stringify({ Phone_Email: value }),
-      }
-    );
+    const response = await fetch(`${baseURL}/api/ProfileCode`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ Phone_Email: value }),
+    });
 
     const text = await response.text();
 
     if (!response.ok) {
-      console.log(response);
+      // console.log(response);
       if (response.status === 404) {
-        console.log(response.status);
+        // console.log(response.status);
         // document.getElementById("loginForm").style.display = "none";
         // document.getElementById("signupSection").style.display = "flex";
       }
@@ -1672,28 +1778,25 @@ async function verifyOtp() {
   verifyBtn.innerText = "VERIFYING...";
 
   try {
-    const response = await fetch(
-      `${baseURL}/api/ProfileCode/Confirm`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          Phone_Email,
-          Code,
-          DeviceID: "dummy-device-id", // Replace if needed
-          API_Key: "dummy-api-key", // Replace if needed
-        }),
-      }
-    );
+    const response = await fetch(`${baseURL}/api/ProfileCode/Confirm`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        Phone_Email,
+        Code,
+        DeviceID: "dummy-device-id", // Replace if needed
+        API_Key: "dummy-api-key", // Replace if needed
+      }),
+    });
 
-    console.log("response", response);
+    // console.log("response", response);
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
     const phoneRegex = /^\d{3}-\d{3}-\d{4}$/;
 
     if (response.ok) {
       const data = await response.text();
-      console.log("✅ OTP Verified:", data);
+      // console.log("✅ OTP Verified:", data);
 
       $.magnificPopup.close();
       resetModalState();
@@ -1703,25 +1806,24 @@ async function verifyOtp() {
       } else if (phoneRegex.test(ph_email)) {
         phoneNumber.value = ph_email;
         hasChanges = true;
-      }
-      else {
+      } else {
         hasChanges = false;
       }
     } else {
       // Error: invalid OTP
       otpInputs.forEach((input) => (input.style.border = "2px solid #B91C1C"));
-      const exclamationSpan = document.createElement('span');
-      exclamationSpan.classList.add('helperText');
-      exclamationSpan.textContent = '!';
+      const exclamationSpan = document.createElement("span");
+      exclamationSpan.classList.add("helperText");
+      exclamationSpan.textContent = "!";
       const err = document.createElement("div");
       err.id = "otpErrorMessageEP";
       err.style.color = "#B91C1C";
       err.style.fontSize = "14px";
       err.style.marginTop = "8px";
       err.style.fontFamily = "Poppins, sans-serif";
-      err.style.visibility = 'visible';
-      const errorTextSpan = document.createElement('span');
-      errorTextSpan.classList.add('errorText');
+      err.style.visibility = "visible";
+      const errorTextSpan = document.createElement("span");
+      errorTextSpan.classList.add("errorText");
       errorTextSpan.innerText = "Invalid or expired code. Please try again.";
       document.getElementById("otpResendSectionEP").appendChild(err);
       document.getElementById("otpErrorMessageEP").appendChild(exclamationSpan);
@@ -1738,10 +1840,10 @@ async function verifyOtp() {
 }
 
 let cancelCheck = false;
-function handleBeforeUnload(event) {  
-  if(cancelCheck) return;
-  if(hasChanges){
-    console.log("correct flow");
+function handleBeforeUnload(event) {
+  if (cancelCheck) return;
+  if (hasChanges) {
+    // console.log("correct flow");
     // document.getElementById("unsavedChangesDiv").style.display = "flex";
     event.preventDefault();
     // event.returnValue = '';
@@ -1750,16 +1852,16 @@ function handleBeforeUnload(event) {
 function backWithAwait() {
   return new Promise((resolve) => {
     const handler = () => {
-      window.removeEventListener('popstate', handler);
+      window.removeEventListener("popstate", handler);
       resolve();
     };
-    window.addEventListener('popstate', handler);
+    window.addEventListener("popstate", handler);
     history.back();
   });
 }
 
 document.getElementById("save").addEventListener("click", updateProfile);
-document.getElementById("cancel").addEventListener("click", async ()=> {
+document.getElementById("cancel").addEventListener("click", async () => {
   const cancelBtn = document.getElementById("cancel");
   const cancelLoader = document.querySelector("#cancel .fa-spinner");
   const btnContent = document.querySelector("#cancel .btn-text");
@@ -1776,131 +1878,159 @@ document.getElementById("cancel").addEventListener("click", async ()=> {
 });
 
 document.addEventListener("DOMContentLoaded", function () {
-    loadProfile();  
-    firstNameInput.addEventListener('input', () => {
-      const raw = firstNameInput.value || "";
-      const sanitized = raw.replace(/[^a-zA-Z.,'’‘ -]/g, '');
-      if (sanitized !== raw) {
-        firstNameInput.value = sanitized;
-      }
-      if (!firstNameInput.value.trim()) {
-        const errorText = document.querySelector('#inputErrorFirstNameEP .errorText');
-        inputErrorFirstName.style.setProperty('display', 'flex', 'important');
-        errorText.textContent = 'First Name is required.';
-        inputErrorFirstName.style.visibility = 'visible';
-        firstNameInput.style.borderColor = "#B91C1C";
-        document.getElementById("save").disabled = true;
-      } else if(firstNameInput.value.length === 25){
-        const errorText = document.querySelector('#inputErrorFirstNameEP .errorText');
-        inputErrorFirstName.style.setProperty('display', 'flex', 'important');
-        errorText.textContent = 'You’ve reached the 25-character limit';
-        inputErrorFirstName.style.visibility = 'visible';
-      } else{
-        const errorText = document.querySelector('#inputErrorFirstNameEP .errorText');
-        inputErrorFirstName.style.removeProperty('display');
-        errorText.textContent = '';
-        inputErrorFirstName.style.visibility = 'hidden';
-        firstNameInput.style.borderColor = "";
-        document.getElementById("save").disabled = false;
-      }
+  loadProfile();
+  firstNameInput.addEventListener("input", () => {
+    const raw = firstNameInput.value || "";
+    const sanitized = raw.replace(/[^a-zA-Z.,'’‘ -]/g, "");
+    if (sanitized !== raw) {
+      firstNameInput.value = sanitized;
+    }
+    if (!firstNameInput.value.trim()) {
+      const errorText = document.querySelector(
+        "#inputErrorFirstNameEP .errorText",
+      );
+      inputErrorFirstName.style.setProperty("display", "flex", "important");
+      errorText.textContent = "First Name is required.";
+      inputErrorFirstName.style.visibility = "visible";
+      firstNameInput.style.borderColor = "#B91C1C";
+      document.getElementById("save").disabled = true;
+    } else if (firstNameInput.value.length === 25) {
+      const errorText = document.querySelector(
+        "#inputErrorFirstNameEP .errorText",
+      );
+      inputErrorFirstName.style.setProperty("display", "flex", "important");
+      errorText.textContent = "You’ve reached the 25-character limit";
+      inputErrorFirstName.style.visibility = "visible";
+    } else {
+      const errorText = document.querySelector(
+        "#inputErrorFirstNameEP .errorText",
+      );
+      inputErrorFirstName.style.removeProperty("display");
+      errorText.textContent = "";
+      inputErrorFirstName.style.visibility = "hidden";
+      firstNameInput.style.borderColor = "";
+      document.getElementById("save").disabled = false;
+    }
 
-      if (originalProfile && (originalProfile.First_Name || '') !== firstNameInput.value.trim()) {
+    if (
+      originalProfile &&
+      (originalProfile.First_Name || "") !== firstNameInput.value.trim()
+    ) {
+      hasChanges = true;
+    } else {
+      hasChanges = false;
+    }
+  });
+
+  lastNameInput.addEventListener("input", () => {
+    const raw = lastNameInput.value || "";
+    const sanitized = raw.replace(/[^a-zA-Z.,'’‘ -]/g, "");
+    if (sanitized !== raw) {
+      lastNameInput.value = sanitized;
+    }
+    if (!lastNameInput.value.trim()) {
+      const errorText = document.querySelector(
+        "#inputErrorLastNameEP .errorText",
+      );
+      inputErrorLastName.style.setProperty("display", "flex", "important");
+      errorText.textContent = "Last Name is required.";
+      inputErrorLastName.style.visibility = "visible";
+      lastNameInput.style.borderColor = "#B91C1C";
+      document.getElementById("save").disabled = true;
+    } else if (lastNameInput.value.length === 25) {
+      const errorText = document.querySelector(
+        "#inputErrorLastNameEP .errorText",
+      );
+      inputErrorLastName.style.setProperty("display", "flex", "important");
+      errorText.textContent = "You’ve reached the 25-character limit";
+      inputErrorLastName.style.visibility = "visible";
+    } else {
+      const errorText = document.querySelector(
+        "#inputErrorLastNameEP .errorText",
+      );
+      inputErrorLastName.style.removeProperty("display");
+      errorText.textContent = "";
+      inputErrorLastName.style.visibility = "hidden";
+      lastNameInput.style.borderColor = "";
+      document.getElementById("save").disabled = false;
+    }
+    if (
+      originalProfile &&
+      (originalProfile.Last_Name || "") !== lastNameInput.value.trim()
+    ) {
+      hasChanges = true;
+    } else {
+      hasChanges = false;
+    }
+  });
+
+  if (middleNameInput) {
+    middleNameInput.addEventListener("input", () => {
+      validateName("middleNameInput", "inputErrorMiddleName", 25);
+      if (
+        originalProfile &&
+        (originalProfile.Middle_Name || "") !== middleNameInput.value.trim()
+      ) {
         hasChanges = true;
       } else {
         hasChanges = false;
       }
     });
-    
-    lastNameInput.addEventListener('input', () => {
-      const raw = lastNameInput.value || "";
-      const sanitized = raw.replace(/[^a-zA-Z.,'’‘ -]/g, '');
-      if (sanitized !== raw) {
-        lastNameInput.value = sanitized;
-      }
-      if (!lastNameInput.value.trim()) {
-        const errorText = document.querySelector('#inputErrorLastNameEP .errorText');
-        inputErrorLastName.style.setProperty('display', 'flex', 'important');
-        errorText.textContent = 'Last Name is required.';
-        inputErrorLastName.style.visibility= 'visible';
-        lastNameInput.style.borderColor = "#B91C1C";
-        document.getElementById("save").disabled = true;
-      } else if(lastNameInput.value.length === 25){
-        const errorText = document.querySelector('#inputErrorLastNameEP .errorText');
-        inputErrorLastName.style.setProperty('display', 'flex', 'important');
-        errorText.textContent = 'You’ve reached the 25-character limit';
-        inputErrorLastName.style.visibility = 'visible';
-      } else{
-        const errorText = document.querySelector('#inputErrorLastNameEP .errorText');
-        inputErrorLastName.style.removeProperty('display');
-        errorText.textContent = '';
-        inputErrorLastName.style.visibility = 'hidden';
-        lastNameInput.style.borderColor = "";
-        document.getElementById("save").disabled = false;
-      }
-      if (originalProfile && (originalProfile.Last_Name || '') !== lastNameInput.value.trim()) {
+  }
+
+  if (preferredNameInput) {
+    preferredNameInput.addEventListener("input", () => {
+      validateName("preferredNameInput", "inputErrorPreferredName", 25);
+      if (
+        originalProfile &&
+        (originalProfile.Nickname || "") !== preferredNameInput.value.trim()
+      ) {
         hasChanges = true;
       } else {
         hasChanges = false;
       }
     });
-    
-    if (middleNameInput) {
-      middleNameInput.addEventListener('input', () => {
-        validateName('middleNameInput', 'inputErrorMiddleName', 25);
-        if (originalProfile && (originalProfile.Middle_Name || '') !== middleNameInput.value.trim()) {
-          hasChanges = true;
-        } else {
-          hasChanges = false;
-        }
-      });
-    }
+  }
 
-    if (preferredNameInput) {
-      preferredNameInput.addEventListener('input', () => {
-        validateName('preferredNameInput', 'inputErrorPreferredName', 25);
-        if (originalProfile && (originalProfile.Nickname || '') !== preferredNameInput.value.trim()) {
-          hasChanges = true;
-        } else {
-          hasChanges = false;
-        }
-      });
-    }
-    
-    if (birthdayInput) {
-      const _birthdayChanged = () => {
-        const val = (birthdayInput.value || '').trim();
-        let formatted = '';
-        if (val)
-        formatted = formatDateForPayload(val); 
-          if (originalProfile && ((originalProfile.Date_of_Birth || '') != formatted)){
-            hasChanges = true;
-          }
-          else {
-            hasChanges = false;
-          }
-      };
-      birthdayInput.addEventListener('change', _birthdayChanged);
-      birthdayInput.addEventListener('input', _birthdayChanged);
-    }
+  if (birthdayInput) {
+    const _birthdayChanged = () => {
+      const val = (birthdayInput.value || "").trim();
+      let formatted = "";
+      if (val) formatted = formatDateForPayload(val);
+      if (
+        originalProfile &&
+        (originalProfile.Date_of_Birth || "") != formatted
+      ) {
+        hasChanges = true;
+      } else {
+        hasChanges = false;
+      }
+    };
+    birthdayInput.addEventListener("change", _birthdayChanged);
+    birthdayInput.addEventListener("input", _birthdayChanged);
+  }
 
-    const genderRadios = document.querySelectorAll('input[name="gender"]');
-    if (genderRadios && genderRadios.length) {
-      genderRadios.forEach(r => r.addEventListener('change', () => {
+  const genderRadios = document.querySelectorAll('input[name="gender"]');
+  if (genderRadios && genderRadios.length) {
+    genderRadios.forEach((r) =>
+      r.addEventListener("change", () => {
         const selected = getSelectedGenderId();
-            if (originalProfile && (selected !== originalProfile.Gender_ID)) hasChanges = true;
-            else hasChanges = false;
-      }));
-    }
+        if (originalProfile && selected !== originalProfile.Gender_ID)
+          hasChanges = true;
+        else hasChanges = false;
+      }),
+    );
+  }
 });
 
-window.addEventListener('resize', () => updateName(nickNameVar));
+window.addEventListener("resize", () => updateName(nickNameVar));
 
-window.addEventListener('beforeunload', handleBeforeUnload);
+window.addEventListener("beforeunload", handleBeforeUnload);
 
 function ensureCameraTriggerIdEarly() {
-  const cameraLabel = document.querySelector('.camera-icon');
+  const cameraLabel = document.querySelector(".camera-icon");
   if (cameraLabel) {
-    cameraLabel.id = 'cameraModal';
+    cameraLabel.id = "cameraModal";
   }
 }
 
@@ -1914,7 +2044,7 @@ function initializePhotoModules() {
       initializeFirstModalModuleBridge();
     })
     .catch((error) => {
-      console.error('Failed to initialize first photo module:', error);
+      console.error("Failed to initialize first photo module:", error);
     });
 
   ensureCropModuleLoaded()
@@ -1922,13 +2052,13 @@ function initializePhotoModules() {
       initializeCropModuleBridge();
     })
     .catch((error) => {
-      console.error('Failed to initialize crop photo module:', error);
+      console.error("Failed to initialize crop photo module:", error);
     });
 }
 
-if (document.readyState === 'loading') {
+if (document.readyState === "loading") {
   ensureCameraTriggerIdEarly();
-  document.addEventListener('DOMContentLoaded', initializePhotoModules);
+  document.addEventListener("DOMContentLoaded", initializePhotoModules);
 } else {
   ensureCameraTriggerIdEarly();
   initializePhotoModules();

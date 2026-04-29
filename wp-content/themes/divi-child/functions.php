@@ -48,19 +48,60 @@ add_filter('et_use_dynamic_css', function () {
 
 function juxtmarketing_enqueue_scripts()
 {
-    wp_enqueue_style('parent-style', get_template_directory_uri() . '/style.css');
+    wp_enqueue_style(
+        'parent-style',
+        get_template_directory_uri() . '/style.css',
+        [],
+        filemtime(get_template_directory() . '/style.css')
+    );
 }
 add_action('wp_enqueue_scripts', 'juxtmarketing_enqueue_scripts');
 
 
 function registerCustomAdminCss()
 {
-    $src = "/wp-content/themes/divi-child/custom-admin-css.css";
-    $handle = "customAdminCss";
-    wp_register_script($handle, $src);
-    wp_enqueue_style($handle, $src, array(), false, false);
+    $src = get_stylesheet_directory_uri() . "/custom-admin-css.css";
+
+    wp_enqueue_style(
+        "customAdminCss",
+        $src,
+        [],
+        filemtime(get_stylesheet_directory() . "/custom-admin-css.css")
+    );
 }
-add_action('admin_head', 'registerCustomAdminCss');
+add_action('admin_enqueue_scripts', 'registerCustomAdminCss');
+
+
+// Smart asset versioning (only for your theme files)
+function juxtmarketing_smart_asset_versioning($src)
+{
+    $host = $_SERVER['HTTP_HOST'];
+
+    // Skip external/CDN files
+    if (strpos($src, $host) === false)
+        return $src;
+
+    $path = parse_url($src, PHP_URL_PATH);
+    $file = $_SERVER['DOCUMENT_ROOT'] . $path;
+
+    // Apply only to theme files (important for performance)
+    if (
+        strpos($file, get_template_directory()) === false &&
+        strpos($file, get_stylesheet_directory()) === false
+    ) {
+        return $src;
+    }
+
+    if (file_exists($file)) {
+        $src = remove_query_arg('ver', $src);
+        $src = add_query_arg('ver', filemtime($file), $src);
+    }
+
+    return $src;
+}
+
+add_filter('style_loader_src', 'juxtmarketing_smart_asset_versioning', 9999);
+add_filter('script_loader_src', 'juxtmarketing_smart_asset_versioning', 9999);
 
 add_filter('et_pb_module_shortcode_attributes', 'dbcAllowEmptyButtonText', 10, 3);
 function dbcAllowEmptyButtonText($props, $atts, $render_slug)
@@ -123,8 +164,8 @@ function show_certificate_iframe($atts)
     $date = urlencode($atts['date']);
 
     $iframe = '<iframe 
-        src="https://calvaryftl.org/certificate/en.php?name=' . $name . '&year=' . $year . '&month=' . $month . '&date=' . $date . '" 
-        frameborder="0" 
+        src="https://calvaryftl.org/certificate/en.php?name=' . $name . '&year=' . $year . '&month=' . $month . '&date=' . $date . '"
+        frameborder="0"
         style="overflow:hidden;height:450px;width:60%">
     </iframe>';
 
@@ -352,14 +393,15 @@ add_shortcode('custom_login_form', 'custom_login_form_function');
 
 function enqueue_custom_login_validation_script()
 {
-    // Enqueue only on front end
     if (!is_admin()) {
+        $file = get_stylesheet_directory() . '/js/login-validation.js';
+
         wp_enqueue_script(
             'login-validation',
             get_stylesheet_directory_uri() . '/js/login-validation.js',
-            array(), // No dependencies
-            '1.0',
-            true // Load in footer
+            array(),
+            file_exists($file) ? filemtime($file) : null,
+            true
         );
     }
 }
@@ -368,12 +410,14 @@ add_action('wp_enqueue_scripts', 'enqueue_custom_login_validation_script');
 function enqueue_custom_my_account_script()
 {
     if (is_page('my-account-page/')) {
+        $file = get_stylesheet_directory() . '/js/my-account.js';
+
         wp_enqueue_script(
             'my-account',
             get_stylesheet_directory_uri() . '/js/my-account.js',
-            array(), // No dependencies
-            '1.0',
-            true // Load in footer
+            array(),
+            file_exists($file) ? filemtime($file) : null,
+            true
         );
     }
 }
@@ -382,12 +426,14 @@ add_action('wp_enqueue_scripts', 'enqueue_custom_my_account_script');
 function enqueue_custom_my_giving_script()
 {
     if (is_page('my-giving-page/')) {
+        $file = get_stylesheet_directory() . '/js/my-giving.js';
+
         wp_enqueue_script(
             'my-giving',
             get_stylesheet_directory_uri() . '/js/my-giving.js',
-            array(), // No dependencies
-            '1.0',
-            true // Load in footer
+            array(),
+            file_exists($file) ? filemtime($file) : null,
+            true
         );
     }
 }
@@ -396,12 +442,14 @@ add_action('wp_enqueue_scripts', 'enqueue_custom_my_giving_script');
 function enqueue_custom_edit_profile_script()
 {
     if (is_page('edit-profile/')) {
+        $file = get_stylesheet_directory() . '/js/edit-profile.js';
+
         wp_enqueue_script(
             'edit-profile',
             get_stylesheet_directory_uri() . '/js/edit-profile.js',
-            array(), // No dependencies
-            '1.0',
-            true // Load in footer
+            array(),
+            file_exists($file) ? filemtime($file) : null,
+            true
         );
     }
 }
@@ -682,3 +730,4 @@ function add_comprehensive_personalization()
 // Replace existing personalization function
 remove_action('wp_footer', 'add_simple_personalization');
 add_action('wp_footer', 'add_comprehensive_personalization');
+
