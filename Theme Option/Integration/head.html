@@ -27,9 +27,9 @@
         ".ccfl-event-date-month{text-transform:uppercase!important;font-size:11px!important;font-weight:700!important;letter-spacing:.08em!important;}" +
         ".ccfl-event-date-day{font-size:24px!important;font-weight:700!important;margin-top:2px!important;}" +
         ".ccfl-event-location-capsule{display:inline-flex!important;align-items:center!important;justify-content:center!important;max-width:120px!important;padding:6px 12px!important;border-radius:9999px!important;background:#000!important;border:1px solid #000!important;color:#fff!important;font-size:12px!important;font-weight:600!important;line-height:1.2!important;text-align:center!important;white-space:normal!important;word-break:break-word!important;}" +
+        ".ccfl-event-compact-time{display:block!important;margin:8px 0 0!important;}" +
         ".ccfl-event-title-wrap{min-width:0!important;flex:1 1 auto!important;}" +
         ".ccfl-event-title-wrap .mpp-innerpage--subtitle{margin:0!important;color:#000!important;font-size:clamp(20px,3.2vw,34px)!important;line-height:1.2!important;font-weight:700!important;display:-webkit-box!important;-webkit-box-orient:vertical!important;-webkit-line-clamp:2!important;overflow:hidden!important;text-overflow:ellipsis!important;}" +
-        ".mpp-innerpage--datetime{display:none!important;}" +
         "@media screen and (max-width:767px){.ccfl-event-headline{gap:10px!important;}.ccfl-event-left-rail{gap:8px!important;}.ccfl-event-date-month{font-size:10px!important;}.ccfl-event-date-day{font-size:20px!important;}.ccfl-event-location-capsule{max-width:96px!important;padding:5px 10px!important;font-size:11px!important;}.ccfl-event-title-wrap .mpp-innerpage--subtitle{font-size:clamp(18px,6vw,24px)!important;}}";
 
       root.appendChild(style);
@@ -118,6 +118,89 @@
       return fallback;
     }
 
+    function parseDateValue(value) {
+      if (!value) {
+        return null;
+      }
+
+      var parsed = new Date(value.trim());
+      if (isNaN(parsed.getTime())) {
+        return null;
+      }
+
+      return parsed;
+    }
+
+    function formatDayPart(date, withWeekday) {
+      var weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+      var months = [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
+      ];
+
+      var monthDay = months[date.getMonth()] + " " + date.getDate();
+      if (!withWeekday) {
+        return monthDay;
+      }
+
+      return weekdays[date.getDay()] + ", " + monthDay;
+    }
+
+    function formatTimePart(date) {
+      var hours = date.getHours();
+      var minutes = String(date.getMinutes()).padStart(2, "0");
+      var suffix = hours >= 12 ? "pm" : "am";
+      var hour12 = hours % 12;
+      if (hour12 === 0) {
+        hour12 = 12;
+      }
+
+      return hour12 + ":" + minutes + " " + suffix;
+    }
+
+    function formatCompactTimeText(rangeText) {
+      if (!rangeText) {
+        return "";
+      }
+
+      var parts = rangeText.split(" - ");
+      if (parts.length < 2) {
+        return rangeText;
+      }
+
+      var start = parseDateValue(parts[0]);
+      var end = parseDateValue(parts.slice(1).join(" - "));
+      if (!start || !end) {
+        return rangeText;
+      }
+
+      var sameDay =
+        start.getFullYear() === end.getFullYear() &&
+        start.getMonth() === end.getMonth() &&
+        start.getDate() === end.getDate();
+
+      var startDay = formatDayPart(start, true);
+      var startTime = formatTimePart(start);
+      var endTime = formatTimePart(end);
+
+      if (sameDay) {
+        return startDay + " | " + startTime + " - " + endTime;
+      }
+
+      var endDay = formatDayPart(end, false);
+      return startDay + " | " + startTime + " - " + endDay + " | " + endTime;
+    }
+
     function getLocationInfo(root) {
       var result = { value: "", node: null };
       if (!root) {
@@ -126,6 +209,11 @@
 
       var blocks = root.querySelectorAll(".mpp-innerpage--special");
       for (var i = 0; i < blocks.length; i++) {
+        // Ignore hidden/template/modal clones that can interfere with widget internals.
+        if (blocks[i].closest("#registrationFormContainer")) {
+          continue;
+        }
+
         var titleEl = blocks[i].querySelector(".mpp-innerpage--special-title");
         if (!titleEl) {
           continue;
@@ -160,7 +248,9 @@
       }
 
       var title = section.querySelector("h1.mpp-innerpage--subtitle");
-      var dateRange = section.querySelector(".event-date-range");
+      var dateRange = section.querySelector(
+        ".mpp-innerpage--datetime-wrapper .event-date-range",
+      );
       if (!title || !dateRange) {
         return false;
       }
@@ -206,6 +296,15 @@
         } else {
           section.insertBefore(headline, title);
         }
+
+        var compactTime = document.createElement("h2");
+        compactTime.className =
+          "mpp-innerpage--datetime event-date-range ccfl-event-compact-time";
+        if (headline.nextSibling) {
+          section.insertBefore(compactTime, headline.nextSibling);
+        } else {
+          section.appendChild(compactTime);
+        }
       }
 
       var monthEl = headline.querySelector(".ccfl-event-date-month");
@@ -213,8 +312,12 @@
       var locationCapsuleEl = headline.querySelector(
         ".ccfl-event-location-capsule",
       );
+      var compactTimeEl = section.querySelector(".ccfl-event-compact-time");
       var titleWrapEl = headline.querySelector(".ccfl-event-title-wrap");
       var locationInfo = getLocationInfo(root);
+      var compactTimeText = formatCompactTimeText(
+        (dateRange.textContent || "").trim(),
+      );
 
       if (monthEl) {
         monthEl.textContent = dateParts.month;
@@ -229,20 +332,29 @@
         locationCapsuleEl.textContent = locationValue;
       }
 
+      if (compactTimeEl) {
+        compactTimeEl.textContent = compactTimeText;
+      }
+
       if (titleWrapEl && title.parentNode !== titleWrapEl) {
         titleWrapEl.appendChild(title);
       }
 
-      var oldDateContainer = section.querySelector(".mpp-innerpage--datetime");
-      if (oldDateContainer) {
-        oldDateContainer.remove();
-      }
-
-      if (locationInfo.node) {
-        locationInfo.node.remove();
-      }
-
       return true;
+    }
+
+    function applyCustomizations(root) {
+      if (!root || root.__ccflApplying) {
+        return;
+      }
+
+      root.__ccflApplying = true;
+      try {
+        replaceBackLink(root);
+        formatEventHeadline(root);
+      } finally {
+        root.__ccflApplying = false;
+      }
     }
 
     function watchRoot(root) {
@@ -250,9 +362,18 @@
         return;
       }
 
+      var scheduled = false;
+
       var observer = new MutationObserver(function () {
-        replaceBackLink(root);
-        formatEventHeadline(root);
+        if (scheduled) {
+          return;
+        }
+
+        scheduled = true;
+        requestAnimationFrame(function () {
+          scheduled = false;
+          applyCustomizations(root);
+        });
       });
 
       observer.observe(root, { childList: true, subtree: true });
@@ -264,23 +385,14 @@
         return;
       }
 
-      var root = host.shadowRoot || host.__ccflShadowRoot;
+      var root = host.shadowRoot;
       if (!root) {
         return;
       }
 
-      replaceBackLink(root);
-      formatEventHeadline(root);
+      applyCustomizations(root);
       watchRoot(root);
     }
-
-    var originalAttachShadow = Element.prototype.attachShadow;
-    Element.prototype.attachShadow = function (init) {
-      var root = originalAttachShadow.call(this, init);
-      this.__ccflShadowRoot = root;
-      processHost(this);
-      return root;
-    };
 
     function boot() {
       var hosts = document.querySelectorAll(HOST_SELECTOR);
@@ -289,28 +401,30 @@
       }
     }
 
-    var hostObserver = new MutationObserver(function () {
-      boot();
-    });
+    function watchForHosts() {
+      var hostObserver = new MutationObserver(function () {
+        boot();
+      });
 
-    hostObserver.observe(document.documentElement, {
-      childList: true,
-      subtree: true,
-    });
+      hostObserver.observe(document.documentElement, {
+        childList: true,
+        subtree: true,
+      });
 
-    var retries = 0;
-    var interval = setInterval(function () {
-      boot();
-      retries += 1;
-      if (retries > 40) {
-        clearInterval(interval);
-      }
-    }, 250);
+      // Safety cutoff to avoid long-running document-wide observation.
+      setTimeout(function () {
+        hostObserver.disconnect();
+      }, 15000);
+    }
 
     if (document.readyState === "loading") {
-      document.addEventListener("DOMContentLoaded", boot);
+      document.addEventListener("DOMContentLoaded", function () {
+        boot();
+        watchForHosts();
+      });
     } else {
       boot();
+      watchForHosts();
     }
   })();
 </script>
