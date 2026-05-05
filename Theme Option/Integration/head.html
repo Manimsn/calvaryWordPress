@@ -21,14 +21,16 @@
         ".mpp-innerpage--back." +
         CUSTOM_CLASS +
         " > a:hover{background:#f3f3f3!important;}" +
-        ".ccfl-event-headline{display:flex!important;align-items:center!important;gap:14px!important;margin:14px 0 10px!important;}" +
+        ".ccfl-event-headline{display:flex!important;align-items:flex-start!important;gap:14px!important;margin:14px 0 10px!important;}" +
+        ".ccfl-event-left-rail{display:flex!important;flex-direction:column!important;align-items:center!important;gap:10px!important;flex:0 0 auto!important;}" +
         ".ccfl-event-date-badge{width:clamp(56px,9vw,70px)!important;height:clamp(56px,9vw,70px)!important;border-radius:9999px!important;background:#000!important;color:#fff!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;flex:0 0 auto!important;line-height:1!important;}" +
         ".ccfl-event-date-month{text-transform:uppercase!important;font-size:11px!important;font-weight:700!important;letter-spacing:.08em!important;}" +
         ".ccfl-event-date-day{font-size:24px!important;font-weight:700!important;margin-top:2px!important;}" +
+        ".ccfl-event-location-capsule{display:inline-flex!important;align-items:center!important;justify-content:center!important;max-width:120px!important;padding:6px 12px!important;border-radius:9999px!important;background:#000!important;border:1px solid #000!important;color:#fff!important;font-size:12px!important;font-weight:600!important;line-height:1.2!important;text-align:center!important;white-space:normal!important;word-break:break-word!important;}" +
         ".ccfl-event-title-wrap{min-width:0!important;flex:1 1 auto!important;}" +
         ".ccfl-event-title-wrap .mpp-innerpage--subtitle{margin:0!important;color:#000!important;font-size:clamp(20px,3.2vw,34px)!important;line-height:1.2!important;font-weight:700!important;display:-webkit-box!important;-webkit-box-orient:vertical!important;-webkit-line-clamp:2!important;overflow:hidden!important;text-overflow:ellipsis!important;}" +
         ".mpp-innerpage--datetime{display:none!important;}" +
-        "@media screen and (max-width:767px){.ccfl-event-headline{gap:10px!important;}.ccfl-event-date-month{font-size:10px!important;}.ccfl-event-date-day{font-size:20px!important;}.ccfl-event-title-wrap .mpp-innerpage--subtitle{font-size:clamp(18px,6vw,24px)!important;}}";
+        "@media screen and (max-width:767px){.ccfl-event-headline{gap:10px!important;}.ccfl-event-left-rail{gap:8px!important;}.ccfl-event-date-month{font-size:10px!important;}.ccfl-event-date-day{font-size:20px!important;}.ccfl-event-location-capsule{max-width:96px!important;padding:5px 10px!important;font-size:11px!important;}.ccfl-event-title-wrap .mpp-innerpage--subtitle{font-size:clamp(18px,6vw,24px)!important;}}";
 
       root.appendChild(style);
     }
@@ -116,6 +118,35 @@
       return fallback;
     }
 
+    function getLocationInfo(root) {
+      var result = { value: "", node: null };
+      if (!root) {
+        return result;
+      }
+
+      var blocks = root.querySelectorAll(".mpp-innerpage--special");
+      for (var i = 0; i < blocks.length; i++) {
+        var titleEl = blocks[i].querySelector(".mpp-innerpage--special-title");
+        if (!titleEl) {
+          continue;
+        }
+
+        var titleText = (titleEl.textContent || "").trim().toLowerCase();
+        if (titleText.indexOf("location") !== 0) {
+          continue;
+        }
+
+        var contentEl = blocks[i].querySelector(
+          ".mpp-innerpage--special-content",
+        );
+        result.value = contentEl ? (contentEl.textContent || "").trim() : "";
+        result.node = blocks[i];
+        return result;
+      }
+
+      return result;
+    }
+
     function formatEventHeadline(root) {
       if (!root) {
         return false;
@@ -141,6 +172,9 @@
         headline = document.createElement("div");
         headline.className = "ccfl-event-headline";
 
+        var leftRail = document.createElement("div");
+        leftRail.className = "ccfl-event-left-rail";
+
         var badge = document.createElement("div");
         badge.className = "ccfl-event-date-badge";
 
@@ -150,13 +184,18 @@
         var day = document.createElement("span");
         day.className = "ccfl-event-date-day";
 
+        var locationCapsule = document.createElement("div");
+        locationCapsule.className = "ccfl-event-location-capsule";
+
         badge.appendChild(month);
         badge.appendChild(day);
+        leftRail.appendChild(badge);
+        leftRail.appendChild(locationCapsule);
 
         var titleWrap = document.createElement("div");
         titleWrap.className = "ccfl-event-title-wrap";
 
-        headline.appendChild(badge);
+        headline.appendChild(leftRail);
         headline.appendChild(titleWrap);
 
         var anchorPoint = section.querySelector(
@@ -171,7 +210,11 @@
 
       var monthEl = headline.querySelector(".ccfl-event-date-month");
       var dayEl = headline.querySelector(".ccfl-event-date-day");
+      var locationCapsuleEl = headline.querySelector(
+        ".ccfl-event-location-capsule",
+      );
       var titleWrapEl = headline.querySelector(".ccfl-event-title-wrap");
+      var locationInfo = getLocationInfo(root);
 
       if (monthEl) {
         monthEl.textContent = dateParts.month;
@@ -181,6 +224,11 @@
         dayEl.textContent = dateParts.day;
       }
 
+      if (locationCapsuleEl) {
+        var locationValue = locationInfo.value || "Location TBD";
+        locationCapsuleEl.textContent = locationValue;
+      }
+
       if (titleWrapEl && title.parentNode !== titleWrapEl) {
         titleWrapEl.appendChild(title);
       }
@@ -188,6 +236,10 @@
       var oldDateContainer = section.querySelector(".mpp-innerpage--datetime");
       if (oldDateContainer) {
         oldDateContainer.remove();
+      }
+
+      if (locationInfo.node) {
+        locationInfo.node.remove();
       }
 
       return true;
