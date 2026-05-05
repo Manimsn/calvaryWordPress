@@ -179,8 +179,33 @@
       }
 
       var start = parseDateValue(parts[0]);
-      var end = parseDateValue(parts.slice(1).join(" - "));
-      if (!start || !end) {
+      if (!start) {
+        return rangeText;
+      }
+
+      var endRaw = parts.slice(1).join(" - ").trim();
+      var end = parseDateValue(endRaw);
+
+      // Handles values like: "Tue, May 5, 2026 6:00 PM - 8:30 PM"
+      if (!end) {
+        var timeOnlyMatch = endRaw.match(/^(\d{1,2}):(\d{2})\s*([AaPp][Mm])$/);
+        if (timeOnlyMatch) {
+          var endHour = parseInt(timeOnlyMatch[1], 10);
+          var endMinute = parseInt(timeOnlyMatch[2], 10);
+          var endSuffix = timeOnlyMatch[3].toLowerCase();
+
+          if (endHour === 12) {
+            endHour = endSuffix === "am" ? 0 : 12;
+          } else if (endSuffix === "pm") {
+            endHour += 12;
+          }
+
+          end = new Date(start.getTime());
+          end.setHours(endHour, endMinute, 0, 0);
+        }
+      }
+
+      if (!end) {
         return rangeText;
       }
 
