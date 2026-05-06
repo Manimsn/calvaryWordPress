@@ -14,25 +14,26 @@
       style.textContent =
         ".mpp-innerpage--back." +
         CUSTOM_CLASS +
-        " > a{display:inline-flex!important;align-items:center!important;gap:8px!important;padding:8px 14px!important;border:1px solid #000!important;border-radius:9999px!important;background:#fff!important;color:#000!important;text-decoration:none!important;font-size:14px!important;line-height:1!important;}" +
+        " > a{display:inline-flex!important;align-items:center!important;gap:2px!important;padding:8px 14px!important;border:1px solid #000!important;border-radius:9999px!important;background:#fff!important;color:#000!important;text-decoration:none!important;font-size:14px!important;line-height:1!important;}" +
         ".mpp-innerpage--back." +
         CUSTOM_CLASS +
-        " > a .mppw-arrow.back{color:#000!important;border-color:#000!important;}" +
+        " > a .mppw-arrow.back{color:#000!important;border-color:#000!important;text-transform: lowercase!important;}" +
         ".mpp-innerpage--back." +
         CUSTOM_CLASS +
         " > a:hover{background:#f3f3f3!important;}" +
-        ".ccfl-event-headline{display:flex!important;align-items:flex-start!important;gap:14px!important;margin:14px 0 10px!important;}" +
+        ".ccfl-event-headline{display:flex!important;align-items:center!important;gap:40px!important;margin:14px 0 10px!important;}" +
         ".ccfl-event-left-rail{display:flex!important;flex-direction:column!important;align-items:center!important;gap:10px!important;flex:0 0 auto!important;}" +
-        ".ccfl-event-date-badge{width:clamp(180px,9vw,70px)!important;height:clamp(180px,9vw,70px)!important;border-radius:9999px!important;background:#000!important;color:#fff!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;flex:0 0 auto!important;line-height:1!important;}" +
-        ".ccfl-event-date-month{font-family:'Poppins',sans-serif!important;text-transform:uppercase!important;font-size:30px!important;font-weight:700!important;letter-spacing:.08em!important;}" +
-        ".ccfl-event-date-day{font-family:'Poppins',sans-serif!important;font-size:70px!important;font-weight:700!important;margin-top:2px!important;}" +
-        ".ccfl-event-location-capsule{display:inline-flex!important;align-items:center!important;justify-content:center!important;max-width:120px!important;padding:6px 12px!important;border-radius:9999px!important;background:#000!important;border:1px solid #000!important;font-weight:600!important;line-height:1.2!important;text-align:center!important;white-space:normal!important;word-break:break-word!important;font-family:'Poppins',sans-serif!important;color:#fff!important; font-size: 20px!important;}" +
-        ".ccfl-event-compact-time{display:block!important;margin:8px 0 0!important;font-family:'Poppins',sans-serif!important;font-size:45px!important;line-height:1.1!important;color:#000!important;}" +
+        ".ccfl-event-date-badge{width:clamp(150px,9vw,70px)!important;height:clamp(150px,9vw,70px)!important;border-radius:9999px!important;background:#000!important;color:#fff!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;flex:0 0 auto!important;line-height:1!important;}" +
+        ".ccfl-event-date-month{font-family:'Poppins',sans-serif!important;text-transform:uppercase!important;font-size:32px!important;font-weight:700!important;}" +
+        ".ccfl-event-date-day{font-family:'Poppins',sans-serif!important;font-size:60px!important;font-weight:700!important;margin-top:2px!important;}" +
+        ".ccfl-event-location-capsule{display:inline-flex!important;align-items:center!important;justify-content:center!important;width:fit-content!important;max-width:none!important;padding:6px 12px!important;border-radius:9999px!important;background:#000!important;border:1px solid #000!important;font-weight:600!important;line-height:1.2!important;text-align:center!important;white-space:nowrap!important;word-break:normal!important;font-family:'Poppins',sans-serif!important;color:#fff!important; font-size: 20px!important;}" +
+        ".ccfl-event-location-row{margin:8px 0 0!important;}" +
+        ".ccfl-event-compact-time{display:block!important;margin:20px 0 0!important;font-family:'Poppins',sans-serif!important;font-size:45px!important;line-height:1.1!important;color:#000!important;}" +
         ".mpp-innerpage--datetime:not(.ccfl-event-compact-time){display:none!important;}" +
         ".ccfl-event-title-wrap{min-width:0!important;flex:1 1 auto!important;}" +
-        ".ccfl-event-title-wrap .mpp-innerpage--subtitle{margin:0!important;color:#000!important;font-size:clamp(82px,3.2vw,34px)!important;font-family:'Poppins',sans-serif!important;line-height:1.2!important;font-weight:700!important;display:-webkit-box!important;-webkit-box-orient:vertical!important;-webkit-line-clamp:2!important;overflow:hidden!important;text-overflow:ellipsis!important;}" +
+        ".ccfl-event-title-wrap .mpp-innerpage--subtitle{margin:0!important;color:#000!important;font-size:clamp(70px,3.2vw,34px)!important;font-family:'Poppins',sans-serif!important;line-height:1.2!important;font-weight:700!important;display:-webkit-box!important;-webkit-box-orient:vertical!important;-webkit-line-clamp:2!important;overflow:hidden!important;text-overflow:ellipsis!important;text-transform:lowercase!important;}" +
         ".mpp-innerpage--description,.mpp-innerpage--description *{font-family:'Poppins',sans-serif!important;color:#000!important; font-size: 20px!important;}" +
-        "@media screen and (max-width:767px){.ccfl-event-headline{gap:10px!important;}.ccfl-event-left-rail{gap:8px!important;}.ccfl-event-date-month{font-size:10px!important;}.ccfl-event-date-day{font-size:20px!important;}.ccfl-event-location-capsule{max-width:96px!important;padding:5px 10px!important;font-size:11px!important;}.ccfl-event-title-wrap .mpp-innerpage--subtitle{font-size:clamp(18px,6vw,24px)!important;}}";
+        "@media screen and (max-width:767px){.ccfl-event-headline{gap:10px!important;}.ccfl-event-left-rail{gap:8px!important;}.ccfl-event-date-month{font-size:10px!important;}.ccfl-event-date-day{font-size:20px!important;}.ccfl-event-location-capsule{max-width:none!important;padding:5px 10px!important;font-size:11px!important;}.ccfl-event-title-wrap .mpp-innerpage--subtitle{font-size:clamp(18px,6vw,24px)!important;}}";
 
       root.appendChild(style);
     }
@@ -307,7 +308,6 @@
         badge.appendChild(month);
         badge.appendChild(day);
         leftRail.appendChild(badge);
-        leftRail.appendChild(locationCapsule);
 
         var titleWrap = document.createElement("div");
         titleWrap.className = "ccfl-event-title-wrap";
@@ -324,11 +324,20 @@
           section.insertBefore(headline, title);
         }
 
+        var locationRow = document.createElement("div");
+        locationRow.className = "ccfl-event-location-row";
+        locationRow.appendChild(locationCapsule);
+        if (headline.nextSibling) {
+          section.insertBefore(locationRow, headline.nextSibling);
+        } else {
+          section.appendChild(locationRow);
+        }
+
         var compactTime = document.createElement("h2");
         compactTime.className =
           "mpp-innerpage--datetime event-date-range ccfl-event-compact-time";
-        if (headline.nextSibling) {
-          section.insertBefore(compactTime, headline.nextSibling);
+        if (locationRow.nextSibling) {
+          section.insertBefore(compactTime, locationRow.nextSibling);
         } else {
           section.appendChild(compactTime);
         }
@@ -336,9 +345,7 @@
 
       var monthEl = headline.querySelector(".ccfl-event-date-month");
       var dayEl = headline.querySelector(".ccfl-event-date-day");
-      var locationCapsuleEl = headline.querySelector(
-        ".ccfl-event-location-capsule",
-      );
+      var locationCapsuleEl = section.querySelector(".ccfl-event-location-capsule");
       var compactTimeEl = section.querySelector(".ccfl-event-compact-time");
       var titleWrapEl = headline.querySelector(".ccfl-event-title-wrap");
       var locationInfo = getLocationInfo(root);
