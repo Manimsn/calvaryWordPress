@@ -31,6 +31,7 @@
         ".ccfl-event-date-day{font-family:'Poppins',sans-serif!important;font-size:60px!important;font-weight:700!important;margin-top:2px!important;}" +
         ".ccfl-event-location-capsule{display:inline-flex!important;align-items:center!important;justify-content:center!important;width:fit-content!important;max-width:none!important;padding:6px 12px!important;border-radius:9999px!important;background:#000!important;border:1px solid #000!important;font-weight:600!important;line-height:1.2!important;text-align:center!important;white-space:nowrap!important;word-break:normal!important;font-family:'Poppins',sans-serif!important;color:#fff!important; font-size: 20px!important;}" +
         ".ccfl-event-location-row{margin:8px 0 0!important;width:clamp(150px,9vw,70px)!important;display:flex!important;justify-content:center!important;}" +
+        ".ccfl-source-location-block > .mpp-innerpage--special-title,.ccfl-source-location-block > .mpp-innerpage--special-content{display:none!important;}" +
         ".ccfl-event-compact-time{display:block!important;margin:20px 0 0!important;font-family:'Poppins',sans-serif!important;font-size:45px!important;line-height:1.1!important;color:#000!important;}" +
         ".mpp-innerpage--datetime:not(.ccfl-event-compact-time){display:none!important;}" +
         ".ccfl-event-title-wrap{min-width:0!important;flex:1 1 auto!important;}" +
@@ -367,6 +368,10 @@
       if (locationCapsuleEl) {
         var locationValue = locationInfo.value || "Location TBD";
         locationCapsuleEl.textContent = locationValue;
+      }
+
+      if (locationInfo.node) {
+        locationInfo.node.classList.add("ccfl-source-location-block");
       }
 
       if (compactTimeEl) {
