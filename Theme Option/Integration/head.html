@@ -50,6 +50,7 @@
         "#registrationForm,#registrationForm *{font-family:'Poppins',sans-serif!important;}" +
         ".mpp-innerpage--description,.mpp-innerpage--description *{font-family:'Poppins',sans-serif!important;color:#000!important; font-size: 20px!important; font-weight: 400!important;}" +
         ".mpp-innerpage--special-content a[href*='maps.google.com'],a[href*='maps.google.com']{display:none!important;}" +
+        ".mpp-innerpage--contacts-wrapper{display:none!important;}" +
         ".option-name{color:#005e94!important;}" +
         ".mpp-innerpage--button{font-family:'Poppins',sans-serif!important;}" +
         ".mppw-form-field__message_container{position:static!important;margin-top:24px!important;}" +
@@ -57,6 +58,13 @@
         "@media screen and (max-width:767px){.ccfl-event-headline{gap:10px!important;}.ccfl-event-left-rail{gap:8px!important;}.ccfl-event-date-badge{width:100px!important;height:100px!important;}.ccfl-event-date-month{font-size:12px!important;}.ccfl-event-date-day{font-size:36px!important;}.ccfl-event-location-capsule{min-width:100px!important;max-width:200px!important;white-space:normal!important;word-break:break-word!important;text-align:center!important;padding:5px 10px!important;font-size:11px!important;flex-shrink:1!important;}.ccfl-event-location-row{width:100px!important;}.ccfl-event-title-wrap .mpp-innerpage--subtitle{font-size:12px!important;-webkit-line-clamp:3!important;}.ccfl-event-compact-time{font-size:20px!important;line-height:28px!important;}}";
 
       root.appendChild(style);
+    }
+
+    function cameFromEventFinder() {
+      var referrer = document.referrer || "";
+      var fromReferrer = referrer.indexOf("/event-finder") !== -1;
+      var fromSession = sessionStorage.getItem("ccfl-from-event-finder") === "1";
+      return fromReferrer || fromSession;
     }
 
     function replaceBackLink(root) {
@@ -69,6 +77,12 @@
       var oldHeading = root.querySelector("h3.mpp-innerpage--back");
       if (!oldHeading) {
         return false;
+      }
+
+      // Hide back button when arriving via direct link (not from event-finder)
+      if (!cameFromEventFinder()) {
+        oldHeading.style.setProperty("display", "none", "important");
+        return true;
       }
 
       if (oldHeading.classList.contains(CUSTOM_CLASS)) {
@@ -483,6 +497,11 @@
       setTimeout(function () {
         hostObserver.disconnect();
       }, 15000);
+    }
+
+    // Track event-finder visits so back-navigation keeps the button visible
+    if (window.location.pathname.indexOf("/event-finder") !== -1) {
+      sessionStorage.setItem("ccfl-from-event-finder", "1");
     }
 
     if (document.readyState === "loading") {
