@@ -565,6 +565,11 @@
     if (token) {
       redirectAfterLoginHandler();
     }
+
+    // Reload group detail page after login so the form becomes visible
+    if (token && window.isLoginFlowCompleted && window.location.pathname.includes("/group-detail-page/")) {
+      window.location.reload();
+    }
   });
 </script>
 
@@ -1141,3 +1146,83 @@
   rel="stylesheet"
   href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
 />
+
+<script>
+  (function () {
+    var GROUP_HOST_SELECTOR = "mpp-group-details";
+
+    function isLoggedIn() {
+      return !!localStorage.getItem("mpp-widgets_AuthToken");
+    }
+
+    function applyGroupFormState(root) {
+      var formContainer = root.getElementById("formContainer");
+      if (!formContainer) return;
+
+      if (!isLoggedIn()) {
+        formContainer.style.setProperty("display", "none", "important");
+        return;
+      }
+
+      formContainer.style.removeProperty("display");
+
+      // Remove blank option from #signUpAs
+      var signUpAs = root.getElementById("signUpAs");
+      if (signUpAs) {
+        var blankSignUp = signUpAs.querySelector('option[value=""]');
+        if (blankSignUp) blankSignUp.remove();
+      }
+
+      // Remove blank option from #inquireAs
+      var inquireAs = root.getElementById("inquireAs");
+      if (inquireAs) {
+        var blankInquire = inquireAs.querySelector('option[value=""]');
+        if (blankInquire) blankInquire.remove();
+      }
+    }
+
+    function watchGroupRoot(root) {
+      if (!root || root.__ccflGroupObserver) return;
+      var observer = new MutationObserver(function () {
+        applyGroupFormState(root);
+      });
+      observer.observe(root, { childList: true, subtree: true });
+      root.__ccflGroupObserver = observer;
+      applyGroupFormState(root);
+    }
+
+    function processGroupHost(host) {
+      if (!host) return;
+      var root = host.shadowRoot;
+      if (!root) return;
+      applyGroupFormState(root);
+      watchGroupRoot(root);
+    }
+
+    function boot() {
+      var hosts = document.querySelectorAll(GROUP_HOST_SELECTOR);
+      for (var i = 0; i < hosts.length; i++) {
+        processGroupHost(hosts[i]);
+      }
+    }
+
+    var hostObserver = new MutationObserver(function () {
+      boot();
+    });
+
+    hostObserver.observe(document.documentElement, {
+      childList: true,
+      subtree: true,
+    });
+
+    setTimeout(function () {
+      hostObserver.disconnect();
+    }, 15000);
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", boot);
+    } else {
+      boot();
+    }
+  })();
+</script>
