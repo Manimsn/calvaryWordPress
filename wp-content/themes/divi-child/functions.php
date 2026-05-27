@@ -71,38 +71,6 @@ function registerCustomAdminCss()
 }
 add_action('admin_enqueue_scripts', 'registerCustomAdminCss');
 
-
-// Smart asset versioning (only for your theme files)
-function juxtmarketing_smart_asset_versioning($src)
-{
-    $host = $_SERVER['HTTP_HOST'];
-
-    // Skip external/CDN files
-    if (strpos($src, $host) === false)
-        return $src;
-
-    $path = parse_url($src, PHP_URL_PATH);
-    $file = $_SERVER['DOCUMENT_ROOT'] . $path;
-
-    // Apply only to theme files (important for performance)
-    if (
-        strpos($file, get_template_directory()) === false &&
-        strpos($file, get_stylesheet_directory()) === false
-    ) {
-        return $src;
-    }
-
-    if (file_exists($file)) {
-        $src = remove_query_arg('ver', $src);
-        $src = add_query_arg('ver', filemtime($file), $src);
-    }
-
-    return $src;
-}
-
-add_filter('style_loader_src', 'juxtmarketing_smart_asset_versioning', 9999);
-add_filter('script_loader_src', 'juxtmarketing_smart_asset_versioning', 9999);
-
 add_filter('et_pb_module_shortcode_attributes', 'dbcAllowEmptyButtonText', 10, 3);
 function dbcAllowEmptyButtonText($props, $atts, $render_slug)
 {
@@ -393,6 +361,7 @@ add_shortcode('custom_login_form', 'custom_login_form_function');
 
 function enqueue_custom_login_validation_script()
 {
+    // Enqueue only on front end
     if (!is_admin()) {
         $file = get_stylesheet_directory() . '/js/login-validation.js';
 
@@ -731,3 +700,35 @@ function add_comprehensive_personalization()
 remove_action('wp_footer', 'add_simple_personalization');
 add_action('wp_footer', 'add_comprehensive_personalization');
 
+function juxtmarketing_smart_asset_versioning($src)
+{
+    $host = $_SERVER['HTTP_HOST'];
+
+    // Skip external/CDN files
+    if (strpos($src, $host) === false)
+        return $src;
+
+    $path = parse_url($src, PHP_URL_PATH);
+    $file = $_SERVER['DOCUMENT_ROOT'] . $path;
+
+    // Apply ONLY to:
+    // - Theme files
+    // - Uploads custom CSS/JS
+    if (
+        strpos($file, get_template_directory()) === false &&
+        strpos($file, get_stylesheet_directory()) === false &&
+        strpos($file, WP_CONTENT_DIR . '/uploads/custom-css-js') === false
+    ) {
+        return $src;
+    }
+
+    if (file_exists($file)) {
+        $src = remove_query_arg('ver', $src);
+        $src = add_query_arg('ver', filemtime($file), $src);
+    }
+
+    return $src;
+}
+
+add_filter('style_loader_src', 'juxtmarketing_smart_asset_versioning', 9999);
+add_filter('script_loader_src', 'juxtmarketing_smart_asset_versioning', 9999);
