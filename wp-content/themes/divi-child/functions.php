@@ -71,6 +71,38 @@ function registerCustomAdminCss()
 }
 add_action('admin_enqueue_scripts', 'registerCustomAdminCss');
 
+
+// Smart asset versioning (only for your theme files)
+function juxtmarketing_smart_asset_versioning($src)
+{
+    $host = $_SERVER['HTTP_HOST'];
+
+    // Skip external/CDN files
+    if (strpos($src, $host) === false)
+        return $src;
+
+    $path = parse_url($src, PHP_URL_PATH);
+    $file = $_SERVER['DOCUMENT_ROOT'] . $path;
+
+    // Apply only to theme files (important for performance)
+    if (
+        strpos($file, get_template_directory()) === false &&
+        strpos($file, get_stylesheet_directory()) === false
+    ) {
+        return $src;
+    }
+
+    if (file_exists($file)) {
+        $src = remove_query_arg('ver', $src);
+        $src = add_query_arg('ver', filemtime($file), $src);
+    }
+
+    return $src;
+}
+
+add_filter('style_loader_src', 'juxtmarketing_smart_asset_versioning', 9999);
+add_filter('script_loader_src', 'juxtmarketing_smart_asset_versioning', 9999);
+
 add_filter('et_pb_module_shortcode_attributes', 'dbcAllowEmptyButtonText', 10, 3);
 function dbcAllowEmptyButtonText($props, $atts, $render_slug)
 {
@@ -361,7 +393,6 @@ add_shortcode('custom_login_form', 'custom_login_form_function');
 
 function enqueue_custom_login_validation_script()
 {
-    // Enqueue only on front end
     if (!is_admin()) {
         $file = get_stylesheet_directory() . '/js/login-validation.js';
 
@@ -458,9 +489,22 @@ add_filter('body_class', 'add_target_body_class');
 function add_enhanced_adobe_target()
 {
     ?>
-    <!-- Adobe Target at.js -->
-    <script src="https://my.calvaryftl.org/widgets/Content/at.js"></script>
     <script>
+        (function ensureAdobeTargetScript() {
+            const targetSrc = 'https://my.calvaryftl.org/widgets/Content/at.js';
+            const hasTargetObject = typeof window.adobe !== 'undefined' && window.adobe && window.adobe.target;
+            const hasExistingScript = !!document.querySelector('script[src="' + targetSrc + '"]');
+
+            if (hasTargetObject || hasExistingScript) {
+                return;
+            }
+
+            const script = document.createElement('script');
+            script.src = targetSrc;
+            script.async = true;
+            document.head.appendChild(script);
+        })();
+
         // Global Target configuration
         window.targetGlobalSettings = {
             timeout: 3000,
@@ -561,7 +605,13 @@ function add_comprehensive_personalization()
 {
     ?>
     <script>
+        window.__calvaryTargetPersonalizationInitialized = window.__calvaryTargetPersonalizationInitialized || false;
+
         document.addEventListener('DOMContentLoaded', function () {
+            if (window.__calvaryTargetPersonalizationInitialized) {
+                return;
+            }
+
             // Wait for Target initialization
             setTimeout(function () {
                 if (typeof adobe !== 'undefined' && adobe.target) {
@@ -571,6 +621,11 @@ function add_comprehensive_personalization()
         });
 
         function setupPersonalizationTargets() {
+            if (window.__calvaryTargetPersonalizationInitialized) {
+                return;
+            }
+            window.__calvaryTargetPersonalizationInitialized = true;
+
             console.log('🎨 Setting up personalization targets...');
 
             // 1. Hero Section Personalization
@@ -620,14 +675,22 @@ function add_comprehensive_personalization()
                             mbox: 'main-navigation',
                             offer: offer
                         });
+                    },
+                    error: function (status, error) {
+                        console.log('❌ Navigation personalization error:', status, error);
                     }
                 });
             }
         }
 
         function setupButtonPersonalization() {
+            const maxButtons = 8;
             const buttons = document.querySelectorAll('.et_pb_button');
             buttons.forEach(function (button, index) {
+                if (index >= maxButtons) {
+                    return;
+                }
+
                 const mboxName = 'cta-button-' + index;
                 button.setAttribute('data-mbox', mboxName);
 
@@ -639,6 +702,9 @@ function add_comprehensive_personalization()
                             mbox: mboxName,
                             offer: offer
                         });
+                    },
+                    error: function (status, error) {
+                        console.log('❌ Button ' + index + ' personalization error:', status, error);
                     }
                 });
             });
@@ -660,6 +726,9 @@ function add_comprehensive_personalization()
                                 mbox: mboxName,
                                 offer: offer
                             });
+                        },
+                        error: function (status, error) {
+                            console.log('❌ Content module ' + index + ' personalization error:', status, error);
                         }
                     });
                 }
@@ -700,35 +769,3 @@ function add_comprehensive_personalization()
 remove_action('wp_footer', 'add_simple_personalization');
 add_action('wp_footer', 'add_comprehensive_personalization');
 
-function juxtmarketing_smart_asset_versioning($src)
-{
-    $host = $_SERVER['HTTP_HOST'];
-
-    // Skip external/CDN files
-    if (strpos($src, $host) === false)
-        return $src;
-
-    $path = parse_url($src, PHP_URL_PATH);
-    $file = $_SERVER['DOCUMENT_ROOT'] . $path;
-
-    // Apply ONLY to:
-    // - Theme files
-    // - Uploads custom CSS/JS
-    if (
-        strpos($file, get_template_directory()) === false &&
-        strpos($file, get_stylesheet_directory()) === false &&
-        strpos($file, WP_CONTENT_DIR . '/uploads/custom-css-js') === false
-    ) {
-        return $src;
-    }
-
-    if (file_exists($file)) {
-        $src = remove_query_arg('ver', $src);
-        $src = add_query_arg('ver', filemtime($file), $src);
-    }
-
-    return $src;
-}
-
-add_filter('style_loader_src', 'juxtmarketing_smart_asset_versioning', 9999);
-add_filter('script_loader_src', 'juxtmarketing_smart_asset_versioning', 9999);
