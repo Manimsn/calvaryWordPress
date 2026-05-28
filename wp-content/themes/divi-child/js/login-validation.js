@@ -2846,7 +2846,7 @@ async function handleExPasswordLogin() {
             lastName: data.Last_Name || "",
           },
           success: function (offer) {
-            adobe.target.applyOffer({ offer: offer });
+            adobe.target.applyOffer({ mbox: "target-global-mbox", offer: offer });
             // console.log("🎯 Adobe Target personalization applied");
           },
           error: function (error) {
