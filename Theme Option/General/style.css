@@ -1,13 +1,15 @@
-
-input[value="Login"]{
-	display: none !important;
+body,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+a,
+div {
+  font-family: "Poppins", sans-serif;
 }
-
-
-body, h1, h2, h3, h4, h5, h6, p, a, div {
-  font-family: 'Poppins', sans-serif;
-}
-
 
 /* Baptism Certificate CSS */
 /* Custom styles for the baptism certificate buttons */
@@ -83,9 +85,8 @@ body, h1, h2, h3, h4, h5, h6, p, a, div {
 
 #menu-item-43013, /* My Account */
 #menu-item-43015, /* Logout */
-#menu-item-43014  /* Edit Profile */
-{
-	display: none;
+#menu-item-43014  /* Edit Profile */ {
+  display: none;
 }
 
 #mobile_menu2 {
@@ -275,7 +276,7 @@ ul.et_mobile_menu li.menu-item-has-children.dt-open > .mobile-toggle::after,
 }
 
 .et_pb_menu .et_pb_menu__menu > nav > ul > li > ul {
-  top: calc(180% - 1px);
+  top: calc(180% - 32px);
 }
 
 /* make sure parent is positioned so ::after can be placed */
@@ -379,6 +380,6 @@ ul#menu-mobile-main-menu.et-menu {
   }
 }
 
-.et-menu a{
-	transition: none !important;
+.et-menu a {
+  transition: none !important;
 }
