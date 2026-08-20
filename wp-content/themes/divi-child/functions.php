@@ -87,7 +87,7 @@ function juxtmarketing_smart_asset_versioning($src)
     // Apply only to theme files (important for performance)
     if (
         strpos($file, get_template_directory()) === false &&
-        strpos($file, get_stylesheet_directory()) === false
+        strpos($file, get_stylesheet_directory()) === false &&
         strpos($file, WP_CONTENT_DIR . '/uploads/custom-css-js') === false
     ) {
         return $src;
