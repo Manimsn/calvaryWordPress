@@ -1,3 +1,18 @@
+<!-- Google Tag Manager -->
+<script>
+  (function (w, d, s, l, i) {
+    w[l] = w[l] || [];
+    w[l].push({ "gtm.start": new Date().getTime(), event: "gtm.js" });
+    var f = d.getElementsByTagName(s)[0],
+      j = d.createElement(s),
+      dl = l != "dataLayer" ? "&l=" + l : "";
+    j.async = true;
+    j.src = "https://www.googletagmanager.com/gtm.js?id=" + i + dl;
+    f.parentNode.insertBefore(j, f);
+  })(window, document, "script", "dataLayer", "GTM-WHKLR5DP");
+</script>
+<!-- End Google Tag Manager -->
+
 <script>
   (function () {
     var HOST_SELECTOR = "mpp-event-details";
@@ -41,7 +56,9 @@
         ".mpp-innerpage--special-title{font-size:20px!important;font-weight:500!important;}" +
         "#registerAs,#firstName,#lastName,#emailAddress,#mobilePhone,#attendeeFirstName,#attendeeLastName,#attendeeDateOfBirth,#parentFirstName,#parentLastName,#parentEmailAddress,#parentMobilePhone{border-radius:100px!important;padding-left:28px!important; padding-top: 30px!important; }" +
         "label[for='registerAs'],label[for='firstName'],label[for='lastName'],label[for='emailAddress'],label[for='mobilePhone'],label[for='attendeeFirstName'],label[for='attendeeLastName'],label[for='attendeeDateOfBirth'],label[for='parentFirstName'],label[for='parentLastName'],label[for='parentEmailAddress'],label[for='parentMobilePhone']{padding-left:24px!important;}" +
-        "#addressFormWrapper,#updateMyInfoContainer{display:none!important;}" +
+        "#addressLine1,#addressLine2,#city,#stateRegion,#postalCode{border-radius:100px!important;padding-left:28px!important;padding-top:30px!important;}" +
+        "label[for='addressLine1'],label[for='addressLine2']{padding-left:24px!important;}" +
+        "#updateMyInfoContainer{display:none!important;}" +
         ".mppw-radio{border-radius:100px!important;}" +
         ".mppw-form-field_alt-control{border-radius:100px!important;}" +
         ".mppw-form-field_alt-control:has(input[type='radio']){border-radius:0!important;}" +
@@ -63,7 +80,8 @@
     function cameFromEventFinder() {
       var referrer = document.referrer || "";
       var fromReferrer = referrer.indexOf("/event-finder") !== -1;
-      var fromSession = sessionStorage.getItem("ccfl-from-event-finder") === "1";
+      var fromSession =
+        sessionStorage.getItem("ccfl-from-event-finder") === "1";
       return fromReferrer || fromSession;
     }
 
@@ -380,7 +398,9 @@
 
       var monthEl = headline.querySelector(".ccfl-event-date-month");
       var dayEl = headline.querySelector(".ccfl-event-date-day");
-      var locationCapsuleEl = section.querySelector(".ccfl-event-location-capsule");
+      var locationCapsuleEl = section.querySelector(
+        ".ccfl-event-location-capsule",
+      );
       var compactTimeEl = section.querySelector(".ccfl-event-compact-time");
       var titleWrapEl = headline.querySelector(".ccfl-event-title-wrap");
       var locationInfo = getLocationInfo(root);
@@ -567,7 +587,11 @@
     }
 
     // Reload group detail page after login so the form becomes visible
-    if (token && window.isLoginFlowCompleted && window.location.pathname.includes("/group-detail-page/")) {
+    if (
+      token &&
+      window.isLoginFlowCompleted &&
+      window.location.pathname.includes("/group-detail-page/")
+    ) {
       window.location.reload();
     }
   });
@@ -1157,7 +1181,8 @@
 
       var style = document.createElement("style");
       style.id = GROUP_STYLE_ID;
-      style.textContent = "label#signUpTab, label.mpp-form--tab.hide-tab{display:none!important;}";
+      style.textContent =
+        "label#signUpTab, label.mpp-form--tab.hide-tab{display:none!important;}";
       root.appendChild(style);
     }
 
